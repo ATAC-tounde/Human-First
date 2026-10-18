@@ -74,3 +74,15 @@ Respect du droit à l'erreur, accès direct à l'explication, pas de système de
 ## Évolutions V0.2
 
 Choix de langue FR/EN sur l’accueil, contenus traduits, indices révélés côté serveur étape par étape, fiche de réflexion imprimable. Voir [docs/CHANGELOG_V0.2.md](docs/CHANGELOG_V0.2.md). Aucune production n’est déployée.
+
+### Recette visuelle locale facultative
+
+Si Python est installé :
+
+```powershell
+python -m pip install playwright
+python -m playwright install chromium
+python tests/visual_smoke.py
+```
+
+Captures dans `artifacts/visual/` (non versionnées). La recette visuelle doit être faite **sur la machine du testeur**. Pour Windows, aucun chemin `/mnt/data` ni `/usr/bin/chromium` n'est nécessaire.
