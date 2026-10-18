@@ -25,7 +25,7 @@ async function guarded(action, errorId='workspace-error') {
   locked=true;
   errorIn(errorId);
   try {await action();}
-  catch(e){errorIn(errorId,e.message || 'Une erreur est survenue.');}
+  catch(e){errorIn(errorId,e.message || w('generalError'));}
   finally{locked=false;}
 }
 function createCard(ex,index) {
