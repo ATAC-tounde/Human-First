@@ -57,6 +57,9 @@ test('parcours complet : essai, 3 indices, explication, transfert, bilan',async(
   const started=await start();const session=started.cookie;
   assert.equal(started.body.stage,'training');assert.ok(started.body.training.prompt);
   assert.ok(!JSON.stringify(started.body).includes('Après l’ouverture d’une bibliothèque'));
+  assert.equal(started.body.revealedHints.length,0);
+  assert.equal(started.body.training.hints,undefined);
+  assert.equal(started.body.training.guide,undefined);
   const forbidden=await request('/api/session/transfer',{method:'POST',session,data:{}});
   assert.equal(forbidden.status,409);
   const beforeAttempt=await request('/api/session/hint',{method:'POST',session,data:{}});
@@ -66,7 +69,7 @@ test('parcours complet : essai, 3 indices, explication, transfert, bilan',async(
   const labels=[];
   for(let i=1;i<=3;i++){
     const hint=await request('/api/session/hint',{method:'POST',session,data:{}});
-    assert.equal(hint.status,200);assert.equal(hint.body.level,i);labels.push(hint.body.hint);
+    assert.equal(hint.status,200);assert.equal(hint.body.hintsUsed,i);assert.equal(hint.body.revealedHints.length,i);labels.push(hint.body.revealedHints.at(-1));
   }
   assert.equal(new Set(labels).size,3);
   const exhausted=await request('/api/session/hint',{method:'POST',session,data:{}});assert.equal(exhausted.status,409);
@@ -75,6 +78,7 @@ test('parcours complet : essai, 3 indices, explication, transfert, bilan',async(
   assert.ok(explanation.body.explanation.includes('relation causale'));
   const transfer=await request('/api/session/transfer',{method:'POST',session,data:{}});
   assert.equal(transfer.status,200);assert.equal(transfer.body.stage,'transfer');
+  assert.equal(transfer.body.revealedHints,undefined);
   assert.ok(transfer.body.transfer.includes('bibliothèque'));
   for (const leak of ['review','example','explication','explanation','solution']) assert.ok(!(leak in transfer.body),`Fuite d'une propriété ${leak}`);
   assert.ok(!JSON.stringify(transfer.body).includes('villes similaires'));
@@ -118,4 +122,40 @@ test('session différente ne donne pas les réponses de l’autre',async()=>{
   const unrelated=await request('/api/session',{session:b.cookie});
   assert.equal(unrelated.body.stage,'training');assert.equal(unrelated.body.exercise.id,'deduction');
   assert.ok(!('explanation' in unrelated.body));
+});
+
+test('catalogue bilingue : contenu EN distinct, secrets jamais exposés',async()=>{
+  const r=await request('/api/catalog?lang=en');
+  assert.equal(r.status,200);assert.equal(r.body.locale,'en');
+  assert.equal(r.body.exercises[0].title,'Cause or coincidence?');
+  assert.ok(!JSON.stringify(r.body).includes('After a library opens'));
+  const fallback=await request('/api/catalog?lang=de');assert.equal(fallback.body.locale,'fr');
+});
+test('parcours en anglais : traduction constante, indices gradués, transfert secret',async()=>{
+  const opened=await request('/api/session/start',{method:'POST',data:{exerciseId:'causalite',locale:'en',adult:true}});
+  assert.equal(opened.status,200);const session=opened.cookie;
+  assert.equal(opened.body.locale,'en');
+  assert.ok(opened.body.training.prompt.includes('study spaces'));
+  assert.ok(!JSON.stringify(opened.body).includes('Imagine that something else changed'));
+  const start=await request('/api/session/attempt',{method:'POST',session,data:{answer:'Maybe other factors changed.'}});
+  assert.equal(start.status,200);
+  let h=await request('/api/session/hint',{method:'POST',session,data:{}});
+  assert.equal(h.status,200);assert.equal(h.body.revealedHints.length,1);
+  assert.ok(h.body.revealedHints[0].includes('correlation'));
+  assert.ok(!JSON.stringify(h.body).includes('Which comparison group'));
+  h=await request('/api/session/hint',{method:'POST',session,data:{}});
+  assert.equal(h.body.revealedHints.length,2);
+  const resume=await request('/api/session',{session});
+  assert.equal(resume.body.locale,'en');assert.equal(resume.body.revealedHints.length,2);
+  await request('/api/session/explanation',{method:'POST',session,data:{}});
+  const transfer=await request('/api/session/transfer',{method:'POST',session,data:{}});
+  assert.ok(transfer.body.transfer.startsWith('After a library opens'));
+  assert.ok(!JSON.stringify(transfer.body).includes('similar towns'));
+  const final=await request('/api/session/answer',{method:'POST',session,data:{answer:'No proof of causation.'}});
+  assert.ok(final.body.reflection.example.includes('cannot conclude'));
+});
+test('mode anglais : aucune fuite par la route front-end non publique',async()=>{
+  const r=await fetch(base+'/i18n.js');assert.equal(r.status,200);
+  const txt=await r.text();assert.ok(txt.includes('Your turn to think'));
+  const unserved=await fetch(base+'/server/catalog.en.mjs');assert.equal(unserved.status,404);
 });
