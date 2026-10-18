@@ -1,4 +1,4 @@
-# HUMAN FIRST / THINK FIRST 0.1 — Journal de reprise
+# HUMAN FIRST / THINK FIRST 0.2 — Journal de reprise
 
 ## Références
 - HUMAN_FIRST_Document_Fondateur_V0.1 (18/10/2026).
@@ -17,7 +17,7 @@
 | TF-FR-01 | Démonstration | Contrôle déclaratif 18+, pas de procédure de recherche |
 | TF-FR-02 | Démonstration | Session temporaire sans compte |
 | TF-FR-03 | Non développé | Étude scientifique désactivée |
-| TF-FR-04 | Partiel | UI française uniquement, prévoir i18n |
+| TF-FR-04 | Démonstration | FR/EN disponibles ; traduction non validée par les experts |
 | TF-FR-05 | Partiel | 3 contenus de démo NON approuvés |
 | TF-FR-06 | Démonstration | Tentative ou passage |
 | TF-FR-07 | Démonstration | 3 niveaux prédéfinis |
@@ -39,3 +39,10 @@
 5. Tester l'équivalence des formes A/B/C et la non-divulgation des corrections.
 6. Valider l'accessibilité clavier, mobile, zoom et lecteur d'écran avec des utilisateurs.
 7. N'ouvrir le recrutement des adultes qu'après avoir franchi les portes de recette prévues par la spécification.
+
+## V0.2 (19/10/2026)
+
+- Sélecteur FR/EN et contenus pédagogiques localisés.
+- Indices cachés côté serveur jusqu’à la demande ; transferts sans fuite de grille ni d’indices.
+- Bilan imprimable avec réponse et grille de réflexion qualitative, sans score.
+- Recette locale/visuelle humaine requise avant fusion dans `main`.
