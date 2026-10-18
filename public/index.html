@@ -22,7 +22,8 @@
       <nav class="nav" aria-label="Navigation principale">
         <a href="#method" id="nav-method">Notre méthode</a>
         <a href="#ethics" id="nav-ethics">Nos engagements</a>
-        <span class="nav-edition">PROTOTYPE <strong>0.1</strong></span>
+        <button type="button" id="language-switch" class="language-switch" aria-label="Switch to English">EN</button>
+        <span class="nav-edition">PROTOTYPE <strong>0.2</strong></span>
       </nav>
     </header>
 
@@ -106,12 +107,13 @@
               <div class="action-row"><button class="button button-solid" id="submit-transfer">Voir mon bilan <span aria-hidden="true">↗</span></button><button class="button button-line" id="skip-transfer">Passer sans répondre</button></div>
             </div>
             <div id="finished-view" hidden>
+              <div class="review-box"><span class="prompt-label" id="finished-question-label">LE PROBLÈME SANS AIDE</span><p id="finished-question"></p><span class="prompt-label" id="finished-own-label">MA RÉPONSE</span><p id="finished-own-answer"></p></div>
               <p class="result-intro">Merci d'avoir pris le temps de réfléchir. Voici une grille pour relire ta démarche, pas une note automatique.</p>
               <div class="review-box"><span class="prompt-label">QUESTIONS POUR T’AUTO-ÉVALUER</span><ul id="review-items"></ul></div>
               <div class="answer-box"><span class="prompt-label">EXEMPLE DE RAISONNEMENT POSSIBLE</span><p id="sample-answer"></p></div>
               <p id="session-summary" class="field-hint"></p>
               <div class="offscreen-box"><span aria-hidden="true">↗</span><div><strong>Et maintenant, loin de l'écran ?</strong><p>Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
-              <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true">↗</span></button></div>
+              <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true">↗</span></button><button class="button button-line" id="print-button" type="button">Imprimer ma fiche de réflexion</button></div>
             </div>
             <p id="workspace-error" class="form-error" role="alert" hidden></p>
           </div>
