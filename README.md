@@ -1,8 +1,8 @@
-# HUMAN FIRST — THINK FIRST 0.1
+# HUMAN FIRST — THINK FIRST 0.2
 
 > **Avant la réponse, ta réflexion.** Prototype web pédagogique indépendant — aucun compte, aucune publicité, aucune API d'IA et aucune collecte scientifique.
 
-Cette application illustre le parcours **tenter → indice(s) → explication → transfert sans aide → bilan qualitatif** prévu dans la spécification fonctionnelle et scientifique V0.1 du 18 octobre 2026.
+Cette application illustre le parcours **tenter → indice(s) → explication → transfert sans aide → bilan qualitatif** prévu dans la spécification fonctionnelle et scientifique V0.2 du 18 octobre 2026.
 
 ## Démarrage (Windows, macOS, Linux)
 
@@ -25,15 +25,15 @@ npm start
 ## Fonctionnalités du lot B01–B02 et début B04
 
 - Accueil mobile-first, interface en français, mission et limites clairement affichées.
-- Trois exercices **de démonstration non validés pour la recherche** : causalité, logique, moyenne.
+- Trois exercices **de démonstration non validés pour la recherche** : causalité, logique, moyenne ; traductions EN disponibles.
 - Démarrage 18+ et sans compte ; bouton « Quitter » à tout moment.
 - Tentative libre ou passage volontaire.
-- Question de guidage et deux indices, puis explication directe toujours accessible.
+- Question de guidage et deux indices, révélés progressivement par le serveur ; explication directe toujours accessible.
 - Transfert sur un item distinct, sans accès serveur à ses solutions avant soumission.
 - Bilan qualitatif et activité hors écran ; aucune note psychométrique.
-- Données temporaires dans la mémoire du processus serveur, expirant en deux heures ou supprimées à la sortie.
-- Aucun fournisseur IA externe ; les indices sont prédéfinis et accessibles même si le réseau tombe après le chargement de l'exercice.
-- Tests automatisés sur transitions, fuite d'énoncés/corrections, droits de session et en-têtes de sécurité.
+- Données temporaires en mémoire serveur, expirant en deux heures ou supprimées à la sortie. Choix de langue dans l’URL (FR/EN).
+- Aucun fournisseur IA externe ; les indices sont prédéfinis et nécessitent une connexion lors de leur révélation.
+- Tests automatisés sur transitions, secrets non divulgués, langue, droits de session et en-têtes de sécurité.
 
 ## Ce qui n'est **pas** prêt
 
@@ -69,4 +69,8 @@ docs/            Correspondance avec la spécification et étapes futures
 
 Respect du droit à l'erreur, accès direct à l'explication, pas de système de rétention, pas de notation de QI, pas de diagnostic de dépendance, pas de profils d'élèves, pas d'affirmation scientifique non démontrée.
 
-**Statut : prototype exécutable V0.1 — démonstration adulte, non qualifié pour étude ni commercialisation.**
+**Statut : prototype exécutable V0.2 — démonstration adulte, non qualifié pour étude ni commercialisation.**
+
+## Évolutions V0.2
+
+Choix de langue FR/EN sur l’accueil, contenus traduits, indices révélés côté serveur étape par étape, fiche de réflexion imprimable. Voir [docs/CHANGELOG_V0.2.md](docs/CHANGELOG_V0.2.md). Aucune production n’est déployée.
