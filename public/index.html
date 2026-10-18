@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5ef">
+  <meta name="description" content="THINK FIRST : apprendre à raisonner avant de demander une réponse. Prototype indépendant de HUMAN FIRST.">
+  <title>THINK FIRST — HUMAN FIRST</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" type="module" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="/" id="brand-link" aria-label="HUMAN FIRST, retour à l’accueil">
+        <span class="brand-mark" aria-hidden="true"><span>H</span><span>F</span></span>
+        <span class="brand-text">HUMAN <b>FIRST</b><small>INITIATIVE INDÉPENDANTE</small></span>
+      </a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="#method" id="nav-method">Notre méthode</a>
+        <a href="#ethics" id="nav-ethics">Nos engagements</a>
+        <span class="nav-edition">PROTOTYPE <strong>0.1</strong></span>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section id="home" class="home-section" aria-labelledby="hero-title">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="little-star" aria-hidden="true">✳</span> UNE AUTRE IDÉE DE L’INTELLIGENCE ARTIFICIELLE</p>
+            <h1 id="hero-title">Avant la réponse,<br><em>ta réflexion.</em></h1>
+            <p class="hero-intro">Et si la meilleure IA était celle qui t’aidait à penser <strong>par toi-même</strong> ? Découvre une nouvelle manière d’apprendre : essayer d’abord, comprendre ensuite.</p>
+            <div class="hero-actions">
+              <a class="button button-solid" href="#exercises" id="discover-button">Choisir un défi <span aria-hidden="true">↗</span></a>
+              <a class="button button-ghost" href="#method">Découvrir la méthode <span aria-hidden="true">↓</span></a>
+            </div>
+            <div class="hero-notes"><span><span class="tick">✓</span> Sans compte</span><span><span class="tick">✓</span> Sans publicité</span><span><span class="tick">✓</span> Gratuit</span></div>
+          </div>
+          <div class="hero-art" aria-label="Illustration abstraite représentant une idée au centre de plusieurs pistes de réflexion" role="img">
+            <div class="art-caption art-caption-top">CURIOSITÉ <span>→</span> AUTONOMIE</div>
+            <div class="circle circle-a"></div><div class="circle circle-b"></div><div class="circle circle-c"></div>
+            <div class="art-satellite satellite-a">?</div><div class="art-satellite satellite-b">!</div><div class="art-satellite satellite-c">↗</div>
+            <div class="center-disc"><div class="center-core"><span>JE</span><strong>PENSE</strong></div></div>
+            <div class="art-caption art-caption-bottom"><span>01 / 03</span> LA PENSÉE EN MOUVEMENT</div>
+          </div>
+        </div>
+
+        <section class="challenge-section" id="exercises" aria-labelledby="challenge-title">
+          <div class="section-heading">
+            <div><p class="eyebrow muted">COMMENCER ICI</p><h2 id="challenge-title">Un petit défi.<br><em>Une grande différence.</em></h2></div>
+            <p>Choisis un exercice et avance à ton rythme. Aucun score public, aucune compétition : juste le plaisir de chercher.</p>
+          </div>
+          <div id="exercise-grid" class="exercise-grid" aria-live="polite"><p>Chargement des défis…</p></div>
+          <div class="age-bar">
+            <label class="age-check"><input type="checkbox" id="adult-check"><span>Je confirme avoir 18 ans ou plus.</span></label>
+            <span class="age-note">Cette démonstration est réservée aux adultes. Aucun renseignement d'identité n'est demandé.</span>
+          </div>
+          <p id="home-error" class="form-error" role="alert" hidden></p>
+        </section>
+
+        <section class="method-section" id="method" aria-labelledby="method-title">
+          <div class="section-heading narrow"><div><p class="eyebrow muted">LE CŒUR DE LA MÉTHODE</p><h2 id="method-title">La réponse n'est<br><em>pas le départ.</em></h2></div></div>
+          <div class="method-grid">
+            <article><span class="step-count">01 <span class="thin-rule"></span></span><div class="method-symbol">✎</div><h3>Tu essaies</h3><p>Tu poses tes idées, même imparfaites. Tu peux aussi passer si tu préfères.</p></article>
+            <article><span class="step-count">02 <span class="thin-rule"></span></span><div class="method-symbol">✳</div><h3>On te guide</h3><p>Des questions et des indices t’aident, sans te donner immédiatement la solution.</p></article>
+            <article><span class="step-count">03 <span class="thin-rule"></span></span><div class="method-symbol">↗</div><h3>Tu vérifies</h3><p>Tu appliques ce que tu as compris sur un autre problème, sans aide.</p></article>
+          </div>
+        </section>
+
+        <section class="ethics-banner" id="ethics" aria-labelledby="ethics-title"><div class="ethics-decoration" aria-hidden="true">✳</div><div><p class="eyebrow light">NOTRE ENGAGEMENT</p><h2 id="ethics-title">Le succès, c’est ce que tu sais faire<br><em>quand tu fermes l’application.</em></h2><p>Pas de classement, pas de séries à entretenir, pas d’incitation à rester connecté. Ce prototype ne mesure ni le QI, ni une addiction, ni une amélioration cognitive prouvée.</p></div></section>
+      </section>
+
+      <section id="workspace" class="workspace" hidden aria-labelledby="workspace-title">
+        <div class="workspace-head"><button id="quit-button" class="back-link" type="button">← Quitter l’exercice</button><span class="phase-label" id="phase-label">ÉTAPE 1 SUR 4</span></div>
+        <div class="workspace-progress" role="progressbar" aria-label="Progression dans la séance" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span id="progress-fill"></span></div>
+        <div class="workspace-layout">
+          <div class="workspace-content">
+            <p id="topic" class="eyebrow muted">RAISONNEMENT</p>
+            <h1 id="workspace-title" class="workspace-title">À toi de réfléchir.</h1>
+            <p id="workspace-lead" class="workspace-lead"></p>
+            <div id="prompt-card" class="prompt-card" hidden><span class="prompt-label">LE DÉFI</span><p id="prompt-text"></p></div>
+            <div id="training-view" hidden>
+              <label for="attempt" class="field-label">Ton raisonnement (même incomplet)</label>
+              <textarea id="attempt" maxlength="2000" rows="5" placeholder="J'aurais tendance à penser que… car…"></textarea>
+              <p class="field-hint">Aucune bonne note à obtenir. L’important est d’essayer.</p>
+              <div class="action-row"><button class="button button-solid" id="attempt-button">Valider ma tentative <span aria-hidden="true">↗</span></button><button class="button button-line" id="skip-button">Je ne sais pas / passer</button></div>
+            </div>
+            <div id="coaching-view" hidden>
+              <div class="attempt-recap" id="attempt-recap"></div>
+              <div id="hint-list" class="hint-list" aria-live="polite"></div>
+              <div class="action-row"><button class="button button-solid" id="hint-button">Recevoir un indice <span aria-hidden="true">↗</span></button><button class="button button-line" id="explanation-button">Voir l’explication</button></div>
+            </div>
+            <div id="direct-access" class="direct-access" hidden><button id="direct-button" class="text-button">Accéder directement à l'explication ↗</button></div>
+            <div id="explanation-view" hidden>
+              <article class="explanation-card"><span class="prompt-label">EXPLICATION DE RÉFÉRENCE</span><p id="explanation-text"></p></article>
+              <p class="compassion-note">Tu peux relire cette explication autant que nécessaire. Ce n’est pas une compétition.</p>
+              <button id="transfer-button" class="button button-solid">Essayer un autre problème sans aide <span aria-hidden="true">↗</span></button>
+            </div>
+            <div id="transfer-view" hidden>
+              <label for="transfer-answer" class="field-label">Ta réponse autonome</label>
+              <textarea id="transfer-answer" rows="5" maxlength="2000" placeholder="J'en conclus que… parce que…"></textarea>
+              <p class="field-hint">Pas d'indice sur cette étape. Tu peux passer si tu bloques.</p>
+              <div class="action-row"><button class="button button-solid" id="submit-transfer">Voir mon bilan <span aria-hidden="true">↗</span></button><button class="button button-line" id="skip-transfer">Passer sans répondre</button></div>
+            </div>
+            <div id="finished-view" hidden>
+              <p class="result-intro">Merci d'avoir pris le temps de réfléchir. Voici une grille pour relire ta démarche, pas une note automatique.</p>
+              <div class="review-box"><span class="prompt-label">QUESTIONS POUR T’AUTO-ÉVALUER</span><ul id="review-items"></ul></div>
+              <div class="answer-box"><span class="prompt-label">EXEMPLE DE RAISONNEMENT POSSIBLE</span><p id="sample-answer"></p></div>
+              <p id="session-summary" class="field-hint"></p>
+              <div class="offscreen-box"><span aria-hidden="true">↗</span><div><strong>Et maintenant, loin de l'écran ?</strong><p>Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
+              <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true">↗</span></button></div>
+            </div>
+            <p id="workspace-error" class="form-error" role="alert" hidden></p>
+          </div>
+          <aside class="workspace-aside"><div class="aside-symbol">✳</div><p class="eyebrow muted">UN RAPPEL IMPORTANT</p><h3>Le droit<br>de chercher.</h3><p>Une tentative imparfaite n'est pas un échec. C'est souvent le point de départ de la compréhension.</p><hr><p class="aside-small">Ce parcours est une démonstration pédagogique. Aucune mesure scientifique, aucune collecte pour la recherche.</p></aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="footer-brand">HUMAN <strong>FIRST</strong><span>Penser par soi-même, ensemble.</span></div><p>Démo expérimentale · 18+ · Sans compte · Aucun suivi analytique</p><p class="footer-right">Fait pour l'humain, pas pour le temps d'écran. <span>© 2026 HUMAN FIRST</span></p></footer>
+  </div>
+</body>
+</html>
