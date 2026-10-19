@@ -42,3 +42,16 @@
 .ai-panel #ai-result{font-size:15px;color:#275438;font-weight:650;white-space:pre-wrap;overflow-wrap:anywhere}
 #recall-finished-view,#recall-view{margin:22px 0}
 @media print{.ai-panel,.learning-panel,#recall-view,.path-buttons{display:none!important}}
+
+/* V0.4.1 - offscreen challenge cards, revealed only after completing a transfer or recall. */
+.offscreen-box{align-items:flex-start;break-inside:avoid}
+.offscreen-box>div{min-width:0;width:100%}
+.offscreen-box .eyebrow{font-size:10px;letter-spacing:1.3px;margin:0 0 9px}
+.offscreen-box h3{font:400 24px/1.3 Georgia,serif;color:var(--pine);margin:0}
+.offscreen-box ol{padding-left:19px;margin:16px 0;color:#446251;font-size:13px;line-height:1.85}
+.offscreen-box li{padding-left:3px;margin:7px 0}
+.offscreen-box .offscreen-check{font-weight:650;color:#2d5a43}
+@media print{
+ .offscreen-box{border:1px solid #b4c8b6;background:white!important;color:black!important;box-shadow:none}
+ .offscreen-box h3,.offscreen-box li,.offscreen-box p{color:black!important}
+}
