@@ -46,6 +46,12 @@
             <label class="form-group"><span data-text="paceTitle">Temps souhaité par semaine</span><select id="pace"><option value="30" data-text="pace30">30 minutes environ</option><option value="60" selected data-text="pace60">1 heure environ</option><option value="120" data-text="pace120">2 heures environ</option><option value="180" data-text="pace180">3 heures environ</option></select><small data-text="paceHelp">Simple repère facultatif, pas un chronomètre.</small></label>
             <label class="form-group full"><span data-text="pathTitle">Mon objectif d’apprentissage</span><select id="path" required></select><small id="path-help" aria-live="polite"></small></label>
           </div>
+          <div class="pack-import" role="group" aria-labelledby="pack-title">
+            <div><strong id="pack-title" data-text="packTitle">Ajouter un référentiel pédagogique</strong>
+              <p data-text="packHelp">Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.</p></div>
+            <label class="file-label" for="pack-file" data-text="packImport">Importer un pack JSON</label>
+            <input type="file" id="pack-file" accept="application/json,.json" aria-describedby="pack-title">
+          </div>
           <fieldset class="self-report" aria-labelledby="familiarity-heading"><legend id="familiarity-heading" data-text="familiarityTitle">Ce que je connais déjà (facultatif)</legend><p data-text="familiarityHelp">Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.</p><div id="familiarity-list" class="familiarity-list"></div></fieldset>
           <div class="controls"><button type="submit" class="primary" id="build" data-text="create">Créer mon parcours ↗</button><button type="button" id="clear" class="secondary" data-text="clear">Effacer cette séance</button></div>
           <p class="privacy" data-text="privacyNotice">Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.</p>
@@ -53,7 +59,7 @@
         </form>
       </section>
       <section class="result" id="result" hidden aria-labelledby="result-title">
-        <div class="result-header"><div><p class="eyebrow" data-text="resultEyebrow">PROGRAMME INDIVIDUEL · DÉMONSTRATION</p><h2 id="result-title" tabindex="-1"></h2><p id="program-summary"></p></div><div class="result-actions"><button class="secondary" type="button" id="export" data-text="export">Exporter mon portfolio JSON</button><label for="import" class="file-label" data-text="import">Importer un portfolio JSON</label><input type="file" id="import" accept="application/json,.json"><button type="button" class="secondary" id="reset-progress" data-text="resetProgress">Effacer les étapes déclarées</button></div></div>
+        <div class="result-header"><div><p class="eyebrow" data-text="resultEyebrow">PROGRAMME INDIVIDUEL · DÉMONSTRATION</p><h2 id="result-title"></h2><p id="program-summary"></p></div><div class="result-actions"><button class="secondary" type="button" id="export" data-text="export">Exporter mon portfolio JSON</button><label for="import" class="file-label" data-text="import">Importer un portfolio JSON</label><input type="file" id="import" accept="application/json,.json"><button type="button" class="secondary" id="reset-progress" data-text="resetProgress">Effacer les étapes déclarées</button></div></div>
         <p class="disclaimer" id="disclaimer" role="note"></p>
         <div class="program-stats"><span id="program-count"></span><span id="program-estimate"></span></div>
         <ol id="program-list" class="program-list"></ol>

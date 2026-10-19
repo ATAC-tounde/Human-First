@@ -81,7 +81,7 @@ test('V0.8: deterministic prerequisite ordering and stage context without forced
  assert.deepEqual(first,second);
  assert.equal(first.plan.at(-1).skillId,'work.explain');
  const ids=first.plan.map(x=>x.skillId);
- first.plan.forEach(item=>item.requires.forEach(dep=>assert.ok(ids.indexOf(dep)<ids.indexOf(item.skillId))));
+ first.plan.forEach(item=>item.requires.forEach(dep=>assert.ok(ids.indexOf(dep)<ids.indexOf(item))));
  assert.ok(first.plan.find(x=>x.skillId==='work.requirements').context);
  const student=buildJourney(registry,{...user,pathId:'study.learning',stage:'higher-education',locale:'en'});
  assert.equal(student.pathway.id,'study.learning');
@@ -143,4 +143,14 @@ test('V0.8: all four pillar apps link to the voluntary journey',async()=>{
    const r=await fetch(origin+path);assert.equal(r.status,200,path);
    const page=await r.text();assert.ok(page.includes('/journey?lang='),path);
  }
+});
+
+test('V0.8: a content author can load a declarative JSON pack without executable plug-ins',async()=>{
+ const page=await (await fetch(origin+'/journey')).text();
+ const sourceText=await readFile(source,'utf8');
+ assert.ok(page.includes('id="pack-file"'));
+ assert.ok(sourceText.includes("JSON.parse(await file.text())"));
+ assert.ok(sourceText.includes('createRegistry([...installedPacks,...importedPacks,parsed])'));
+ assert.ok(!sourceText.includes('eval('));
+ assert.ok(!sourceText.includes('new Function('));
 });

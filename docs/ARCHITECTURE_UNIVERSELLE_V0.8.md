@@ -124,3 +124,9 @@ Lancer `npm run check`, puis `npm start` et ouvrir `/journey`. Valider les 4 pil
 ### Non-régressions
 
 Les 20 exercices THINK, les 6 activités FOCUS, les 6 leçons LEARN et les 7 ateliers DECIDE ne sont pas modifiés par les nouvelles règles. Une PR depuis le `main` actuel, isolée et testée, est impérative avant fusion.
+
+## 8. Extension immédiate sans recompilation du moteur
+
+La page `/journey` possède une commande **Importer un pack JSON** : un concepteur peut charger localement un référentiel supplémentaire conforme au contrat, sans copier de code JavaScript. Le navigateur analyse uniquement du JSON (maximum 150 ko pour le prototype), rejette doublons, prérequis absents, cycles et traductions incomplètes, puis l'ajoute au registre actif pour **cet onglet seulement**. Aucun pack utilisateur n'est exécuté, envoyé au serveur ou publié aux autres utilisateurs. Les packs importés sont explicitement indiqués comme **non certifiés / non approuvés pédagogiquement** ; une future plateforme devra ajouter revue humaine, provenance et validation de licences avant partage.
+
+La fermeture/recharge de la page efface les packs chargés localement. Lorsqu'un portfolio exporté dépend d'un pack tiers, il faut **réimporter ce même référentiel** avant le portfolio. Le mécanisme de distribution/validation et de migration des extensions fait partie de la roadmap V0.9 / V1.0, pas de ce démonstrateur.

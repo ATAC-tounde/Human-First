@@ -3,7 +3,8 @@ import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortf
 
 // Entire learner profile, self-report and progress remain in this document's memory.
 // No fetch(), analytics, AI call, cookie, localStorage or sessionStorage for these fields.
-const registry=createRegistry(installedPacks);
+let registry=createRegistry(installedPacks);
+const importedPacks=[];
 const $=id=>document.getElementById(id);
 let locale=new URLSearchParams(location.search).get('lang')==='en'?'en':'fr';
 let program=null;
@@ -13,6 +14,7 @@ const words={
 fr:{
  skip:'Aller au contenu',journeyNav:'PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V0.8',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
  noScore:'✓ Sans notation automatisée',noAccount:'✓ Sans compte',portable:'✓ Exportable et modifiable',foundationTitle:'L’IDÉE CENTRALE',foundationHeading:'Des compétences, pas des cases.',foundationCopy:'Aucun métier, diplôme, pays ou domaine n’est intégré en dur au moteur. De nouveaux référentiels s’ajoutent comme modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.',
+ packTitle:'Ajouter un référentiel pédagogique',packHelp:'Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.',packImport:'Importer un pack JSON',packAdded:'Référentiel importé dans cet onglet. Contenu non certifié : contrôle pédagogique nécessaire.',packFailed:'Référentiel refusé : ',
  builderEyebrow:'ATELIER DE PARCOURS',builderTitle:'Construire mon programme',adultTitle:'Accès au prototype',adultNotice:'Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.',stageTitle:'Ma situation actuelle',stagePersonal:'Apprendre par intérêt personnel',stageSchool:'Reprise d’études à l’âge adulte',stageHigher:'Études supérieures',stageWork:'Vie professionnelle',stageTransition:'Reconversion / transition',stageTeaching:'Enseignement / formation',ageTitle:'Tranche d’âge (facultatif)',ageUnspecified:'Je préfère ne pas préciser',ageHelp:'Jamais utilisée pour déduire tes capacités.',qualificationTitle:'Études / diplôme (facultatif)',qualificationHelp:'Description libre, non utilisée comme classement.',occupationTitle:'Métier / domaine (facultatif)',occupationHelp:'Pour préciser ton contexte, sans limiter les choix.',paceTitle:'Temps souhaité par semaine',pace30:'30 minutes environ',pace60:'1 heure environ',pace120:'2 heures environ',pace180:'3 heures environ',paceHelp:'Simple repère facultatif, pas un chronomètre.',pathTitle:'Mon objectif d’apprentissage',familiarityTitle:'Ce que je connais déjà (facultatif)',familiarityHelp:'Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.',create:'Créer mon parcours ↗',clear:'Effacer cette séance',privacyNotice:'Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.',
  resultEyebrow:'PROGRAMME INDIVIDUEL · DÉMONSTRATION',export:'Exporter mon portfolio JSON',import:'Importer un portfolio JSON',resetProgress:'Effacer les étapes déclarées',exitTitle:'La suite t’appartient.',exitDescription:'Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.',portabilityEyebrow:'TU RESTES PROPRIÉTAIRE DU PARCOURS',portabilityTitle:'Tu peux repartir avec tes données.',portabilityText:'Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.',importHome:'Reprendre un portfolio exporté',footer:'18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.',
  stats:(p,c,g)=>`${p} modules · ${c} compétences · ${g} parcours`,
@@ -27,6 +29,7 @@ fr:{
 en:{
  skip:'Skip to content',journeyNav:'JOURNEY',eyebrow:'THE LEARNING KERNEL · V0.8',heroOne:'A pathway shaped by you.',heroTwo:'Free to change as you grow.',heroLead:'Your goals change throughout life. Skills and four pillars can evolve with you, without reducing your potential to an age or a degree.',
  noScore:'✓ No automatic grading',noAccount:'✓ No account',portable:'✓ Portable and editable',foundationTitle:'THE CORE IDEA',foundationHeading:'Competencies, not labels.',foundationCopy:'No occupation, degree, country or field is hard-coded into the engine. New versioned content packs can add explicit prerequisites and activities across the four pillars.',
+ packTitle:'Add a learning content pack',packHelp:'Import a declarative JSON pack from your device: it will be validated, used in this tab only, and never automatically published.',packImport:'Import a JSON pack',packAdded:'Pack available in this tab. Not certified: educational review required.',packFailed:'Pack rejected: ',
  builderEyebrow:'JOURNEY WORKSHOP',builderTitle:'Build my learning program',adultTitle:'Demo access',adultNotice:'I confirm that I am 18 or older. Learning paths for minors need additional safeguards.',stageTitle:'My current situation',stagePersonal:'Personal learning',stageSchool:'Returning to education as an adult',stageHigher:'Higher education',stageWork:'Professional life',stageTransition:'Career change / transition',stageTeaching:'Teaching / training',ageTitle:'Age band (optional)',ageUnspecified:'Prefer not to say',ageHelp:'Never used to infer your ability.',qualificationTitle:'Education / qualification (optional)',qualificationHelp:'Free description, not used as a ranking.',occupationTitle:'Occupation / field (optional)',occupationHelp:'Adds context without limiting your choices.',paceTitle:'Preferred time per week',pace30:'About 30 minutes',pace60:'About 1 hour',pace120:'About 2 hours',pace180:'About 3 hours',paceHelp:'Only a guide; never an enforced timer.',pathTitle:'My learning goal',familiarityTitle:'What I already know (optional)',familiarityHelp:'Self-description only, not a diagnostic or certificate. Every competency remains open.',create:'Create my pathway ↗',clear:'Erase this session',privacyNotice:'Your entries remain in this tab only. No profile is sent to a server. You can explicitly export a JSON file to return later.',
  resultEyebrow:'PERSONAL PROGRAM · DEMONSTRATION',export:'Export my JSON portfolio',import:'Import a JSON portfolio',resetProgress:'Erase self-reported steps',exitTitle:'The next step is yours.',exitDescription:'Explore the skills through THINK, FOCUS, LEARN and DECIDE. Stop whenever you want or change your pathway freely.',portabilityEyebrow:'YOU CONTROL YOUR PATHWAY',portabilityTitle:'Your data can travel with you.',portabilityText:'No account needed. Your exported portfolio contains your chosen context and self-reported steps, never free-text answers or rankings of ability. Keep your file private.',importHome:'Continue from an exported portfolio',footer:'18+ · Demonstration · No intelligence measurement · Think first. AI second.',
  stats:(p,c,g)=>`${p} packs · ${c} competencies · ${g} pathways`,
@@ -153,7 +156,7 @@ function renderProgram(){
   li.append(progress);list.append(li);
  });
 }
-function resetAll(){program=null;events=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
+function resetAll(){registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
@@ -179,7 +182,27 @@ async function loadFile(input){
    $('result').scrollIntoView({behavior:'auto',block:'start'});
  }catch(e){message(w('importError')+e.message);$('form-status').scrollIntoView({block:'nearest'});}
 }
+async function loadPack(input) {
+ const file=input.files?.[0];input.value='';if(!file)return;
+ try {
+   if(file.size>150_000)throw new TypeError('Pack must be under 150 kB');
+   let parsed;
+   try{parsed=JSON.parse(await file.text());}catch{throw new TypeError('Invalid JSON pack');}
+   // JSON only: never execute imported scripts or import arbitrary JavaScript URLs.
+   const next=createRegistry([...installedPacks,...importedPacks,parsed]);
+   importedPacks.push(parsed);registry=next;
+   const oldProfile=program?.generatedFor;
+   renderLocale();
+   if(oldProfile&&registry.paths.has(oldProfile.pathId)){
+     program=buildJourney(registry,oldProfile);
+     events=events.filter(item=>registry.skills.has(item.skillId));
+     renderProgram();
+   }
+   message(w('packAdded'));
+ }catch(error){message(w('packFailed')+error.message);}
+}
 $('profile-form').addEventListener('submit',e=>{e.preventDefault();generate();});
+$('pack-file').addEventListener('change',e=>loadPack(e.target));
 $('path').addEventListener('change',()=>{$('path-help').textContent=local(registry.paths.get($('path').value).summary);renderFamiliarity();});
 $('stage').addEventListener('change',renderPathways);
 $('clear').addEventListener('click',resetAll);
