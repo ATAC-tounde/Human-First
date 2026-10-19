@@ -115,3 +115,11 @@ npm start
 ```
 
 Contrôler particulièrement les neuf cartes en FR/EN, l'absence de correction avant le transfert, la conservation de la session en Preview, le refus des étapes hors séquence, les calculs de l'exercice « pourcentages » et la navigation clavier/mobile. `tests/pedagogy.test.mjs` vérifie la complétude et la non-divulgation des contenus : exécuter les tests ne remplace pas une revue pédagogique indépendante.
+
+## V0.3.1 / V0.3.2 / V0.4-alpha — Trois nouveaux axes (branche de démonstration)
+- **Progression libre** : quatre parcours (raisonnement, données, apprentissage, décision), niveaux éditoriaux indicatifs, suggestion optionnelle du prochain défi ; aucun score ni exercice verrouillé.
+- **Restitution différée** : révision sans indice à J+1, puis possibilité d'une autre à J+7. Opt-in explicite dans l'interface. Seules les dates et identifiants d'exercice sont stockés localement ; aucun texte n'est stocké dans ce calendrier. Bouton d'effacement. Les textes de restitution restent dans l'onglet et **ne sont pas transmis au serveur**.
+- **IA socratique facultative** : intégration Groq **désactivée par défaut** ; uniquement après tentative personnelle et accord explicite par requête. Le fournisseur ne reçoit ni correction ni item de transfert. Deux questions au maximum par session chiffrée, mais cela ne remplace pas un vrai dispositif anti-abus. Les sorties sont contrôlées et un guidage prédéfini reste disponible si l'IA est désactivée.
+- **Statut expérimental** : 18+, aucun score de capacité cognitive, aucun protocole de recherche ni effet pédagogique prouvé. Ne pas activer le fournisseur IA au public sans une revue de protection des données, quotas/cap et tests adversariaux.
+
+Documentation : [docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md](docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md). Test local : `npm run check` puis `npm start` (sans clé IA). La recette visuelle reste à réaliser sur navigateur.
