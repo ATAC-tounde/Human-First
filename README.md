@@ -1,4 +1,4 @@
-# HUMAN FIRST — THINK FIRST 0.2.1
+# HUMAN FIRST — THINK FIRST 0.3
 
 > **Avant la réponse, ta réflexion.** Prototype web pédagogique indépendant — aucun compte, aucune publicité, aucune API d'IA et aucune collecte scientifique.
 
@@ -25,7 +25,7 @@ npm start
 ## Fonctionnalités du lot B01–B02 et début B04
 
 - Accueil mobile-first, interface en français, mission et limites clairement affichées.
-- Trois exercices **de démonstration non validés pour la recherche** : causalité, logique, moyenne ; traductions EN disponibles.
+- 20 exercices bilingues **de démonstration, non validés pour la recherche** (5 par domaine : logique, esprit critique, résolution de problèmes, compréhension et mémorisation). Filtres par domaine et par niveau, sans profilage.
 - Démarrage 18+ et sans compte ; bouton « Quitter » à tout moment.
 - Tentative libre ou passage volontaire.
 - Question de guidage et deux indices, révélés progressivement par le serveur ; explication directe toujours accessible.
@@ -39,7 +39,7 @@ npm start
 
 - **Pas une étude scientifique** : aucune attribution aléatoire, aucun consentement de recherche, aucune instrumentation expérimentale ni collecte de recherche.
 - **Pas de preuve d'efficacité** : les exercices ne sont pas validés par des relecteurs pédagogiques indépendants ; les barèmes sont des questions d'auto-évaluation.
-- Pas de bibliothèque de 20 à 24 exercices approuvés ; pas de jeu A/B/C équivalent validé ; pas de tests différés.
+- Pas de bibliothèque de 20 à 24 exercices **approuvés par des experts** (les 20 défis actuels sont uniquement démonstratifs) ; pas de jeu A/B/C équivalent validé ; pas de tests différés.
 - Pas d'authentification nominative, d'administration, de journal d'audit qualifié ou d'accès mineurs.
 - Pas de mode IA générative, facturation, déploiement ou internationalisation des contenus approuvée.
 - Le cookie cryptographique V0.2.1 fonctionne entre instances partageant la même clé de chiffrement. Il ne permet pas de révocation serveur d’un ancien cookie volé : **aucune donnée sensible, compte ou expérimentation scientifique ne doit être accueillie sur cette démo**.
@@ -70,7 +70,7 @@ docs/            Correspondance avec la spécification et étapes futures
 
 Respect du droit à l'erreur, accès direct à l'explication, pas de système de rétention, pas de notation de QI, pas de diagnostic de dépendance, pas de profils d'élèves, pas d'affirmation scientifique non démontrée.
 
-**Statut : prototype exécutable V0.2 — démonstration adulte, non qualifié pour étude ni commercialisation.**
+**Statut : prototype exécutable V0.3 — démonstration adulte, non qualifié pour étude ni commercialisation.**
 
 ## Évolutions V0.2
 
@@ -98,3 +98,25 @@ Captures dans `artifacts/visual/` (non versionnées). La recette visuelle doit �
 - Tests automatiques : reprise entre deux processus distincts, altération du cookie, absence du secret en production, parcours FR/EN et URL avec paramètres.
 
 La PR reste en environnement **Preview**. Ne pas fusionner vers `main` ni annoncer un lancement public avant une recette humaine complète.
+
+
+## Lot V0.3 - enrichissement pédagogique (19/10/2026)
+
+- 20 exercices originaux avec question initiale, guidage, deux indices gradués, explication, problème de transfert **différent**, grille de relecture à trois critères, exemple de raisonnement et **activité hors écran contextualisée**.
+- Quatre domaines de cinq exercices : logique, esprit critique, résolution de problèmes, compréhension et mémorisation ; trois niveaux pédagogiques de complexité à titre indicatif (pas une classification psychométrique).
+- Catalogue et exercices bilingues français/anglais ; filtres locaux sans télémétrie ni profilage.
+- Bouton facultatif de masquage de l'énoncé pendant la réflexion, utile notamment pour exercer la restitution volontaire sans avoir la définition sous les yeux.
+- Protections préservées : aucun transfert, corrigé ou défi hors écran révélé avant l’étape appropriée ; aucun score automatique et aucun appel à un service externe d'IA.
+- Voir [docs/PEDAGOGIE_V0.3.md](docs/PEDAGOGIE_V0.3.md) pour la matrice des exercices, les critères d'acceptation et les portes de validation scientifique.
+
+### Démarrer la V0.3 localement
+
+```powershell
+git fetch origin
+git switch feature/think-first-v0.3-curriculum
+git pull --ff-only origin feature/think-first-v0.3-curriculum
+npm run check
+npm start
+```
+
+**Important** : PR empilée sur la V0.2.1, sans fusion dans `main` avant la recette fonctionnelle. Les modifications ne constituent pas une validation scientifique ni une autorisation d'ouvrir le service aux mineurs.

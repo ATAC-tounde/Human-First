@@ -1,4 +1,4 @@
-# HUMAN FIRST / THINK FIRST 0.2 — Journal de reprise
+# HUMAN FIRST / THINK FIRST 0.3 — Journal de reprise
 
 ## Références
 - HUMAN_FIRST_Document_Fondateur_V0.1 (18/10/2026).
@@ -18,7 +18,7 @@
 | TF-FR-02 | Démonstration | Session temporaire sans compte |
 | TF-FR-03 | Non développé | Étude scientifique désactivée |
 | TF-FR-04 | Démonstration | FR/EN disponibles ; traduction non validée par les experts |
-| TF-FR-05 | Partiel | 3 contenus de démo NON approuvés |
+| TF-FR-05 | Partiel | 20 contenus de démo NON approuvés (5 par domaine, FR/EN) |
 | TF-FR-06 | Démonstration | Tentative ou passage |
 | TF-FR-07 | Démonstration | 3 niveaux prédéfinis |
 | TF-FR-08 | Démonstration | Explication accessible immédiatement |
@@ -56,3 +56,15 @@
 - Limites : impossible de révoquer immédiatement un cookie volé sans stockage partagé ; rotation de la clé invalide toutes les sessions.
 - `HF_SESSION_SECRET` configuré dans les variables Vercel **Preview** uniquement, ne pas copier dans le dépôt.
 - À revoir avant ouverture : modalités d’information sur sessionStorage, consentement des volontaires, protection mineurs, audit et approbation des contenus scientifiques.
+
+
+## Lot V0.3 - banque pédagogique exploratoire (19/10/2026)
+
+- 20 exercices FR/EN au total, 5 dans chacun des quatre domaines et difficultés 1 à 3.
+- Sélecteurs accessibles par domaine et par niveau ; aucune récompense de temps d'écran, aucune obligation d'enchaîner les séances.
+- Contextes diversifiés : causalité, quantificateurs, contre-exemples, lecture de données et métriques, choix de coûts, planification et recherche d'hypothèses, reformulation, restitution immédiate et métacognition.
+- Entraînement : une question et 3 indices serveur max ; transfert distinct sans indice ; bilan qualitatif et activité contextualisée **hors ligne**.
+- L'énoncé peut être masqué volontairement. Il ne s'agit pas d'une mesure scientifiquement validée de mémoire différée.
+- Deux relecteurs indépendants des contenus et des traductions doivent valider chaque entrée avant toute expérimentation.
+- Aucun enregistrement d'apprentissage, de résultat scolaire, ni suivi longitudinal. Vérification de l'effet différé et instrumentation d'étude restent à concevoir séparément.
+- `npm run check` comprend des contrôles de cohérence bilingue, de secret des corrigés et un parcours complet de chaque exercice dans les deux langues. Contrôles manuels clavier/mobile requis.

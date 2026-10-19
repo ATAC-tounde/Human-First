@@ -46,9 +46,9 @@ test('santé : services IA et recherche désactivés',async()=>{
   assert.equal(res.status,200);assert.equal(res.body.research,'disabled');assert.equal(res.body.ai,'disabled');
 });
 test('catalogue n’expose ni solutions, ni transferts, ni barèmes',async()=>{
-  const r=await request('/api/catalog');assert.equal(r.status,200);assert.equal(r.body.exercises.length,3);
+  const r=await request('/api/catalog');assert.equal(r.status,200);assert.equal(r.body.exercises.length,20);
   const text=JSON.stringify(r.body);
-  for(const secret of ['Après l’ouverture d’une bibliothèque','dauphins ou des baleines','solution','review','transfer']) assert.ok(!text.includes(secret),`Secret exposé : ${secret}`);
+  for(const secret of ['Après l’ouverture d’une bibliothèque','dauphins ou des baleines','"review":','"transfer":']) assert.ok(!text.includes(secret),`Secret exposé : ${secret}`);
 });
 test('contrôle adulte et header anti-CSRF',async()=>{
   const noAdult=await request('/api/session/start',{method:'POST',data:{exerciseId:'causalite',adult:false}});
@@ -229,4 +229,77 @@ test('aucune session chiffrée n’est activée sur Vercel sans secret',async()=
     const attempt=await request('/api/session/start',{host,method:'POST',data:{adult:true,exerciseId:'causalite'}});
     assert.equal(attempt.status,503);
   }finally{isolated.kill();}
+});
+
+
+test('curriculum V0.3 : 20 exercices distincts, quatre domaines équilibrés, trois niveaux',async()=>{
+  const {catalog,localizeExercise,publicCatalog}=await import('../server/catalog.mjs');
+  const fields=['title','category','level','introduction','prompt','guide','hints','explanation','transfer','review','example','offlineChallenge'];
+  assert.equal(catalog.length,20);
+  assert.equal(new Set(catalog.map(x=>x.id)).size,20);
+  const counts=Object.fromEntries(['logic','critical','problem','learn'].map(k=>[k,0]));
+  for(const ex of catalog){
+    assert.ok(Object.hasOwn(counts,ex.domain),`Unknown domain ${ex.id}`);
+    counts[ex.domain]++;
+    assert.ok([1,2,3].includes(ex.difficulty));
+    assert.ok(ex.duration>=5&&ex.duration<=12);
+    for(const lang of ['fr','en']){
+      const tr=localizeExercise(ex,lang);
+      for(const field of fields)assert.ok(tr[field],`Missing ${field} in ${ex.id} ${lang}`);
+      assert.equal(tr.hints.length,2,ex.id);
+      assert.equal(tr.review.length,3,ex.id);
+      assert.notEqual(tr.prompt,tr.transfer,`Training and transfer must differ: ${ex.id}`);
+      assert.ok(tr.offlineChallenge.length>=40,`Offline task too short: ${ex.id}`);
+    }
+    if(ex.version==='demo-0.3')assert.notEqual(localizeExercise(ex,'en').title,ex.title,`Untranslated exercise: ${ex.id}`);
+  }
+  assert.deepEqual(counts,{logic:5,critical:5,problem:5,learn:5});
+  for(const lang of ['fr','en']){
+    const index=publicCatalog(lang);
+    assert.equal(index.length,20);
+    const exposure=new Set(['prompt','guide','hints','explanation','transfer','review','example','offlineChallenge']);
+    for(const card of index){
+      assert.ok(card.domain);assert.ok(card.difficulty);
+      for(const key of exposure)assert.equal(card[key],undefined,`${key} exposed on public catalog`);
+    }
+  }
+});
+
+test('curriculum V0.3 : solutions et défis hors écran après la soumission uniquement (FR/EN)',async()=>{
+  const {catalog,localizeExercise}=await import('../server/catalog.mjs');
+  for(const ex of catalog){
+    for(const lang of ['fr','en']){
+      const localized=localizeExercise(ex,lang);
+      const started=await request('/api/session/start',{method:'POST',data:{adult:true,exerciseId:ex.id,locale:lang}});
+      assert.equal(started.status,200,ex.id);
+      const session=started.cookie;
+      assert.ok(!('transfer' in started.body));
+      assert.ok(!('explanation' in started.body));
+      assert.ok(!('reflection' in started.body));
+      assert.ok(!('offlineChallenge' in started.body));
+      assert.equal(started.body.revealedHints.length,0);
+      assert.equal(started.body.training.prompt,localized.prompt);
+      await request('/api/session/attempt',{method:'POST',session,data:{answer:'Ma tentative / first attempt.'}});
+      const hint=await request('/api/session/hint',{method:'POST',session,data:{}});
+      assert.equal(hint.body.revealedHints.length,1,ex.id);
+      assert.equal(hint.body.revealedHints[0],localized.guide,ex.id);
+      assert.ok(!('explanation' in hint.body));
+      await request('/api/session/explanation',{method:'POST',session,data:{}});
+      const transfer=await request('/api/session/transfer',{method:'POST',session,data:{}});
+      assert.equal(transfer.body.transfer,localized.transfer);
+      assert.ok(!('reflection' in transfer.body),ex.id);
+      const done=await request('/api/session/answer',{method:'POST',session,data:{answer:'Independent attempt'}});
+      assert.equal(done.body.stage,'finished');
+      assert.equal(done.body.reflection.example,localized.example);
+      assert.equal(done.body.reflection.offlineChallenge,localized.offlineChallenge);
+      assert.equal(done.body.reflection.review.length,3);
+    }
+  }
+});
+
+test('API : les nouveaux modules pédagogiques restent privés côté serveur',async()=>{
+  for(const uri of ['/server/catalog.v03.mjs','/server/catalog.v03.en.mjs']){
+    const res=await fetch(base+uri);
+    assert.equal(res.status,404,uri);
+  }
 });

@@ -1,9 +1,11 @@
 import {englishExercises} from './catalog.en.mjs';
+import {newCurriculum} from './catalog.v03.mjs';
+import {newCurriculumEn} from './catalog.v03.en.mjs';
 // Documents de démonstration : ils ne constituent PAS des contenus validés pour la recherche.
 // Les solutions et les items de transfert restent dans le module serveur uniquement.
 export const catalog = Object.freeze([
   {
-    id: 'causalite', version: 'demo-0.1', status: 'demonstration',
+    id: 'causalite', version: 'demo-0.1', status: 'demonstration', domain: 'critical', difficulty: 1,
     title: 'Cause ou coïncidence ?', category: 'Esprit critique', duration: 8,
     level: 'Découverte',
     introduction: 'Une observation suffit-elle pour affirmer qu’un événement en a provoqué un autre ?',
@@ -20,10 +22,11 @@ export const catalog = Object.freeze([
       'As-tu envisagé d’autres explications ?',
       'As-tu proposé une comparaison ou des données complémentaires ?'
     ],
-    example: 'On ne peut pas conclure à un lien causal avec cette seule observation. D’autres facteurs ont pu évoluer au même moment. Je comparerais par exemple la tendance avant et après l’ouverture avec celle de villes similaires.'
+    example: 'On ne peut pas conclure à un lien causal avec cette seule observation. D’autres facteurs ont pu évoluer au même moment. Je comparerais par exemple la tendance avant et après l’ouverture avec celle de villes similaires.',
+    offlineChallenge: 'Observe aujourd’hui un changement autour de toi et note deux explications possibles, sans conclure trop vite.'
   },
   {
-    id: 'deduction', version: 'demo-0.1', status: 'demonstration',
+    id: 'deduction', version: 'demo-0.1', status: 'demonstration', domain: 'logic', difficulty: 1,
     title: 'Ce qui suit… ou non', category: 'Raisonnement logique', duration: 7,
     level: 'Découverte',
     introduction: 'Une conclusion séduisante est-elle forcément déductible des prémisses ?',
@@ -40,10 +43,11 @@ export const catalog = Object.freeze([
       'As-tu distingué « tous » de « certains » ?',
       'As-tu donné un contre-exemple ou expliqué le chaînon manquant ?'
     ],
-    example: 'Non, car les mammifères qui vivent dans l’eau pourraient être uniquement des dauphins ou des baleines. Rien ne relie dans les prémisses les chats à cette propriété.'
+    example: 'Non, car les mammifères qui vivent dans l’eau pourraient être uniquement des dauphins ou des baleines. Rien ne relie dans les prémisses les chats à cette propriété.',
+    offlineChallenge: 'Inventes deux phrases vraies qui semblent impliquer une conclusion, mais ne l’établissent pas.'
   },
   {
-    id: 'moyenne', version: 'demo-0.1', status: 'demonstration',
+    id: 'moyenne', version: 'demo-0.1', status: 'demonstration', domain: 'critical', difficulty: 1,
     title: 'Les chiffres racontent-ils tout ?', category: 'Interprétation des données', duration: 8,
     level: 'Découverte',
     introduction: 'Un chiffre moyen décrit-il nécessairement chaque individu ?',
@@ -60,18 +64,20 @@ export const catalog = Object.freeze([
       'As-tu envisagé des situations différentes parmi les personnes ?',
       'As-tu identifié les données nécessaires pour conclure ?'
     ],
-    example: 'Non, une baisse de la moyenne ne signifie pas que chacun gagne du temps. Il faudrait disposer des durées avant et après pour chaque salarié et vérifier que les populations comparées sont identiques.'
-  }
+    example: 'Non, une baisse de la moyenne ne signifie pas que chacun gagne du temps. Il faudrait disposer des durées avant et après pour chaque salarié et vérifier que les populations comparées sont identiques.',
+    offlineChallenge: 'Trouve une moyenne dans une publicité ou un article et réfléchis aux valeurs individuelles qu’elle peut cacher.'
+  },
+  ...newCurriculum
 ]);
 
 export function localizeExercise(exercise, locale = 'fr') {
   if (locale !== 'en') return exercise;
-  return {...exercise, ...(englishExercises[exercise.id] || {})};
+  return {...exercise, ...(englishExercises[exercise.id] || newCurriculumEn[exercise.id] || {})};
 }
 export function publicCatalog(locale = 'fr') {
   return catalog.filter(x => x.status === 'demonstration').map(original => {
-    const {id, version, title, category, duration, level, introduction} = localizeExercise(original, locale);
-    return {id, version, title, category, duration, level, introduction};
+    const {id, version, title, category, duration, level, introduction, domain, difficulty} = localizeExercise(original, locale);
+    return {id, version, title, category, duration, level, introduction, domain, difficulty};
   });
 }
 export function getExercise(id) {return catalog.find(x => x.id === id && x.status === 'demonstration') ?? null;}

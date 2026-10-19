@@ -9,7 +9,8 @@ export const englishExercises = {
     explanation:'No. One event happening after another does not establish a causal relationship. Teaching methods, class composition or available resources may also have changed. We would need more data and a rigorous comparison.',
     transfer:'After a library opens, university enrolment increases in a town. Does that prove the library caused the increase? Explain and suggest a way to check.',
     review:['Did you distinguish correlation from causation?','Did you consider alternative explanations?','Did you propose a comparison or identify additional data?'],
-    example:'We cannot conclude causality from this observation alone. Other factors may have changed at the same time. I would compare the trend with similar towns before and after the opening.'
+    example:'We cannot conclude causality from this observation alone. Other factors may have changed at the same time. I would compare the trend with similar towns before and after the opening.',
+    offlineChallenge:'Notice one change around you and write down two possible explanations before drawing conclusions.'
   },
   deduction: {
     title:'Does it really follow?', category:'Logical reasoning', level:'Introduction',
@@ -20,7 +21,8 @@ export const englishExercises = {
     explanation:'No. Bicycles belong to the category of vehicles, but the red vehicles could be from a different category. The conclusion would require information linking bicycles specifically to the colour red.',
     transfer:'All cats are mammals. Some mammals live in water. Can we conclude that some cats live in water? Explain.',
     review:['Did you avoid conclusions that go beyond the premises?','Did you distinguish “all” from “some”?','Did you give a counterexample or describe the missing link?'],
-    example:'No. The mammals that live in water could all be dolphins or whales. The premises never connect cats to that property.'
+    example:'No. The mammals that live in water could all be dolphins or whales. The premises never connect cats to that property.',
+    offlineChallenge:'Create two true sentences that appear to support a conclusion but do not actually prove it.'
   },
   moyenne: {
     title:'What an average hides', category:'Data interpretation', level:'Introduction',
@@ -31,6 +33,7 @@ export const englishExercises = {
     explanation:'No. An average can rise even if some students’ scores stay the same or fall. To see whether everyone improved, we would need to compare the scores of each student on both tests and consider differences between the tests.',
     transfer:'The average commute at a company drops from 40 to 30 minutes. Does that mean every employee saves time? Explain what data would help.',
     review:['Did you distinguish the group average from individual values?','Did you consider different patterns across people?','Did you identify the data needed to justify a conclusion?'],
-    example:'No. A lower average does not mean everyone has a shorter commute. We would need paired before-and-after times for each employee and to check the groups were comparable.'
+    example:'No. A lower average does not mean everyone has a shorter commute. We would need paired before-and-after times for each employee and to check the groups were comparable.',
+    offlineChallenge:'Find an average in an article or advertisement and consider the individual values it might hide.'
   }
 };

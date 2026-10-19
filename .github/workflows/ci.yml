@@ -2,8 +2,7 @@ name: THINK FIRST checks
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  pull_request: # vérifier aussi les PR empilées sur une branche de préproduction
 permissions:
   contents: read
 jobs:

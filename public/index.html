@@ -54,7 +54,17 @@
             <div><p class="eyebrow muted">COMMENCER ICI</p><h2 id="challenge-title">Un petit défi.<br><em>Une grande différence.</em></h2></div>
             <p>Choisis un exercice et avance à ton rythme. Aucun score public, aucune compétition : juste le plaisir de chercher.</p>
           </div>
-          <div id="exercise-grid" class="exercise-grid" aria-live="polite"><p>Chargement des défis…</p></div>
+          <div class="curriculum-controls" aria-label="Filtrer les exercices">
+            <div id="domain-filters" class="domain-filters" role="group" aria-label="Choisir un domaine"></div>
+            <div class="curriculum-toolbar">
+              <label for="level-filter" id="level-filter-label">Niveau</label>
+              <select id="level-filter" aria-label="Filtrer par niveau"></select>
+              <span id="exercise-count" class="exercise-count" role="status" aria-live="polite"></span>
+            </div>
+            <p id="domain-description" class="curriculum-description"></p>
+          </div>
+          <div id="exercise-grid" class="exercise-grid"><p>Chargement des défis…</p></div>
+          <p id="no-results" class="no-results" hidden>Aucun défi ne correspond à ces filtres.</p>
           <div class="age-bar">
             <label class="age-check"><input type="checkbox" id="adult-check"><span>Je confirme avoir 18 ans ou plus.</span></label>
             <span class="age-note">Cette démonstration est réservée aux adultes. Aucun renseignement d'identité n'est demandé.</span>
@@ -82,7 +92,7 @@
             <p id="topic" class="eyebrow muted">RAISONNEMENT</p>
             <h1 id="workspace-title" class="workspace-title">À toi de réfléchir.</h1>
             <p id="workspace-lead" class="workspace-lead"></p>
-            <div id="prompt-card" class="prompt-card" hidden><span class="prompt-label">LE DÉFI</span><p id="prompt-text"></p></div>
+            <div id="prompt-card" class="prompt-card" hidden><span class="prompt-label">LE DÉFI</span><p id="prompt-text"></p><button id="mask-prompt-button" type="button" class="text-button mask-button" aria-pressed="false" hidden>Masquer l’énoncé pour essayer de le retrouver de mémoire</button></div>
             <div id="training-view" hidden>
               <label for="attempt" class="field-label">Ton raisonnement (même incomplet)</label>
               <textarea id="attempt" maxlength="2000" rows="5" placeholder="J'aurais tendance à penser que… car…"></textarea>
@@ -112,7 +122,7 @@
               <div class="review-box"><span class="prompt-label">QUESTIONS POUR T’AUTO-ÉVALUER</span><ul id="review-items"></ul></div>
               <div class="answer-box"><span class="prompt-label">EXEMPLE DE RAISONNEMENT POSSIBLE</span><p id="sample-answer"></p></div>
               <p id="session-summary" class="field-hint"></p>
-              <div class="offscreen-box"><span aria-hidden="true">↗</span><div><strong>Et maintenant, loin de l'écran ?</strong><p>Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
+              <div class="offscreen-box"><span aria-hidden="true">↗</span><div><strong>Et maintenant, loin de l'écran ?</strong><p id="offline-challenge">Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
               <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true">↗</span></button><button class="button button-line" id="print-button" type="button">Imprimer ma fiche de réflexion</button></div>
             </div>
             <p id="workspace-error" class="form-error" role="alert" hidden></p>
