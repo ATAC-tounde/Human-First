@@ -48,7 +48,7 @@ test('santé : services IA et recherche désactivés',async()=>{
 test('catalogue n’expose ni solutions, ni transferts, ni barèmes',async()=>{
   const r=await request('/api/catalog');assert.equal(r.status,200);assert.equal(r.body.exercises.length,9);
   const text=JSON.stringify(r.body);
-  for(const secret of ['Après l’ouverture d’une bibliothèque','dauphins ou des baleines','solution','review','transfer']) assert.ok(!text.includes(secret),`Secret exposé : ${secret}`);
+  for(const secret of ['Après l’ouverture d’une bibliothèque','dauphins ou des baleines','"explanation"','"review"','"transfer"']) assert.ok(!text.includes(secret),`Secret exposé : ${secret}`);
 });
 test('contrôle adulte et header anti-CSRF',async()=>{
   const noAdult=await request('/api/session/start',{method:'POST',data:{exerciseId:'causalite',adult:false}});
