@@ -101,6 +101,7 @@ function render(){
  txt('focus-privacy',p.privacy);txt('focus-footer-text',p.footer);txt('nav-back-label',p.home);
  txt('focus-language-switch',locale==='fr'?'EN':'FR');$('focus-language-switch').setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
  $('back-home').href=`/?lang=${locale}`;
+ document.querySelector('.focus-learn-link').href=`/learn?lang=${locale}`;
  $('focus-picker').hidden=phase!=='choose';
  $('focus-activity').hidden=phase!=='activity';
  $('focus-away').hidden=phase!=='away';

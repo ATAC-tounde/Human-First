@@ -327,6 +327,13 @@ function updateLanguageSwitch() {
   const url='/focus?lang='+locale;
   $('focus-nav-link').href=url;
   $('focus-hero-link').href=url;
+  const learnUrl='/learn?lang='+locale;
+  $('learn-nav-link').href=learnUrl;
+  $('learn-hero-link').href=learnUrl;
+  $('learn-link-label').textContent=locale==='en'?'PILLAR 03 · LEARN':'PILIER 03 · LEARN';
+  $('learn-link-heading').textContent=locale==='en'?'Read, retrieve, explain and apply.':'Lire, retrouver, expliquer puis appliquer.';
+  $('learn-link-description').textContent=locale==='en'?'Six bilingual lessons, unaided recall and optional reviews.':'Six leçons bilingues, des restitutions sans aide et des révisions volontaires.';
+  $('learn-hero-link').textContent=locale==='en'?'Explore LEARN ↗':'Explorer LEARN ↗';
   $('focus-link-label').textContent=locale==='en'?'PILLAR 02 · FOCUS':'PILIER 02 · FOCUS';
   $('focus-link-heading').textContent=locale==='en'?'Make room for attention, away from the screen.':'Une pratique de l’attention, loin de l’écran.';
   $('focus-link-description').textContent=locale==='en'?'Six optional activities, with no timer or stored answers.':'Six activités libres, sans minuteur ni collecte des réponses.';

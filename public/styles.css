@@ -65,3 +65,14 @@
 #focus-nav-link{font-weight:750;color:#3b6349}
 @media(max-width:720px){.focus-link-panel{flex-direction:column;align-items:flex-start;padding:25px 23px}.focus-link-panel>a{width:100%;justify-content:center}}
 @media print{.focus-link-panel{display:none!important}}
+
+
+/* LEARN V0.6: third-pillar discovery on the existing 20-exercise homepage. */
+.learn-link-panel{display:flex;align-items:center;justify-content:space-between;gap:26px;padding:32px 36px;margin:0 0 68px;border-radius:12px;background:#f0e8dc}
+.learn-link-panel .eyebrow{margin:0 0 8px}
+.learn-link-panel h3{font:400 clamp(24px,3vw,32px)/1.25 Georgia,serif;color:var(--pine);margin:0 0 10px}
+.learn-link-panel p:not(.eyebrow){font-size:14px;line-height:1.7;color:#6c6358;margin:0}
+.learn-link-panel>a{flex-shrink:0}
+.learn-nav-link{font-weight:750;color:#955e3d}
+@media(max-width:720px){.learn-link-panel{flex-direction:column;align-items:flex-start;padding:25px 23px}.learn-link-panel>a{width:100%;justify-content:center}}
+@media print{.learn-link-panel{display:none!important}}
