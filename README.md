@@ -135,3 +135,8 @@ Les 20 exercices (FR/EN) proposent après la résolution un défi papier faculta
 ## FOCUS V0.5 - Deuxième pilier (alpha)
 
 La page `/focus` contient six activités pédagogiques FR/EN facultatives à réaliser hors écran. Pas de compte, chronomètre, classement, requête externe ni conservation des notes. Le trajet THINK existant à **20 exercices** et les révisions V0.4.1 restent intacts. Cette branche réintégrée repart de `main` après la PR #12. Voir [spécification FOCUS](docs/FOCUS_V0.5_SPEC_RECETTE.md).
+
+
+## LEARN V0.6 - Troisième pilier (alpha)
+
+Accès : `/learn` en français et anglais. Six leçons originales, avec lecture, restitution sans aide, explication, transfert indépendant et activité hors écran. Cookie `hf_learn` chiffré distinct de celui de THINK, réponses libres non transmises au serveur. Calendrier local volontaire et effaçable. Les 20 exercices THINK ainsi que FOCUS sont préservés. Voir `docs/LEARN_V0.6_SPEC_RECETTE.md`.
