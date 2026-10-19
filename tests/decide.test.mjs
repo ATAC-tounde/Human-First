@@ -63,8 +63,10 @@ test('DECIDE: website and four static assets resolve; security headers remain in
 
 test('DECIDE: client stores no personal answers and does not call any network API',async()=>{
  const js=await file('decide.js');const html=await file('decide.html');
+ // Comments document forbidden APIs without invoking them; check executable lines.
+ const executable=js.replace(/^\s*\/\/.*$/gm,'');
  for(const pattern of [/\bfetch\s*\(/,/\bXMLHttpRequest\s*\(/,/\bWebSocket\s*\(/,/\bsendBeacon\s*\(/,/\b(?:localStorage|sessionStorage)\s*[.\[]/,/\bindexedDB\s*[.\[]/,/\bsetTimeout\s*\(/,/\bsetInterval\s*\(/]){
-  assert.ok(!pattern.test(js),`No DECIDE API/storage calls permitted: ${pattern}`);
+  assert.ok(!pattern.test(executable),`No DECIDE API/storage calls permitted: ${pattern}`);
  }
  assert.ok(js.includes('wipeFields();'));
  assert.ok(js.includes("$('adult-check').checked"));
