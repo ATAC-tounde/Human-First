@@ -123,3 +123,8 @@ Contrôler particulièrement les neuf cartes en FR/EN, l'absence de correction a
 - **Statut expérimental** : 18+, aucun score de capacité cognitive, aucun protocole de recherche ni effet pédagogique prouvé. Ne pas activer le fournisseur IA au public sans une revue de protection des données, quotas/cap et tests adversariaux.
 
 Documentation : [docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md](docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md). Test local : `npm run check` puis `npm start` (sans clé IA). La recette visuelle reste à réaliser sur navigateur.
+
+
+## V0.4.1-alpha - Faire un exercice, puis quitter l'écran
+
+Neuf défis hors écran bilingues et imprimables, visibles **uniquement après** un transfert ou rappel sans aide. Ils ne requièrent qu'un crayon et une feuille ; ni minuteur ni score. Les brouillons sont liés à un identifiant de session aléatoire **non secret**, ce qui évite de restaurer le texte d'un autre parcours partagé entre onglets. Aucun compte, suivi ou collecte nouvelle. Voir [docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md](docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md).
