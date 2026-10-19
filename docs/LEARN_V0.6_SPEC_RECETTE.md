@@ -74,3 +74,6 @@ Les routes de mutation nécessitent `X-Think-First: 1`, JSON et contrôle d'orig
 ## 7. Lot suivant proposé
 
 DECIDE V0.7 : atelier de décisions guidées avec critères explicites, risques, options et vérification indépendante, sans modèle de scoring de personnes, puis chantier d'outillage de revue pédagogique (auteurs/relecteurs, publications versionnées et double revue).
+
+## Intégration sur main actualisé après FOCUS PR #13
+Cette branche est basée directement sur main intégrant 20 exercices THINK, les révisions V0.4, les cartes hors écran V0.4.1 et FOCUS V0.5. Les fichiers de catalogue et de tests THINK existants ne sont pas remplacés. Les six leçons LEARN utilisent les routes `/api/learn/*` et un cookie distinct `hf_learn`. La bibliothèque et les filtres THINK sont conservés. Vérifier les liens FR/EN entre les trois piliers avant la fusion dans main.
