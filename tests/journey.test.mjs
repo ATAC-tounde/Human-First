@@ -81,7 +81,7 @@ test('V0.8: deterministic prerequisite ordering and stage context without forced
  assert.deepEqual(first,second);
  assert.equal(first.plan.at(-1).skillId,'work.explain');
  const ids=first.plan.map(x=>x.skillId);
- first.plan.forEach(item=>item.requires.forEach(dep=>assert.ok(ids.indexOf(dep)<ids.indexOf(item))));
+ first.plan.forEach(item=>item.requires.forEach(dep=>assert.ok(ids.indexOf(dep)<ids.indexOf(item.skillId))));
  assert.ok(first.plan.find(x=>x.skillId==='work.requirements').context);
  const student=buildJourney(registry,{...user,pathId:'study.learning',stage:'higher-education',locale:'en'});
  assert.equal(student.pathway.id,'study.learning');
