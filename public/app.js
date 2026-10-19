@@ -330,6 +330,13 @@ function updateLanguageSwitch() {
   const learnUrl='/learn?lang='+locale;
   $('learn-nav-link').href=learnUrl;
   $('learn-hero-link').href=learnUrl;
+  const decideUrl='/decide?lang='+locale;
+  $('decide-nav-link').href=decideUrl;
+  $('decide-hero-link').href=decideUrl;
+  $('decide-link-label').textContent=locale==='en'?'PILLAR 04 · DECIDE':'PILIER 04 · DECIDE';
+  $('decide-link-heading').textContent=locale==='en'?'Your judgment before any recommendation.':'Ton jugement avant toute recommandation.';
+  $('decide-link-description').textContent=locale==='en'?'Seven situations to clarify criteria and examine AI rankings critically.':'Sept situations, tes critères, des alternatives et un regard critique sur les classements d’IA.';
+  $('decide-hero-link').textContent=locale==='en'?'Explore DECIDE ↗':'Explorer DECIDE ↗';
   $('learn-link-label').textContent=locale==='en'?'PILLAR 03 · LEARN':'PILIER 03 · LEARN';
   $('learn-link-heading').textContent=locale==='en'?'Read, retrieve, explain and apply.':'Lire, retrouver, expliquer puis appliquer.';
   $('learn-link-description').textContent=locale==='en'?'Six bilingual lessons, unaided recall and optional reviews.':'Six leçons bilingues, des restitutions sans aide et des révisions volontaires.';

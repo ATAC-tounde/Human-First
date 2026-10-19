@@ -76,3 +76,11 @@
 .learn-nav-link{font-weight:750;color:#955e3d}
 @media(max-width:720px){.learn-link-panel{flex-direction:column;align-items:flex-start;padding:25px 23px}.learn-link-panel>a{width:100%;justify-content:center}}
 @media print{.learn-link-panel{display:none!important}}
+
+/* DECIDE V0.7 fourth-pillar link, no behaviour tracking. */
+.decide-nav-link{font-weight:750;color:#9b5838}
+.decide-link-panel{display:flex;justify-content:space-between;align-items:center;gap:26px;margin:0 0 64px;padding:32px 36px;background:#e8e8de;border-radius:12px}
+.decide-link-panel h3{font:400 clamp(24px,3vw,31px)/1.25 Georgia,serif;color:var(--pine);margin:8px 0}
+.decide-link-panel p:not(.eyebrow){font-size:14px;color:#66796a;line-height:1.7;margin:0}.decide-link-panel>a{flex-shrink:0}
+@media(max-width:720px){.decide-link-panel{flex-direction:column;align-items:flex-start;padding:24px 22px}.decide-link-panel>a{width:100%;justify-content:center}}
+@media print{.decide-link-panel{display:none!important}}
