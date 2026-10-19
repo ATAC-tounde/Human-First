@@ -8,6 +8,7 @@ import {publicPaths,enhanceCatalog,metadataFor} from './tracks.mjs';
 import {reviewTask} from './reviews.mjs';
 import {coachSettings,askCoach} from './coach.mjs';
 import {offlineCard} from './offline.mjs';
+import {handleLearn} from './learn-routes.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -24,6 +25,10 @@ const publicFiles = {
   '/focus.js': ['focus.js', 'text/javascript; charset=utf-8'],
   '/focus.css': ['focus.css', 'text/css; charset=utf-8'],
   '/focus-library.mjs': ['focus-library.mjs', 'text/javascript; charset=utf-8'],
+  '/learn': ['learn.html', 'text/html; charset=utf-8'],
+  '/learn.html': ['learn.html', 'text/html; charset=utf-8'],
+  '/learn.js': ['learn.js', 'text/javascript; charset=utf-8'],
+  '/learn.css': ['learn.css', 'text/css; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };
@@ -95,6 +100,7 @@ function response(session,{attempt='',transferAnswer=''}={}) {
 const app=createServer(async(req,res)=>{
   try {
     const url=new URL(req.url||'/','http://localhost');
+    if(await handleLearn(req,res,url,{json,reject,body,allowMutation}))return;
     if(req.method==='GET'&&Object.hasOwn(publicFiles,url.pathname)) {
       const [name,type]=publicFiles[url.pathname];const bytes=await readFile(join(publicDir,name));
       res.writeHead(200,{...commonHeaders,'Content-Type':type,'Cache-Control':'no-store'});res.end(bytes);return;
