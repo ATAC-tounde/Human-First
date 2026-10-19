@@ -10,11 +10,21 @@ let locked = false;
 const draftKey='human-first:think-first:draft-v1';
 const scheduleKey='human-first:think-first:review-dates-v1';
 let paths=[],activePath='all',aiConfig={enabled:false};
-function loadDraft() {
-  try {return JSON.parse(sessionStorage.getItem(draftKey)||'{}');} catch {return {};}
+function loadDraft(session=state) {
+  // A different tab may replace the shared HttpOnly cookie while this tab retains old drafts.
+  // Binding drafts to a non-secret per-session identifier avoids mixing answers across exercises/tabs.
+  if(!session?.sessionId) return {};
+  try {
+    const record=JSON.parse(sessionStorage.getItem(draftKey)||'{}');
+    return record && record.sessionId===session.sessionId ? record : {};
+  } catch {return {};}
 }
 function keepDraft(field,value) {
-  try {const draft=loadDraft();draft[field]=value;sessionStorage.setItem(draftKey,JSON.stringify(draft));}catch{}
+  if(!state?.sessionId)return;
+  try {
+    const draft=loadDraft();draft.sessionId=state.sessionId;draft[field]=value;
+    sessionStorage.setItem(draftKey,JSON.stringify(draft));
+  }catch{}
 }
 function clearDraft() {try{sessionStorage.removeItem(draftKey);}catch{}}
 function hydrateSession(session) {
@@ -72,6 +82,20 @@ const learningLabels={
  en:{all:'All challenges',tier:'Level',noneDue:'No reviews scheduled in this browser.',ready:'Available to review',due:'Available from',startReview:'Review',cleared:'All local review dates have been erased.',needConsent:'Please agree before storing the date in this browser.',scheduled:'Review date stored locally. No notification will be sent.',aiConsent:'Please agree before sending any text to Groq.',aiNoText:'Your first answer is no longer available in this tab. Start another exercise if needed.',aiQuestion:'A question to explore',aiFallback:'The provider is unavailable: this is a template-based question, not a substitute for curated clues.',limit:'Maximum AI questions reached for this session.',recallHead:'Recall without help.',recallLead:'No clues or correction during this task. Your text stays in your browser tab.',recallFinished:'Compare your reasoning.',recallFinishedLead:'Notice what you remembered independently. No score.',recallProgress:'INDEPENDENT RECALL',nextDue:'Another optional local review is planned in 7 days.',needAdult:'This demo is for adults aged 18 and over.'}
 };
 const l=key=>learningLabels[locale][key];
+function renderOfflineCard(card, target) {
+  const mapping=target==='recall'
+    ? {root:'recall-offscreen-card',title:'recall-offscreen-title',info:'recall-offscreen-info',steps:'recall-offscreen-steps',check:'recall-offscreen-check'}
+    : {root:'offscreen-card',title:'offscreen-card-title',info:'offscreen-card-info',steps:'offscreen-card-steps',check:'offscreen-card-check'};
+  show(mapping.root, Boolean(card));
+  if(!card)return;
+  setText(mapping.title,card.title);
+  const prefix=locale==='en'?'On paper':'Sur papier';
+  setText(mapping.info,`${prefix} · ${card.minutes} min · ${card.materials}`);
+  const list=$(mapping.steps);list.replaceChildren();
+  for(const step of card.steps){const item=document.createElement('li');item.textContent=step;list.append(item);}
+  setText(mapping.check,(locale==='en'?'Reflect: ':'À vérifier : ')+card.check);
+}
+
 function readSchedule(){try{const x=JSON.parse(localStorage.getItem(scheduleKey)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{};}catch{return {};}}
 function writeSchedule(data){try{localStorage.setItem(scheduleKey,JSON.stringify(data));return true;}catch{return false;}}
 function planReview(exerciseId,days){
@@ -206,7 +230,7 @@ function render() {
   if(mode==='training'||mode==='explanation') setText('prompt-text',state.training?.prompt);
   if(mode==='transfer') setText('prompt-text',state.transfer);
   if(mode==='recall')setText('prompt-text',state.recall);
-  if(mode==='recall-finished') {setText('recall-own-answer',loadDraft().recallAnswer||(state.recalled?(locale==='en'?'Text unavailable in this tab.':'Texte indisponible dans cet onglet.'):(locale==='en'?'Skipped.':'Passé.')));setText('recall-reference-text',state.reference);}
+  if(mode==='recall-finished') {setText('recall-own-answer',loadDraft().recallAnswer||(state.recalled?(locale==='en'?'Text unavailable in this tab.':'Texte indisponible dans cet onglet.'):(locale==='en'?'Skipped.':'Passé.')));setText('recall-reference-text',state.reference);renderOfflineCard(state.offlineCard,'recall');}
   if(mode==='explanation')setText('explanation-text',state.explanation);
   if(mode==='training') {
     setText('attempt-recap',state.attempted?`${w('attemptPrefix')}${state.attempt || (locale==='en'?'Reflection submitted; text not saved in this tab.':'Réflexion soumise ; texte indisponible dans cet onglet.')}`:w('skippedIntro'));
@@ -214,6 +238,7 @@ function render() {
     if(state.coachTurns>=2) setText('ai-result',l('limit'));
   }
   if(mode==='finished') {
+    renderOfflineCard(state.offlineCard,'finished');
     setText('finished-question',state.transfer);
     setText('finished-own-answer',state.transferAnswer || (state.transferAnswered?(locale==='en'?'Answer submitted; text not saved in this tab.':'Réponse soumise ; texte indisponible dans cet onglet.'):(locale==='en'?'No answer provided.':'Pas de réponse saisie.')));
     const container=$('review-items');container.replaceChildren();

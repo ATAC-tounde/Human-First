@@ -7,6 +7,7 @@ import { sessionReady, readSession, makeSession, tokenFor } from './session-cryp
 import {publicPaths,enhanceCatalog,metadataFor} from './tracks.mjs';
 import {reviewTask} from './reviews.mjs';
 import {coachSettings,askCoach} from './coach.mjs';
+import {offlineCard} from './offline.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -72,16 +73,16 @@ function textAnswer(value) {return typeof value==='string'?value.trim().slice(0,
 function response(session,{attempt='',transferAnswer=''}={}) {
   const ex=localizeExercise(getExercise(session.exerciseId),session.locale);
   const revealedHints=[ex.guide,...ex.hints].slice(0,session.hintsUsed);
-  const common={stage:session.stage,exercise:{id:ex.id,title:ex.title,category:ex.category,progression:metadataFor(ex.id)},locale:session.locale,
+  const common={stage:session.stage,sessionId:session.nonce,exercise:{id:ex.id,title:ex.title,category:ex.category,progression:metadataFor(ex.id)},locale:session.locale,
     hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped,coachTurns:session.coachTurns};
   if(session.stage==='training')return {...common,training:publicTraining(ex),attempt,revealedHints};
   if(session.stage==='explanation')return {...common,training:publicTraining(ex),attempt,explanation:ex.explanation};
   if(session.stage==='transfer')return {...common,transfer:ex.transfer};
   if(session.stage==='recall')return {...common,recall:reviewTask(ex.id,session.locale)?.prompt};
   if(session.stage==='recall-finished')return {...common,recall:reviewTask(ex.id,session.locale)?.prompt,
-    recalled:session.transferAnswered,reference:reviewTask(ex.id,session.locale)?.example};
+    recalled:session.transferAnswered,reference:reviewTask(ex.id,session.locale)?.example,offlineCard:offlineCard(ex.id,session.locale)};
   if(session.stage==='finished')return {...common,transfer:ex.transfer,transferAnswer,transferAnswered:session.transferAnswered,
-    reflection:{review:ex.review,example:ex.example},
+    reflection:{review:ex.review,example:ex.example},offlineCard:offlineCard(ex.id,session.locale),
     summary:{assistance:session.hintsUsed>0?'indices':session.openedDirectly?'explication directe':'aucune',
       hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped,transferAnswered:session.transferAnswered}};
   return common;
