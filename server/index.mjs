@@ -75,7 +75,7 @@ function response(session,{attempt='',transferAnswer=''}={}) {
   if(session.stage==='explanation')return {...common,training:publicTraining(ex),attempt,explanation:ex.explanation};
   if(session.stage==='transfer')return {...common,transfer:ex.transfer};
   if(session.stage==='finished')return {...common,transfer:ex.transfer,transferAnswer,transferAnswered:session.transferAnswered,
-    reflection:{review:ex.review,example:ex.example},
+    reflection:{review:ex.review,example:ex.example,offlineChallenge:ex.offlineChallenge},
     summary:{assistance:session.hintsUsed>0?'indices':session.openedDirectly?'explication directe':'aucune',
       hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped,transferAnswered:session.transferAnswered}};
   return common;

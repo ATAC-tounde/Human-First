@@ -6,6 +6,60 @@ const w = (key) => word(locale,key);
 let state = {stage:'idle'};
 let catalog = [];
 let locked = false;
+let currentDomain = 'all';
+let currentDifficulty = 'all';
+let maskedPrompt = false;
+const domains = ['all','logic','critical','problem','learn'];
+const domainText = {
+  fr: {
+    all:['Tous les domaines','Choisis un domaine ou explore librement les 20 défis. Aucun parcours obligatoire.'],
+    logic:['Logique','Examiner les déductions, les quantificateurs et les contre-exemples.'],
+    critical:['Esprit critique','Interroger les preuves, les causes et les représentations des données.'],
+    problem:['Résolution de problèmes','Comparer, planifier et tester des stratégies selon les contraintes.'],
+    learn:['Comprendre et retenir','Reformuler, rappeler, transférer et vérifier ce que l’on comprend.']
+  },
+  en: {
+    all:['All areas','Choose a topic or explore all 20 challenges at your own pace. There is no required learning path.'],
+    logic:['Logic','Examine implications, quantifiers and counterexamples.'],
+    critical:['Critical thinking','Question evidence, causal claims and the way data is presented.'],
+    problem:['Problem solving','Compare, plan and test strategies within constraints.'],
+    learn:['Understand and remember','Paraphrase, recall, transfer and check your understanding.']
+  }
+};
+const levels = {
+  fr: [['all','Tous les niveaux'],['1','Découverte'],['2','Exploration'],['3','Approfondissement']],
+  en: [['all','All levels'],['1','Introduction'],['2','Exploration'],['3','Advanced']]
+};
+function renderFilters() {
+  const parent=$('domain-filters');parent.replaceChildren();
+  for(const domain of domains){
+    const b=document.createElement('button'); b.type='button';b.className='filter-pill';
+    b.textContent=domainText[locale][domain][0];b.dataset.domain=domain;
+    b.setAttribute('aria-pressed',String(currentDomain===domain));
+    b.addEventListener('click',()=>{currentDomain=domain;renderFilters();renderCards();
+      $('domain-filters').querySelector(`[data-domain="${domain}"]`)?.focus();});
+    parent.append(b);
+  }
+  const select=$('level-filter');select.replaceChildren();
+  for(const [value,label] of levels[locale]){
+    const option=document.createElement('option');option.value=value;option.textContent=label;select.append(option);
+  }
+  select.value=currentDifficulty;
+  $('domain-description').textContent=domainText[locale][currentDomain][1];
+  setText('level-filter-label',locale==='en'?'Difficulty':'Niveau');
+  select.setAttribute('aria-label',locale==='en'?'Filter by difficulty':'Filtrer par niveau');
+  $('domain-filters').setAttribute('aria-label',locale==='en'?'Select an area':'Choisir un domaine');
+  document.querySelector('.curriculum-controls').setAttribute('aria-label',locale==='en'?'Filter exercises':'Filtrer les exercices');
+  setText('no-results',locale==='en'?'No challenges match these filters.':'Aucun défi ne correspond à ces filtres.');
+}
+function renderCards(){
+  const matches=catalog.filter(ex=>(currentDomain==='all'||ex.domain===currentDomain)&&(currentDifficulty==='all'||String(ex.difficulty)===currentDifficulty));
+  const grid=$('exercise-grid');grid.replaceChildren();
+  matches.forEach((ex,i)=>grid.append(createCard(ex,i)));
+  setText('exercise-count', locale==='en'?`${matches.length} of ${catalog.length} challenges`:`${matches.length} défi(s) sur ${catalog.length}`);
+  show('no-results',matches.length===0);
+}
+
 // Text is only retained in the browser tab for a reload, never in the server cookie.
 const draftKey='human-first:think-first:draft-v1';
 function loadDraft() {
@@ -47,7 +101,7 @@ async function guarded(action, errorId='workspace-error') {
 function createCard(ex,index) {
   const btn=document.createElement('button');btn.type='button';btn.className='exercise-card';btn.setAttribute('aria-label',`${w('start')} ${ex.title}`);
   const top=document.createElement('div');top.className='card-top';
-  const num=document.createElement('span');num.className='card-index';num.textContent=`${w('challenge')} 0${index+1}`;
+  const num=document.createElement('span');num.className='card-index';num.textContent=`${w('challenge')} ${String(index+1).padStart(2,'0')}`;
   const tag=document.createElement('span');tag.className='card-tag';tag.textContent=ex.category;
   top.append(num,tag);
   const mid=document.createElement('div');const h=document.createElement('h3');h.textContent=ex.title;
@@ -58,7 +112,7 @@ function createCard(ex,index) {
   btn.append(top,mid,bottom);
   btn.addEventListener('click',()=>guarded(async()=>{
     if(!$('adult-check').checked) {errorIn('home-error',w('adult'));$('adult-check').focus();return;}
-    clearDraft();
+    clearDraft();maskedPrompt=false;
     state=await api('/api/session/start',{exerciseId:ex.id,adult:true,locale});
     render();scrollTop();
   },'home-error'));
@@ -74,8 +128,7 @@ async function bootstrap() {
     }
     applyLocale(locale);updateLanguageSwitch();
     catalog=loaded.exercises;
-    const grid=$('exercise-grid');grid.replaceChildren();
-    catalog.forEach((ex,i)=>grid.append(createCard(ex,i)));
+    renderFilters();renderCards();
     state=hydrateSession(resumed);
     render();
   } catch(e){errorIn('home-error',`${w('loadError')} : ${e.message}`);}
@@ -118,6 +171,11 @@ function render() {
   show('transfer-view',mode==='transfer');
   show('finished-view',mode==='finished');
   show('prompt-card',mode!=='finished');
+  if(mode!=='training')maskedPrompt=false;
+  show('mask-prompt-button',mode==='training');
+  show('prompt-text',!(mode==='training' && maskedPrompt));
+  $('mask-prompt-button').setAttribute('aria-pressed',String(maskedPrompt));
+  setText('mask-prompt-button',locale==='en'?(maskedPrompt?'Show challenge again':'Hide challenge and try recalling it'):(maskedPrompt?'Réafficher l’énoncé':'Masquer l’énoncé pour essayer de le retrouver de mémoire'));
   if(mode==='training'||mode==='explanation') setText('prompt-text',state.training?.prompt);
   if(mode==='transfer') setText('prompt-text',state.transfer);
   if(mode==='explanation')setText('explanation-text',state.explanation);
@@ -131,6 +189,7 @@ function render() {
     const container=$('review-items');container.replaceChildren();
     for(const point of state.reflection.review) {const item=document.createElement('li');item.textContent=point;container.append(item);}
     setText('sample-answer',state.reflection.example);
+    setText('offline-challenge',state.reflection.offlineChallenge || (locale==='en'?'Explain the idea away from your screen.':'Explique cette idée loin de ton écran.'));
     setText('session-summary',`${state.transferAnswered?w('summaryDone'):w('summarySkip')} ${w('noGrade')} ${state.summary.hintsUsed} ${w('hintCount')}`);
   }
 }
@@ -157,8 +216,9 @@ on('language-switch','click',()=>guarded(async()=>{
   const next=locale==='fr'?'en':'fr';
   const data=await api(`/api/catalog?lang=${next}`);
   locale=next;applyLocale(locale);updateLanguageSwitch();
-  const grid=$('exercise-grid');grid.replaceChildren();
-  catalog=data.exercises;catalog.forEach((ex,i)=>grid.append(createCard(ex,i)));
+  catalog=data.exercises;renderFilters();renderCards();
   history.replaceState(null,'',`${location.pathname}?lang=${locale}${location.hash}`);
 },'home-error'));
+on('mask-prompt-button','click',()=>{if(state.stage==='training'){maskedPrompt=!maskedPrompt;render();}});
+on('level-filter','change',()=>{currentDifficulty=$('level-filter').value;renderCards();});
 bootstrap();
