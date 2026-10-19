@@ -125,3 +125,8 @@ npm start
 La PR #3 a livré **20 exercices** en `main`. La branche parallèle de la PR #4, basée sur neuf exercices, ne doit **pas** remplacer cette bibliothèque. Cette branche d'intégration conserve les 20 exercices, leurs filtres et défis papier et ajoute les parcours facultatifs, les restitutions J+1/J+7 et le coach socratique opt-in (désactivé en l'absence de configuration).
 
 Tests : `npm run check`. Recette : filtres des domaines/niveaux, 20 cartes FR/EN, masquage de l'énoncé, indice, transfert, papier, révision, absence d'IA par défaut.
+
+
+## V0.4.1 - Défis papier pour les 20 exercices
+
+Les 20 exercices (FR/EN) proposent après la résolution un défi papier facultatif à trois étapes, accessible également à la fin d'un rappel autonome. Les brouillons de l'onglet sont isolés par session. Voir [documentation V0.4.1](docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md).
