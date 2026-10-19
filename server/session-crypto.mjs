@@ -39,8 +39,9 @@ export function readSession(token) {
     decipher.setAuthTag(tag);
     const decoded = JSON.parse(Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8'));
     if (decoded?.v !== 1 || typeof decoded.ex !== 'string' || !['fr','en'].includes(decoded.l) ||
-        !['training','explanation','transfer','finished'].includes(decoded.stage) ||
+        !['training','explanation','transfer','finished','recall','recall-finished'].includes(decoded.stage) ||
         !Number.isInteger(decoded.h) || decoded.h < 0 || decoded.h > 3 ||
+        !Number.isInteger(decoded.c ?? 0) || (decoded.c ?? 0) < 0 || (decoded.c ?? 0) > 2 ||
         typeof decoded.a !== 'boolean' || typeof decoded.s !== 'boolean' ||
         typeof decoded.d !== 'boolean' || typeof decoded.t !== 'boolean' ||
         !Number.isFinite(decoded.exp) || !Number.isFinite(decoded.iat) ||
@@ -53,6 +54,7 @@ export function readSession(token) {
       attempted: decoded.a,
       skipped: decoded.s,
       hintsUsed: decoded.h,
+      coachTurns:decoded.c ?? 0,
       openedDirectly: decoded.d,
       transferAnswered: decoded.t,
       expiry: decoded.exp,
@@ -64,10 +66,10 @@ export function readSession(token) {
 export function makeSession(exerciseId, locale) {
   const issuedAt = Date.now();
   return {exerciseId,locale,stage:'training',attempted:false,skipped:false,hintsUsed:0,
-    openedDirectly:false,transferAnswered:false,issuedAt,expiry:issuedAt+ttlMs,nonce:randomBytes(12).toString('hex')};
+    openedDirectly:false,transferAnswered:false,coachTurns:0,issuedAt,expiry:issuedAt+ttlMs,nonce:randomBytes(12).toString('hex')};
 }
 export function tokenFor(session) {
   return sealSession({v:1,ex:session.exerciseId,l:session.locale,stage:session.stage,
-    a:session.attempted,s:session.skipped,h:session.hintsUsed,d:session.openedDirectly,
+    a:session.attempted,s:session.skipped,h:session.hintsUsed,c:session.coachTurns,d:session.openedDirectly,
     t:session.transferAnswered,iat:session.issuedAt,exp:session.expiry,j:session.nonce});
 }

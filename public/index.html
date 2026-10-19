@@ -23,7 +23,7 @@
         <a href="#method" id="nav-method">Notre méthode</a>
         <a href="#ethics" id="nav-ethics">Nos engagements</a>
         <button type="button" id="language-switch" class="language-switch" aria-label="Switch to English">EN</button>
-        <span class="nav-edition">PROTOTYPE <strong>0.2</strong></span>
+        <span class="nav-edition">PROTOTYPE <strong>0.4-alpha</strong></span>
       </nav>
     </header>
 
@@ -54,6 +54,11 @@
             <div><p class="eyebrow muted">COMMENCER ICI</p><h2 id="challenge-title">Un petit défi.<br><em>Une grande différence.</em></h2></div>
             <p>Choisis un exercice et avance à ton rythme. Aucun score public, aucune compétition : juste le plaisir de chercher.</p>
           </div>
+          <div class="learning-panel" aria-labelledby="paths-title">
+            <h3 id="paths-title">Choisir un parcours, pas un score</h3>
+            <p id="paths-lead">Parcours suggérés et niveaux indicatifs. Tous les exercices restent accessibles librement.</p>
+            <div id="path-filters" role="group" aria-label="Filtrer les parcours" class="path-buttons"></div>
+          </div>
           <div class="curriculum-controls" aria-label="Filtrer les exercices">
             <div id="domain-filters" class="domain-filters" role="group" aria-label="Choisir un domaine"></div>
             <div class="curriculum-toolbar">
@@ -63,11 +68,17 @@
             </div>
             <p id="domain-description" class="curriculum-description"></p>
           </div>
-          <div id="exercise-grid" class="exercise-grid"><p>Chargement des défis…</p></div>
+          <div id="exercise-grid" class="exercise-grid" aria-live="polite"><p>Chargement des défis…</p></div>
           <p id="no-results" class="no-results" hidden>Aucun défi ne correspond à ces filtres.</p>
           <div class="age-bar">
             <label class="age-check"><input type="checkbox" id="adult-check"><span>Je confirme avoir 18 ans ou plus.</span></label>
             <span class="age-note">Cette démonstration est réservée aux adultes. Aucun renseignement d'identité n'est demandé.</span>
+          </div>
+          <div class="learning-panel" id="review-panel" aria-labelledby="review-panel-title">
+            <h3 id="review-panel-title">Mes révisions sans aide</h3>
+            <p id="review-panel-description">Aucune réponse enregistrée : seul le choix volontaire des dates peut être conservé dans ce navigateur.</p>
+            <div id="due-list" class="due-list" aria-live="polite"></div>
+            <button type="button" class="button button-line" id="clear-schedule">Effacer mes dates de révision</button>
           </div>
           <p id="home-error" class="form-error" role="alert" hidden></p>
         </section>
@@ -102,6 +113,13 @@
             <div id="coaching-view" hidden>
               <div class="attempt-recap" id="attempt-recap"></div>
               <div id="hint-list" class="hint-list" aria-live="polite"></div>
+              <div class="ai-panel" id="ai-panel" hidden>
+                <h3 id="ai-title">Questionner mon raisonnement avec une IA (facultatif)</h3>
+                <p id="ai-warning">Ton texte sera envoyé à Groq uniquement après ton accord. Ne transmets aucune donnée personnelle. La question générée peut être erronée.</p>
+                <label class="age-check"><input type="checkbox" id="ai-consent"><span id="ai-consent-label">J'accepte cet envoi ponctuel à Groq.</span></label>
+                <button type="button" id="ai-button" class="button button-line">Poser une question socratique</button>
+                <p id="ai-result" role="status" aria-live="polite"></p>
+              </div>
               <div class="action-row"><button class="button button-solid" id="hint-button">Recevoir un indice <span aria-hidden="true">↗</span></button><button class="button button-line" id="explanation-button">Voir l’explication</button></div>
             </div>
             <div id="direct-access" class="direct-access" hidden><button id="direct-button" class="text-button">Accéder directement à l'explication ↗</button></div>
@@ -123,7 +141,29 @@
               <div class="answer-box"><span class="prompt-label">EXEMPLE DE RAISONNEMENT POSSIBLE</span><p id="sample-answer"></p></div>
               <p id="session-summary" class="field-hint"></p>
               <div class="offscreen-box"><span aria-hidden="true">↗</span><div><strong>Et maintenant, loin de l'écran ?</strong><p id="offline-challenge">Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
+              <div class="learning-panel" id="next-lesson" hidden><h3 id="next-lesson-title">Pour aller plus loin, à ton rythme</h3><p id="next-lesson-text"></p><button class="button button-line" id="next-lesson-button">Découvrir le défi suivant</button></div>
+              <div class="learning-panel" id="schedule-offer">
+                <h3 id="schedule-title">Revenir une fois, sans obligation</h3>
+                <p id="schedule-description">Tu peux programmer un rappel dans ce navigateur dans un jour. Aucun texte ni identifiant personnel n'est enregistré.</p>
+                <label class="age-check"><input type="checkbox" id="schedule-consent"><span id="schedule-consent-label">J'autorise le stockage local de l'identifiant de l'exercice et de sa date de rappel.</span></label>
+                <button type="button" id="schedule-button" class="button button-line">Programmer une révision</button>
+                <p id="schedule-status" role="status" aria-live="polite"></p>
+              </div>
               <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true">↗</span></button><button class="button button-line" id="print-button" type="button">Imprimer ma fiche de réflexion</button></div>
+            </div>
+            <div id="recall-view" hidden>
+              <label id="recall-label" for="recall-answer" class="field-label">Ce dont je me souviens, sans aide</label>
+              <textarea id="recall-answer" rows="5" maxlength="2000" placeholder="Sans consulter de notes…"></textarea>
+              <p id="recall-hint" class="field-hint">Aucune réponse n'est envoyée au serveur : seul le fait d'avoir répondu est signalé.</p>
+              <div class="action-row"><button id="recall-submit" class="button button-solid">Voir la piste de référence</button><button id="recall-skip" class="button button-line">Passer</button></div>
+            </div>
+            <div id="recall-finished-view" hidden>
+              <p id="recall-yours-label" class="field-label">Ma restitution</p>
+              <p id="recall-own-answer" class="attempt-recap"></p>
+              <article class="explanation-card"><span id="recall-reference-label" class="prompt-label">UNE EXPLICATION POSSIBLE</span><p id="recall-reference-text"></p></article>
+              <p id="recall-note" class="field-hint">Compare ta réponse sans te noter : qu'as-tu retrouvé par toi-même ?</p>
+              <div class="action-row"><button id="recall-plan-next" class="button button-line">Planifier une autre révision (7 jours)</button><button id="recall-end" class="button button-solid">Terminer</button></div>
+              <p id="recall-status" role="status"></p>
             </div>
             <p id="workspace-error" class="form-error" role="alert" hidden></p>
           </div>

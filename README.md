@@ -120,3 +120,8 @@ npm start
 ```
 
 **Important** : PR empilée sur la V0.2.1, sans fusion dans `main` avant la recette fonctionnelle. Les modifications ne constituent pas une validation scientifique ni une autorisation d'ouvrir le service aux mineurs.
+
+## Intégration V0.4 sur le programme V0.3 déjà fusionné
+La PR #3 a livré **20 exercices** en `main`. La branche parallèle de la PR #4, basée sur neuf exercices, ne doit **pas** remplacer cette bibliothèque. Cette branche d'intégration conserve les 20 exercices, leurs filtres et défis papier et ajoute les parcours facultatifs, les restitutions J+1/J+7 et le coach socratique opt-in (désactivé en l'absence de configuration).
+
+Tests : `npm run check`. Recette : filtres des domaines/niveaux, 20 cartes FR/EN, masquage de l'énoncé, indice, transfert, papier, révision, absence d'IA par défaut.
