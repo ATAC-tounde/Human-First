@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f5ef"><meta name="description" content="LEARN - comprendre, restituer, transférer puis quitter l'écran. Une expérience pédagogique HUMAN FIRST.">
+<title>LEARN | HUMAN FIRST</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/learn.css">
+<script type="module" src="/learn.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<div class="site-shell">
+<header class="site-header"><a class="brand" href="/"><span class="emblem" aria-hidden="true">HF</span><span>HUMAN <b>FIRST</b><small>EXPERIENCE / LEARN</small></span></a>
+<nav aria-label="Espaces HUMAN FIRST"><a href="/" id="nav-think">THINK</a><a href="/focus" id="nav-focus">FOCUS</a><span class="active" aria-current="page">LEARN</span><button id="switch-lang" class="lang-button" type="button" aria-label="Switch to English">EN</button></nav></header>
+<main id="main">
+<section id="catalog-screen" aria-labelledby="hero-heading">
+<div class="hero"><div class="hero-copy"><span class="overline" id="hero-eyebrow">03 / HUMAN FIRST · LEARN</span><h1 id="hero-heading">Savoir, c'est aussi <em>retrouver.</em></h1>
+<p id="hero-text">Lire n'est qu'un début. Comprendre, essayer de se souvenir, appliquer à une situation nouvelle : voilà ce que nous te proposons d'explorer.</p>
+<div class="hero-features" id="hero-features"><span id="feature-one">Sans notes imposées</span><span id="feature-two">Sans score</span><span id="feature-three">À ton rythme</span></div></div>
+<div class="hero-art" aria-hidden="true"><div class="art-ring ring-one"></div><div class="art-ring ring-two"></div><div class="art-core"><span>01</span><strong>JE LIS</strong><i>↘</i><span>02</span><strong>JE RETROUVE</strong><i>↘</i><span>03</span><strong>J'APPLIQUE</strong></div><div class="orbit orbit-a">✳</div><div class="orbit orbit-b">?</div><div class="orbit orbit-c">↗</div></div></div>
+<div class="section-heading"><div><span class="overline" id="list-eyebrow">EXPLORER LES IDÉES</span><h2 id="list-heading">Six petites leçons.<br><em>Ton propre raisonnement.</em></h2></div><p id="list-lead">Commence par le sujet qui t'intéresse. Les prérequis sont des conseils, jamais des obstacles.</p></div>
+<div class="filter-row" id="lesson-filters" role="group" aria-label="Filtrer les leçons"></div>
+<div id="lesson-grid" class="lesson-grid" aria-live="polite"><p>Chargement…</p></div>
+<div class="age-box"><label><input id="adult-check" type="checkbox"><span id="adult-text">Je confirme avoir au moins 18 ans.</span></label><p id="age-description">Démonstration éducative, sans compte, destinée aux adultes. Aucun résultat d'étude scientifique n'est revendiqué.</p></div>
+<div id="local-reviews" class="local-reviews" aria-labelledby="reviews-title"><div><span class="overline" id="review-eyebrow">REVENIR LIBREMENT</span><h2 id="reviews-title">Mes restitutions choisies</h2><p id="reviews-intro">Si tu le souhaites, ton navigateur peut conserver une date de révision. Pas de notification, pas de suivi.</p></div><div id="review-list" class="review-list"></div><button type="button" id="erase-reviews" class="outline-btn">Effacer les dates enregistrées</button></div>
+<p role="alert" id="catalog-error" class="error" hidden></p>
+</section>
+<section id="lesson-screen" hidden aria-labelledby="lesson-title">
+<div class="lesson-top"><button type="button" class="text-btn" id="exit-lesson">← <span id="exit-text">Quitter librement</span></button><span id="lesson-progress-label" class="overline"></span></div>
+<div class="progress-bar" role="progressbar" aria-label="Étape de la leçon" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"><span id="progress-track"></span></div>
+<div class="lesson-layout"><div class="lesson-main"><span id="lesson-domain" class="overline"></span><h1 id="lesson-title"></h1><p id="lesson-objective" class="lesson-lead"></p>
+<div id="stage-study" hidden><div id="study-sections" class="study-sections"></div><div class="action-row"><button id="study-next" type="button" class="primary-btn">Fermer le cours, essayer de me souvenir ↗</button></div></div>
+<div id="stage-recall" hidden><p id="recall-guide" class="gentle-guide"></p><div class="question-card"><span id="recall-caption" class="overline">RESTITUTION SANS AIDE</span><p id="recall-question"></p></div><label for="recall-answer" id="recall-label" class="form-label">Ce dont je me souviens</label><textarea id="recall-answer" maxlength="2400" rows="6" placeholder="Mes idées, même incomplètes…"></textarea><p id="privacy-reminder" class="field-hint">Ce texte reste dans cet onglet. Il n'est pas envoyé au serveur.</p><div class="action-row"><button id="recall-submit" type="button" class="primary-btn">Comparer avec une explication ↗</button><button id="recall-skip" class="outline-btn" type="button">Passer sans répondre</button></div></div>
+<div id="stage-feedback" hidden><div class="recall-summary"><span id="own-recall-caption" class="overline">MA PREMIÈRE RESTITUTION</span><p id="own-recall"></p></div><div class="explanation-box"><span id="feedback-caption" class="overline">POUR MIEUX COMPRENDRE</span><p id="feedback-explanation"></p></div><div class="rubric-box"><h3 id="rubric-title">Trois questions, sans note</h3><ul id="rubric-list"></ul></div><button id="feedback-next" class="primary-btn" type="button">Appliquer à un autre problème ↗</button></div>
+<div id="stage-apply" hidden><p id="apply-guide" class="gentle-guide"></p><div class="question-card"><span id="apply-caption" class="overline">UNE SITUATION NOUVELLE</span><p id="apply-question"></p></div><label for="apply-answer" id="apply-label" class="form-label">Ma réponse autonome</label><textarea id="apply-answer" maxlength="2400" rows="6" placeholder="Voici comment je raisonnerais…"></textarea><p id="apply-private" class="field-hint">Aucun indice pendant cette étape. Aucune réponse envoyée au serveur.</p><div class="action-row"><button id="apply-submit" type="button" class="primary-btn">Terminer et comparer ↗</button><button id="apply-skip" class="outline-btn" type="button">Passer</button></div></div>
+<div id="stage-finished" hidden><div class="closing-head" aria-hidden="true">✳</div><h2 id="closing-heading">Ce qui compte, c'est ce qui te reste.</h2><p id="closing-lead" class="lesson-lead">Tu peux maintenant quitter cette page. Tu n'as pas à prouver ta progression.</p><div class="recall-summary"><span id="my-application-label" class="overline">MA RÉPONSE AU PROBLÈME NOUVEAU</span><p id="own-application"></p></div><div class="explanation-box"><span id="reference-caption" class="overline">UNE APPROCHE POSSIBLE</span><p id="reference-text"></p></div><div class="paper-card"><strong id="paper-caption">À essayer loin de l'écran</strong><p id="paper-task"></p></div><div class="review-offer"><h3 id="offer-title">Revenir plus tard, seulement si tu le souhaites</h3><p id="offer-text">Programmer une restitution locale dans 2 jours ? Aucune notification ne sera envoyée.</p><label class="consent-line"><input type="checkbox" id="review-optin"><span id="review-optin-label">J'accepte de mémoriser localement l'identifiant de la leçon et une date.</span></label><div class="action-row"><button id="offer-button" type="button" class="outline-btn">Programmer la révision</button><button id="print-button" type="button" class="outline-btn">Imprimer une fiche</button></div><p id="offer-status" role="status"></p></div><button id="finish-exit" class="primary-btn" type="button">Terminer et quitter ↗</button></div>
+<p id="lesson-error" class="error" role="alert" hidden></p>
+</div><aside class="lesson-aside"><span class="aside-star" aria-hidden="true">✳</span><span class="overline" id="aside-label">UN AUTRE RAPPORT À L'APPRENTISSAGE</span><h2 id="aside-title">Comprendre.<br>Pas collectionner<br>des réponses.</h2><p id="aside-text">Tout le monde peut oublier, hésiter ou changer d'avis. Rien ici ne mesure ton intelligence ou ta valeur.</p><hr><p id="aside-footer">Tu peux arrêter à tout moment. Les textes de tes réponses ne quittent pas cet onglet.</p></aside></div>
+</section>
+</main>
+<footer><div><strong>HUMAN FIRST</strong><span id="foot-tagline">Penser d'abord. L'IA ensuite.</span></div><p id="foot-privacy">18+ · Démonstration · Sans publicité, compte ou analytique</p><span>© 2026 HUMAN FIRST</span></footer>
+</div></body></html>
