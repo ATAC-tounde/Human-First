@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
-import { publicCatalog, getExercise, publicTraining } from './catalog.mjs';
+import { publicCatalog, getExercise, publicTraining, localizeExercise } from './catalog.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -16,6 +16,7 @@ const publicFiles = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
+  '/i18n.js': ['i18n.js', 'text/javascript; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };
@@ -70,9 +71,10 @@ async function body(req) {
 }
 function textAnswer(value) {return typeof value === 'string' ? value.trim().slice(0, 2000) : '';}
 function response(session) {
-  const ex = getExercise(session.exerciseId);
-  const common = {stage: session.stage, exercise: {id: ex.id, title: ex.title, category: ex.category}, hintsUsed: session.hintsUsed, attempted: session.attempted, skipped: session.skipped};
-  if (session.stage === 'training') return {...common, training: publicTraining(ex), attempt: session.attempt};
+  const ex = localizeExercise(getExercise(session.exerciseId), session.locale);
+  const revealedHints = [ex.guide, ...ex.hints].slice(0, session.hintsUsed);
+  const common = {stage: session.stage, exercise: {id: ex.id, title: ex.title, category: ex.category}, locale:session.locale, hintsUsed: session.hintsUsed, attempted: session.attempted, skipped: session.skipped};
+  if (session.stage === 'training') return {...common, training: publicTraining(ex), attempt: session.attempt, revealedHints};
   if (session.stage === 'explanation') return {...common, training: publicTraining(ex), attempt: session.attempt, explanation: ex.explanation};
   if (session.stage === 'transfer') return {...common, transfer: ex.transfer};
   if (session.stage === 'finished') return {...common, transfer: ex.transfer, transferAnswer: session.transferAnswer, reflection: {review:ex.review, example:ex.example}, summary: {assistance: session.hintsUsed > 0 ? 'indices' : session.openedDirectly ? 'explication directe' : 'aucune', hintsUsed:session.hintsUsed, attempted:session.attempted, skipped:session.skipped}};
@@ -90,7 +92,10 @@ const app = createServer(async(req,res) => {
     }
     const url = new URL(req.url || '/', 'http://localhost');
     if (req.method === 'GET' && url.pathname === '/api/health') {json(res,200,{status:'ok',service:'think-first',research:'disabled',ai:'disabled'});return;}
-    if (req.method === 'GET' && url.pathname === '/api/catalog') {json(res,200,{notice:'Contenus de démonstration non validés pour une étude scientifique.', exercises:publicCatalog()});return;}
+    if (req.method === 'GET' && url.pathname === '/api/catalog') {
+      const locale=url.searchParams.get('lang') === 'en' ? 'en' : 'fr';
+      json(res,200,{locale,notice:locale==='en'?'Demonstration exercises, not validated for scientific studies.':'Contenus de démonstration non validés pour une étude scientifique.', exercises:publicCatalog(locale)});return;
+    }
     if (req.method === 'GET' && url.pathname === '/api/session') {
       const session=currentSession(req);
       json(res,200,session ? response(session) : {stage:'idle'});return;
@@ -104,7 +109,8 @@ const app = createServer(async(req,res) => {
         if (!ex) {reject(res,404,'Exercice introuvable.');return;}
         const old=cookieId(req);if(old) sessions.delete(old);
         const id=randomBytes(32).toString('base64url');
-        const session={exerciseId:ex.id,stage:'training',attempt:'',attempted:false,skipped:false,hintsUsed:0,openedDirectly:false,expiry:Date.now()+ttl};
+        const locale=input.locale==='en'?'en':'fr';
+        const session={exerciseId:ex.id,locale,stage:'training',attempt:'',attempted:false,skipped:false,hintsUsed:0,openedDirectly:false,expiry:Date.now()+ttl};
         sessions.set(id,session);
         if(sessions.size>1000) pruneSessions();
         // Aucune collecte durable et limite de sessions pour la démonstration.
@@ -126,11 +132,10 @@ const app = createServer(async(req,res) => {
       }
       if(url.pathname==='/api/session/hint') {
         if(s.stage!=='training'||(!s.attempted&&!s.skipped)){reject(res,409,'Essaie ou passe avant de demander un indice.');return;}
-        const ex=getExercise(s.exerciseId);
+        const ex=localizeExercise(getExercise(s.exerciseId),s.locale);
         if(s.hintsUsed >= 3){reject(res,409,'Tous les indices ont été consultés.');return;}
         s.hintsUsed += 1;
-        const hint=s.hintsUsed===1?ex.guide:ex.hints[s.hintsUsed-2];
-        json(res,200,{hint,level:s.hintsUsed,hintsUsed:s.hintsUsed});return;
+        json(res,200,response(s));return;
       }
       if(url.pathname==='/api/session/explanation') {
         if(s.stage!=='training'&&s.stage!=='explanation'){reject(res,409,'Étape non autorisée.');return;}

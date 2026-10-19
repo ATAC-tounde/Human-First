@@ -1,3 +1,4 @@
+import {englishExercises} from './catalog.en.mjs';
 // Documents de démonstration : ils ne constituent PAS des contenus validés pour la recherche.
 // Les solutions et les items de transfert restent dans le module serveur uniquement.
 export const catalog = Object.freeze([
@@ -63,11 +64,18 @@ export const catalog = Object.freeze([
   }
 ]);
 
-export function publicCatalog() {
-  return catalog.filter(x => x.status === 'demonstration').map(({id, version, title, category, duration, level, introduction}) => ({id, version, title, category, duration, level, introduction}));
+export function localizeExercise(exercise, locale = 'fr') {
+  if (locale !== 'en') return exercise;
+  return {...exercise, ...(englishExercises[exercise.id] || {})};
+}
+export function publicCatalog(locale = 'fr') {
+  return catalog.filter(x => x.status === 'demonstration').map(original => {
+    const {id, version, title, category, duration, level, introduction} = localizeExercise(original, locale);
+    return {id, version, title, category, duration, level, introduction};
+  });
 }
 export function getExercise(id) {return catalog.find(x => x.id === id && x.status === 'demonstration') ?? null;}
 export function publicTraining(exercise) {
-  const {id, version, title, category, introduction, prompt, guide, hints} = exercise;
-  return {id, version, title, category, introduction, prompt, guide, hints};
+  const {id, version, title, category, introduction, prompt} = exercise;
+  return {id, version, title, category, introduction, prompt};
 }
