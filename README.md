@@ -98,3 +98,20 @@ Captures dans `artifacts/visual/` (non versionnées). La recette visuelle doit �
 - Tests automatiques : reprise entre deux processus distincts, altération du cookie, absence du secret en production, parcours FR/EN et URL avec paramètres.
 
 La PR reste en environnement **Preview**. Ne pas fusionner vers `main` ni annoncer un lancement public avant une recette humaine complète.
+
+## Nouveautés V0.3 - Enrichissement pédagogique (branche de recette)
+
+Neuf exercices de **démonstration** au total, dont six nouveaux en français et en anglais : vérifier une affirmation virale, planifier une stratégie de travail, réfuter une généralisation, interpréter les faux positifs et les taux de base, restituer une notion sans relecture, et décider sans suivre aveuglément un classement IA.
+
+Le même parcours non culpabilisant est conservé pour tous : tentative personnelle facultative, trois aides révélées progressivement, explication explicite, **nouveau problème de transfert sans aide**, bilan de relecture et activité hors écran.
+
+Les exercices nouveaux sont des prototypes éditoriaux, **non validés scientifiquement**. Ni un résultat sur un exercice, ni une autoévaluation ne permettent de conclure que la mémoire, l'attention ou l'autonomie d'une personne s'est améliorée. Pas de collecte de recherche, pas de classement, pas de diagnostic.
+
+### Recette V0.3
+
+```bash
+npm run check
+npm start
+```
+
+Contrôler particulièrement les neuf cartes en FR/EN, l'absence de correction avant le transfert, la conservation de la session en Preview, le refus des étapes hors séquence, les calculs de l'exercice « pourcentages » et la navigation clavier/mobile. `tests/pedagogy.test.mjs` vérifie la complétude et la non-divulgation des contenus : exécuter les tests ne remplace pas une revue pédagogique indépendante.
