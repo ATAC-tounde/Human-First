@@ -118,3 +118,30 @@ test('LEARN routes and source boundary: private lessons never served as static f
  const source=await fetch(base+'/server/learn-catalog.mjs');assert.equal(source.status,404);
  const head=await fetch(base+'/learn');assert.ok(head.headers.get('content-security-policy').includes("default-src 'none'"));
 });
+
+test('LEARN integration preserves twenty THINK challenges and FOCUS navigation',async()=>{
+ const c=await req('/api/catalog?lang=fr');
+ assert.equal(c.status,200);
+ assert.equal(c.data.exercises.length,20);
+ const focus=await fetch(base+'/focus');
+ assert.equal(focus.status,200);
+ const focusHtml=await focus.text();
+ assert.ok(focusHtml.includes('class="focus-learn-link"'));
+ const library=await fetch(base+'/focus-library.mjs');
+ assert.equal(library.status,200);
+ const home=await fetch(base+'/');
+ const page=await home.text();
+ for(const id of ['domain-filters','level-filter','focus-nav-link','learn-nav-link','focus-hero-link','learn-hero-link','offscreen-card']){
+  assert.ok(page.includes('id="'+id+'"'),id+' missing from current home');
+ }
+ const learnPage=await (await fetch(base+'/learn')).text();
+ assert.ok(learnPage.includes('id="catalog-screen"'));
+});
+
+test('LEARN and THINK cookies cannot impersonate one another',async()=>{
+ const l=await start('evidence');
+ const t=await req('/api/session/start',{method:'POST',body:{adult:true,exerciseId:'moyenne'}});
+ assert.equal(t.status,200);
+ assert.equal((await req('/api/learn/session',{cookie:t.cookie})).data.stage,'idle');
+ assert.equal((await req('/api/session',{cookie:l.cookie})).data.stage,'idle');
+});
