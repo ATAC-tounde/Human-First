@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {catalog, publicCatalog, publicTraining, getExercise, localizeExercise} from '../server/catalog.mjs';
 
-test('V0.3 : neuf exercices avec identifiants uniques et quatre domaines',()=>{
+test('V0.3 : neuf exercices avec identifiants uniques et domaines pédagogiques',()=>{
   assert.equal(catalog.length,9);
   assert.equal(new Set(catalog.map(x=>x.id)).size,9);
   const domains=new Set(catalog.map(x=>x.category));
@@ -13,7 +13,9 @@ test('V0.3 : chaque exercice complet dispose de trois indices et transfert disti
   for(const x of catalog){
     for(const locale of ['fr','en']){
       const localized=localizeExercise(x,locale);
-      for(const field of ['id','title','category','level','introduction','prompt','guide','explanation','transfer','example']) {
+      // An ID is a short technical key (e.g. "moyenne", "source", "rappel"), not prose.
+      assert.match(localized.id, /^[a-z][a-z0-9_-]{2,63}$/, `${x.id}:${locale}:id`);
+      for(const field of ['title','category','level','introduction','prompt','guide','explanation','transfer','example']) {
         assert.ok(typeof localized[field]==='string' && localized[field].trim().length>8,`${x.id}:${locale}:${field}`);
       }
       assert.equal(localized.hints.length,2,`${x.id}:${locale}:hints`);
