@@ -333,6 +333,14 @@ function updateLanguageSwitch() {
   const decideUrl='/decide?lang='+locale;
   $('decide-nav-link').href=decideUrl;
   $('decide-hero-link').href=decideUrl;
+  const journeyUrl='/journey?lang='+locale;
+  $('journey-nav-link').href=journeyUrl;
+  $('journey-hero-link').href=journeyUrl;
+  $('journey-nav-link').textContent=locale==='en'?'MY PATHWAY':'MON PARCOURS';
+  $('journey-link-label').textContent=locale==='en'?'LEARNING KERNEL · PERSONAL PATHWAYS':'LE NOYAU · PARCOURS PERSONNALISÉS';
+  $('journey-link-heading').textContent=locale==='en'?'Learning at every stage of life.':'Apprendre à chaque étape de la vie.';
+  $('journey-link-description').textContent=locale==='en'?'Choose a goal. Competencies and four pillars form a voluntary program without scores or automated profiling.':'Choisis un objectif. Les compétences et les quatre piliers s’organisent autour de toi, sans note ni profilage automatique.';
+  $('journey-hero-link').textContent=locale==='en'?'Build my pathway ↗':'Construire mon parcours ↗';
   $('decide-link-label').textContent=locale==='en'?'PILLAR 04 · DECIDE':'PILIER 04 · DECIDE';
   $('decide-link-heading').textContent=locale==='en'?'Your judgment before any recommendation.':'Ton jugement avant toute recommandation.';
   $('decide-link-description').textContent=locale==='en'?'Seven situations to clarify criteria and examine AI rankings critically.':'Sept situations, tes critères, des alternatives et un regard critique sur les classements d’IA.';
