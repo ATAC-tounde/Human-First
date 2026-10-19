@@ -27,6 +27,13 @@
 #recall-finished-view,#recall-view{margin:22px 0}
 @media print{.ai-panel,.learning-panel,#recall-view,.path-buttons{display:none!important}}
 
+/* FOCUS home teaser is visually coherent with THINK and does not compete for screen time. */
+.focus-link-panel{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:32px 34px;background:#e5ecdf;border-radius:11px;margin:30px 0 58px}
+.focus-link-panel .eyebrow{margin:0 0 8px}.focus-link-panel h3{font:400 30px/1.24 Georgia,serif;color:var(--pine);margin:0 0 7px}
+.focus-link-panel p{margin:0;color:#66806c;font-size:13px;line-height:1.7}.focus-link-panel .button{flex-shrink:0}
+@media(max-width:850px){.focus-link-panel{flex-wrap:wrap}}@media(max-width:550px){.focus-link-panel{padding:24px 20px}}
+@media print{.focus-link-panel{display:none!important}}
+
 /* V0.4.1 - offscreen challenge cards, revealed only after completing a transfer or recall. */
 .offscreen-box{align-items:flex-start;break-inside:avoid}
 .offscreen-box>div{min-width:0;width:100%}

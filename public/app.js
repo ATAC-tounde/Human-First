@@ -264,6 +264,12 @@ on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{}
 function updateLanguageSwitch() {
   const btn=$('language-switch');btn.textContent=locale==='fr'?'EN':'FR';
   btn.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
+  $('focus-nav-link').href=`/focus?lang=${locale}`;
+  $('focus-hero-link').href=`/focus?lang=${locale}`;
+  $('focus-link-label').textContent=locale==='en'?'PILLAR 02 · FOCUS':'PILIER 02 · FOCUS';
+  $('focus-link-heading').textContent=locale==='en'?'Practise attention, away from the screen.':"Une pratique de l’attention, loin de l’écran.";
+  $('focus-link-description').textContent=locale==='en'?'Six optional activities, with no timer, account or collection of answers.':'Six petites activités libres, sans minuteur, sans compte et sans collecte de réponses.';
+  $('focus-hero-link').textContent=locale==='en'?'Explore FOCUS ↗':'Explorer FOCUS ↗';
 }
 on('language-switch','click',()=>guarded(async()=>{
   if(state.stage!=='idle')return;

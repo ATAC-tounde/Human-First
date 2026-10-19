@@ -99,32 +99,15 @@ Captures dans `artifacts/visual/` (non versionnées). La recette visuelle doit �
 
 La PR reste en environnement **Preview**. Ne pas fusionner vers `main` ni annoncer un lancement public avant une recette humaine complète.
 
-## Nouveautés V0.3 - Enrichissement pédagogique (branche de recette)
-
-Neuf exercices de **démonstration** au total, dont six nouveaux en français et en anglais : vérifier une affirmation virale, planifier une stratégie de travail, réfuter une généralisation, interpréter les faux positifs et les taux de base, restituer une notion sans relecture, et décider sans suivre aveuglément un classement IA.
-
-Le même parcours non culpabilisant est conservé pour tous : tentative personnelle facultative, trois aides révélées progressivement, explication explicite, **nouveau problème de transfert sans aide**, bilan de relecture et activité hors écran.
-
-Les exercices nouveaux sont des prototypes éditoriaux, **non validés scientifiquement**. Ni un résultat sur un exercice, ni une autoévaluation ne permettent de conclure que la mémoire, l'attention ou l'autonomie d'une personne s'est améliorée. Pas de collecte de recherche, pas de classement, pas de diagnostic.
-
-### Recette V0.3
-
-```bash
-npm run check
-npm start
-```
-
-Contrôler particulièrement les neuf cartes en FR/EN, l'absence de correction avant le transfert, la conservation de la session en Preview, le refus des étapes hors séquence, les calculs de l'exercice « pourcentages » et la navigation clavier/mobile. `tests/pedagogy.test.mjs` vérifie la complétude et la non-divulgation des contenus : exécuter les tests ne remplace pas une revue pédagogique indépendante.
-
-## V0.3.1 / V0.3.2 / V0.4-alpha — Trois nouveaux axes (branche de démonstration)
-- **Progression libre** : quatre parcours (raisonnement, données, apprentissage, décision), niveaux éditoriaux indicatifs, suggestion optionnelle du prochain défi ; aucun score ni exercice verrouillé.
-- **Restitution différée** : révision sans indice à J+1, puis possibilité d'une autre à J+7. Opt-in explicite dans l'interface. Seules les dates et identifiants d'exercice sont stockés localement ; aucun texte n'est stocké dans ce calendrier. Bouton d'effacement. Les textes de restitution restent dans l'onglet et **ne sont pas transmis au serveur**.
-- **IA socratique facultative** : intégration Groq **désactivée par défaut** ; uniquement après tentative personnelle et accord explicite par requête. Le fournisseur ne reçoit ni correction ni item de transfert. Deux questions au maximum par session chiffrée, mais cela ne remplace pas un vrai dispositif anti-abus. Les sorties sont contrôlées et un guidage prédéfini reste disponible si l'IA est désactivée.
-- **Statut expérimental** : 18+, aucun score de capacité cognitive, aucun protocole de recherche ni effet pédagogique prouvé. Ne pas activer le fournisseur IA au public sans une revue de protection des données, quotas/cap et tests adversariaux.
-
-Documentation : [docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md](docs/PROGRESSION_RAPPEL_IA_V0.4_ALPHA.md). Test local : `npm run check` puis `npm start` (sans clé IA). La recette visuelle reste à réaliser sur navigateur.
-
-
 ## V0.4.1-alpha - Faire un exercice, puis quitter l'écran
 
-Neuf défis hors écran bilingues et imprimables, visibles **uniquement après** un transfert ou rappel sans aide. Ils ne requièrent qu'un crayon et une feuille ; ni minuteur ni score. Les brouillons sont liés à un identifiant de session aléatoire **non secret**, ce qui évite de restaurer le texte d'un autre parcours partagé entre onglets. Aucun compte, suivi ou collecte nouvelle. Voir [docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md](docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md).
+Chaque exercice dispose désormais d'un mini-défi **FR/EN et imprimable** à effectuer avec une feuille ou un crayon, révélé uniquement après le transfert ou le rappel autonome. Les brouillons locaux sont liés à l'identifiant éphémère du parcours pour empêcher un affichage croisé entre onglets. Aucune mesure de performance ni collecte supplémentaire. Voir `docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md`.
+
+
+## FOCUS V0.5-alpha - pratiquer puis quitter l’écran
+
+Le deuxième pilier possède une page autonome : `/focus` et `/focus?lang=en`, également accessible depuis l’accueil THINK FIRST. Six activités bilingues (attention mono-tâche, lecture avec intention, observation/inférence, écoute volontaire, planification concrète, restitution sans aide) sont proposées sans chrono, classements, séries ou notifications. Un parcours très court laisse l’utilisateur noter **facultativement** une intention, quitter l’écran pour mener l’activité, puis réfléchir à son expérience s’il le souhaite.
+
+La fonctionnalité FOCUS ne crée aucun compte et ne transmet ni ne stocke les textes saisis : ils restent dans les champs vivants de la page et sont effacés à la fin, à l’annulation, à l’actualisation ou à la fermeture. **Attention : le prestataire d’hébergement peut disposer de journaux techniques HTTP, distincts des textes saisis.** Tous les contenus sont des propositions pédagogiques non validées expérimentalement ; aucun bénéfice cognitif ou thérapeutique n’est revendiqué.
+
+Voir [docs/FOCUS_V0.5_SPEC_RECETTE.md](docs/FOCUS_V0.5_SPEC_RECETTE.md). Exécuter `npm run check`, `npm start`, puis la recette visuelle, mobile, clavier et impression. Ne pas fusionner `main` avant validation.
