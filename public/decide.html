@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5ef">
+  <meta name="description" content="DECIDE - réfléchir à ses critères et vérifier les recommandations avant de faire un choix. HUMAN FIRST.">
+  <title>DECIDE | HUMAN FIRST</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/decide.css">
+  <script type="module" src="/decide.js"></script>
+</head>
+<body>
+<a href="#main" class="skip">Aller au contenu</a>
+<div class="shell">
+  <header class="header">
+    <a class="brand" href="/" aria-label="HUMAN FIRST, accueil"><span class="mark">HF</span>HUMAN <b>FIRST</b></a>
+    <nav class="nav" aria-label="Espaces HUMAN FIRST">
+      <a href="/" id="nav-think">THINK</a>
+      <a href="/focus" id="nav-focus">FOCUS</a>
+      <a href="/learn" id="nav-learn">LEARN</a>
+      <span aria-current="page" class="current">DECIDE</span>
+      <button type="button" id="switch-lang" aria-label="Switch to English">EN</button>
+    </nav>
+  </header>
+  <main id="main">
+    <section id="choose-view" aria-labelledby="hero-title">
+      <div class="hero"><p class="eyebrow" id="hero-eyebrow">PILIER 04 · DECIDE · DÉMONSTRATION</p>
+        <h1 id="hero-title">Une décision <em>à la fois.</em></h1>
+        <p id="hero-description">Définis tes critères, examine les alternatives et vérifie les recommandations avant de choisir. Aucun score, aucun choix imposé.</p>
+        <p class="principles" id="principles">✓ Sans compte &nbsp; ✓ Sans IA active &nbsp; ✓ Sans suivi</p>
+      </div>
+      <div class="adulthood">
+        <label><input id="adult-check" type="checkbox"><span id="adult-label">Je confirme avoir 18 ans ou plus.</span></label>
+        <p class="field-help" id="adult-detail">Démonstration pédagogique. Évite de saisir des informations sensibles ou des décisions à forts enjeux.</p>
+        <p class="error" id="age-error" role="alert" hidden></p>
+      </div>
+      <section class="selection" aria-labelledby="scenario-title">
+        <p class="eyebrow" id="scenario-eyebrow">UN DILEMME À EXAMINER</p>
+        <h2 id="scenario-title">Sept situations pour s’entraîner.</h2>
+        <p id="scenario-subtitle">Les situations sont fictives. Tu peux créer la tienne et quitter à tout moment.</p>
+        <div id="scenarios" class="cards"></div>
+      </section>
+    </section>
+    <section id="work-view" hidden aria-labelledby="work-title">
+      <div class="work-top">
+        <button id="exit-work" class="quiet" type="button">← Quitter et effacer mes notes</button>
+        <p class="eyebrow" id="step-marker">ÉTAPE 1 SUR 5</p>
+      </div>
+      <div class="progress" role="progressbar" aria-label="Étape de réflexion" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"><div id="progress-fill"></div></div>
+      <div class="work-grid">
+        <div class="work-main">
+          <h1 id="work-title" tabindex="-1">Poser le problème</h1>
+          <p id="work-intro" class="work-intro"></p>
+          <div class="situation"><strong id="situation-label">La situation</strong><p id="situation-text"></p></div>
+          <section id="stage-frame" data-stage="frame" aria-labelledby="frame-title">
+            <h2 id="frame-title">Formuler mon objectif</h2>
+            <label for="goal" id="goal-label">Quel résultat souhaites-tu obtenir ?</label>
+            <textarea id="goal" maxlength="600" rows="3" autocomplete="off"></textarea>
+            <label for="criterion-one" id="criterion-one-label">Critère important n° 1</label>
+            <input id="criterion-one" maxlength="160" autocomplete="off">
+            <label for="criterion-two" id="criterion-two-label">Critère important n° 2</label>
+            <input id="criterion-two" maxlength="160" autocomplete="off">
+            <label for="criterion-three" id="criterion-three-label">Critère important n° 3 (facultatif)</label>
+            <input id="criterion-three" maxlength="160" autocomplete="off">
+          </section>
+          <section id="stage-compare" data-stage="compare" hidden aria-labelledby="compare-title">
+            <h2 id="compare-title">Comparer sans couronner de gagnant</h2>
+            <p id="compare-help" class="field-help">Deux options de départ sont proposées, mais tu peux les modifier.</p>
+            <label for="option-one" id="option-one-label">Option A</label>
+            <input id="option-one" maxlength="240" autocomplete="off">
+            <label for="option-one-tradeoff" id="option-one-tradeoff-label">Son avantage et son compromis</label>
+            <textarea id="option-one-tradeoff" maxlength="600" rows="3" autocomplete="off"></textarea>
+            <label for="option-two" id="option-two-label">Option B</label>
+            <input id="option-two" maxlength="240" autocomplete="off">
+            <label for="option-two-tradeoff" id="option-two-tradeoff-label">Son avantage et son compromis</label>
+            <textarea id="option-two-tradeoff" maxlength="600" rows="3" autocomplete="off"></textarea>
+            <label for="third-option" id="third-option-label">Une troisième possibilité ? (facultatif)</label>
+            <input id="third-option" maxlength="240" autocomplete="off">
+          </section>
+          <section id="stage-verify" data-stage="verify" hidden aria-labelledby="verify-title">
+            <h2 id="verify-title">Distinguer faits et incertitudes</h2>
+            <p id="verify-prompt" class="question"></p>
+            <label for="evidence" id="evidence-label">Quel fait pourrais-tu vérifier ?</label>
+            <textarea id="evidence" maxlength="600" rows="3" autocomplete="off"></textarea>
+            <label for="uncertainty" id="uncertainty-label">Qu’est-ce qui reste une hypothèse ?</label>
+            <textarea id="uncertainty" maxlength="600" rows="3" autocomplete="off"></textarea>
+            <label for="others" id="others-label">Qui pourrait être affecté ou oublié ?</label>
+            <textarea id="others" maxlength="600" rows="3" autocomplete="off"></textarea>
+          </section>
+          <section id="stage-challenge" data-stage="challenge" hidden aria-labelledby="challenge-title">
+            <h2 id="challenge-title">Examiner un conseil d’IA</h2>
+            <p id="challenge-intro" class="field-help">Le texte ci-dessous est un exemple fictif, rédigé à l’avance. Aucune IA n’est appelée.</p>
+            <blockquote id="ai-claim"></blockquote>
+            <p id="ai-question" class="question"></p>
+            <label for="challenge-response" id="challenge-response-label">Quelles hypothèses ou preuves manquerait-il ?</label>
+            <textarea id="challenge-response" maxlength="700" rows="4" autocomplete="off"></textarea>
+            <label for="counterargument" id="counterargument-label">Quel argument opposé mériterait d’être entendu ?</label>
+            <textarea id="counterargument" maxlength="700" rows="3" autocomplete="off"></textarea>
+          </section>
+          <section id="stage-conclude" data-stage="conclude" hidden aria-labelledby="conclude-title">
+            <h2 id="conclude-title">Décider... ou différer volontairement</h2>
+            <label for="choice" id="choice-label">Ton choix provisoire (tu peux aussi différer)</label>
+            <textarea id="choice" maxlength="700" rows="3" autocomplete="off"></textarea>
+            <label for="revision-trigger" id="revision-trigger-label">Qu’est-ce qui te ferait reconsidérer ce choix ?</label>
+            <textarea id="revision-trigger" maxlength="700" rows="3" autocomplete="off"></textarea>
+            <div class="paper"><strong id="paper-title">À faire loin de l’écran</strong><p id="paper-text"></p></div>
+            <section class="reflection" aria-labelledby="reflection-title"><h3 id="reflection-title">Quelques questions pour toi</h3><ul id="reflection-prompts"></ul></section>
+            <p class="last-note" id="last-note">Tu n’as pas à justifier tes choix à cette application. Rien n’est enregistré.</p>
+            <button type="button" id="print-worksheet" class="button secondary">Imprimer une fiche vierge, sans mes notes</button>
+          </section>
+          <p class="error" id="work-error" role="alert" hidden></p>
+          <div class="actions">
+            <button type="button" id="previous-step" class="button secondary">← Étape précédente</button>
+            <button type="button" id="next-step" class="button primary">Continuer sans obligation de répondre →</button>
+            <button type="button" id="finish-work" class="button primary" hidden>Terminer et effacer toutes mes notes ↗</button>
+          </div>
+        </div>
+        <aside class="aside" aria-labelledby="aside-title">
+          <p class="eyebrow" id="aside-label">LE CHOIX T’APPARTIENT</p>
+          <h2 id="aside-title">Un conseil peut informer. Il ne décide pas.</h2>
+          <p id="aside-text">Aucune option ne reçoit de note ou de classement automatique. Tu peux revenir sur tes critères ou quitter à tout moment.</p>
+          <div class="privacy" id="privacy-note">Tes notes restent dans cette page ouverte. Elles ne sont pas envoyées au serveur ni conservées dans un stockage navigateur. Fermer ou recharger efface les champs.</div>
+        </aside>
+      </div>
+    </section>
+    <section id="print-sheet" class="print-sheet" aria-hidden="true">
+      <h1>HUMAN FIRST · DECIDE</h1>
+      <p id="print-disclaimer">Fiche vierge : aucun texte saisi n’est imprimé automatiquement.</p>
+      <h2 id="print-goal">1. Mon objectif et mes critères</h2><div class="blank"></div>
+      <h2 id="print-options">2. Mes options et leurs compromis</h2><div class="blank"></div>
+      <h2 id="print-proof">3. Mes preuves et incertitudes</h2><div class="blank"></div>
+      <h2 id="print-review">4. Comment remettre en question un conseil ?</h2><div class="blank"></div>
+      <h2 id="print-choice">5. Ma décision provisoire et sa révision</h2><div class="blank"></div>
+    </section>
+  </main>
+  <footer><strong>HUMAN FIRST</strong><span id="footer-note">Think first. AI second. · 18+ · Prototype pédagogique, pas un outil de conseil professionnel.</span></footer>
+</div>
+</body></html>

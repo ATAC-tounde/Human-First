@@ -140,3 +140,8 @@ La page `/focus` contient six activités pédagogiques FR/EN facultatives à ré
 ## LEARN V0.6 - Troisième pilier (alpha)
 
 Accès : `/learn` en français et anglais. Six leçons originales, avec lecture, restitution sans aide, explication, transfert indépendant et activité hors écran. Cookie `hf_learn` chiffré distinct de celui de THINK, réponses libres non transmises au serveur. Calendrier local volontaire et effaçable. Les 20 exercices THINK ainsi que FOCUS sont préservés. Voir `docs/LEARN_V0.6_SPEC_RECETTE.md`.
+
+
+## DECIDE V0.7 Alpha - Choix autonome et critique des recommandations
+
+Nouveau quatrième espace `/decide` (FR/EN), avec six scénarios fictifs et un atelier libre. Cycle objectif et critères → alternatives et compromis → faits et incertitudes → remise en question d'une recommandation **IA fictive préécrite** → choix provisoire (ou décision différée). Aucun classement automatique, score, minuterie, IA active, traceur ou stockage des notes. Les champs restent en mémoire DOM, effacés en quittant, en terminant ou à l'actualisation. Impression d'une fiche vierge sans réponses. Aucun conseil médical, financier ou juridique. Voir [spécification DECIDE](docs/DECIDE_V0.7_SPEC_RECETTE.md). Les 20 défis THINK, six activités FOCUS et six leçons LEARN sont préservés.

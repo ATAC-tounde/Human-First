@@ -64,6 +64,7 @@ function localeCopy(){
  document.documentElement.lang=locale;
  $('lesson-filters').setAttribute('aria-label',locale==='en'?'Filter lessons':'Filtrer les leçons');
  document.querySelector('.site-header nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
+ $('nav-decide').href='/decide?lang='+locale;
  const langButton=$('switch-lang');langButton.textContent=locale==='fr'?'EN':'FR';langButton.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
  const replace={
  'hero-text':w('heroText'),'list-lead':w('listLead'),'adult-text':w('adult'),'age-description':w('age'),

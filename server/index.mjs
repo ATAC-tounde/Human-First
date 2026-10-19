@@ -29,6 +29,11 @@ const publicFiles = {
   '/learn.html': ['learn.html', 'text/html; charset=utf-8'],
   '/learn.js': ['learn.js', 'text/javascript; charset=utf-8'],
   '/learn.css': ['learn.css', 'text/css; charset=utf-8'],
+  '/decide': ['decide.html', 'text/html; charset=utf-8'],
+  '/decide.html': ['decide.html', 'text/html; charset=utf-8'],
+  '/decide.js': ['decide.js', 'text/javascript; charset=utf-8'],
+  '/decide-data.mjs': ['decide-data.mjs', 'text/javascript; charset=utf-8'],
+  '/decide.css': ['decide.css', 'text/css; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };
