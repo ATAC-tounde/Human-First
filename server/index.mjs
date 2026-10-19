@@ -4,6 +4,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publicCatalog, getExercise, publicTraining, localizeExercise } from './catalog.mjs';
 import { sessionReady, readSession, makeSession, tokenFor } from './session-crypto.mjs';
+import {publicPaths,enhanceCatalog,metadataFor} from './tracks.mjs';
+import {reviewTask} from './reviews.mjs';
+import {coachSettings,askCoach} from './coach.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -69,11 +72,14 @@ function textAnswer(value) {return typeof value==='string'?value.trim().slice(0,
 function response(session,{attempt='',transferAnswer=''}={}) {
   const ex=localizeExercise(getExercise(session.exerciseId),session.locale);
   const revealedHints=[ex.guide,...ex.hints].slice(0,session.hintsUsed);
-  const common={stage:session.stage,exercise:{id:ex.id,title:ex.title,category:ex.category},locale:session.locale,
-    hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped};
+  const common={stage:session.stage,exercise:{id:ex.id,title:ex.title,category:ex.category,progression:metadataFor(ex.id)},locale:session.locale,
+    hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped,coachTurns:session.coachTurns};
   if(session.stage==='training')return {...common,training:publicTraining(ex),attempt,revealedHints};
   if(session.stage==='explanation')return {...common,training:publicTraining(ex),attempt,explanation:ex.explanation};
   if(session.stage==='transfer')return {...common,transfer:ex.transfer};
+  if(session.stage==='recall')return {...common,recall:reviewTask(ex.id,session.locale)?.prompt};
+  if(session.stage==='recall-finished')return {...common,recall:reviewTask(ex.id,session.locale)?.prompt,
+    recalled:session.transferAnswered,reference:reviewTask(ex.id,session.locale)?.example};
   if(session.stage==='finished')return {...common,transfer:ex.transfer,transferAnswer,transferAnswered:session.transferAnswered,
     reflection:{review:ex.review,example:ex.example,offlineChallenge:ex.offlineChallenge},
     summary:{assistance:session.hintsUsed>0?'indices':session.openedDirectly?'explication directe':'aucune',
@@ -89,11 +95,18 @@ const app=createServer(async(req,res)=>{
     }
     if(req.method==='GET'&&url.pathname==='/api/health') {
       json(res,sessionReady()?200:503,{status:sessionReady()?'ok':'configuration_required',service:'think-first',
-        research:'disabled',ai:'disabled',sessionStorage:'encrypted_cookie',sessionsReady:sessionReady()});return;
+        research:'disabled',ai:coachSettings().enabled?'opt_in_available':'disabled',sessionStorage:'encrypted_cookie',sessionsReady:sessionReady()});return;
     }
     if(req.method==='GET'&&url.pathname==='/api/catalog') {
       const locale=url.searchParams.get('lang')==='en'?'en':'fr';
-      json(res,200,{locale,notice:locale==='en'?'Demonstration exercises, not validated for scientific studies.':'Contenus de démonstration non validés pour une étude scientifique.',exercises:publicCatalog(locale)});return;
+      json(res,200,{locale,notice:locale==='en'?'Demonstration exercises, not validated for scientific studies.':'Contenus de démonstration non validés pour une étude scientifique.',exercises:enhanceCatalog(publicCatalog(locale))});return;
+    }
+    if(req.method==='GET'&&url.pathname==='/api/paths') {
+      const locale=url.searchParams.get('lang')==='en'?'en':'fr';
+      json(res,200,{locale,paths:publicPaths(locale,publicCatalog(locale).map(x=>x.id))});return;
+    }
+    if(req.method==='GET'&&url.pathname==='/api/coach/config') {
+      json(res,200,coachSettings());return;
     }
     if(req.method==='GET'&&url.pathname==='/api/session') {
       const session=currentSession(req);
@@ -109,11 +122,40 @@ const app=createServer(async(req,res)=>{
         const session=makeSession(ex.id,input.locale==='en'?'en':'fr');
         json(res,200,response(session),{'Set-Cookie':sessionCookie(req,session)});return;
       }
+      if(url.pathname==='/api/session/recall/start') {
+        if(input.adult!==true){reject(res,400,'Démonstration réservée aux adultes.');return;}
+        const ex=getExercise(input.exerciseId);
+        if(!ex||!reviewTask(ex.id,input.locale)){reject(res,404,'Révision introuvable.');return;}
+        const session=makeSession(ex.id,input.locale==='en'?'en':'fr');
+        session.stage='recall';
+        json(res,200,response(session),{'Set-Cookie':sessionCookie(req,session)});return;
+      }
       if(url.pathname==='/api/session/reset') {
         json(res,200,{stage:'idle'},{'Set-Cookie':clearCookie(req)});return;
       }
       const s=currentSession(req);
       if(!s){reject(res,401,'Session expirée ou invalide. Recommence la démonstration.');return;}
+      if(url.pathname==='/api/session/recall/answer') {
+        if(s.stage!=='recall'){reject(res,409,'La révision autonome n’est pas ouverte.');return;}
+        if(input.hasAnswer!==true && input.skip!==true){reject(res,400,'Rédige une réponse ou passe.');return;}
+        // Deliberately do not accept nor transmit free-text during retrieval.
+        if(Object.hasOwn(input,'answer')){reject(res,400,'Ne transmets pas de texte : seule la présence d’une réponse est requise.');return;}
+        s.transferAnswered=input.hasAnswer===true;s.stage='recall-finished';
+        json(res,200,response(s),{'Set-Cookie':sessionCookie(req,s)});return;
+      }
+      if(url.pathname==='/api/session/coach') {
+        if(s.stage!=='training'||!s.attempted||s.skipped){reject(res,409,'Propose d’abord une réflexion personnelle.');return;}
+        if(!coachSettings().enabled){reject(res,503,'Assistance IA désactivée dans cet environnement. Les indices sont disponibles.');return;}
+        if(input.consent!==true){reject(res,400,'Accord explicite requis avant transfert au prestataire IA.');return;}
+        if(s.coachTurns>=2){reject(res,429,'Limite de deux questions par séance atteinte.');return;}
+        const answer=textAnswer(input.answer);
+        if(answer.length<15){reject(res,400,'Saisis au moins quinze caractères de réflexion.');return;}
+        const exercise=localizeExercise(getExercise(s.exerciseId),s.locale);
+        const result=await askCoach({exercise,attempt:answer,locale:s.locale});
+        s.coachTurns+=1;
+        json(res,200,{question:result.question,generated:result.available,coachTurns:s.coachTurns,limit:2},
+          {'Set-Cookie':sessionCookie(req,s)});return;
+      }
       if(url.pathname==='/api/session/attempt') {
         if(s.stage!=='training'){reject(res,409,'Étape non autorisée.');return;}
         if(s.attempted||s.skipped){reject(res,409,'Une tentative a déjà été soumise.');return;}
