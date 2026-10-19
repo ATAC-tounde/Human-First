@@ -8,6 +8,7 @@ import {publicPaths,enhanceCatalog,metadataFor} from './tracks.mjs';
 import {reviewTask} from './reviews.mjs';
 import {coachSettings,askCoach} from './coach.mjs';
 import {offlineCard} from './offline.mjs';
+import {handleLearn} from './learn-routes.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -24,6 +25,10 @@ const publicFiles = {
   '/focus.js': ['focus.js', 'text/javascript; charset=utf-8'],
   '/focus.css': ['focus.css', 'text/css; charset=utf-8'],
   '/focus-library.mjs': ['focus-library.mjs', 'text/javascript; charset=utf-8'],
+  '/learn': ['learn.html', 'text/html; charset=utf-8'],
+  '/learn.html': ['learn.html', 'text/html; charset=utf-8'],
+  '/learn.js': ['learn.js', 'text/javascript; charset=utf-8'],
+  '/learn.css': ['learn.css', 'text/css; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };
@@ -99,6 +104,7 @@ const app=createServer(async(req,res)=>{
       const [name,type]=publicFiles[url.pathname];const bytes=await readFile(join(publicDir,name));
       res.writeHead(200,{...commonHeaders,'Content-Type':type,'Cache-Control':'no-store'});res.end(bytes);return;
     }
+    if(await handleLearn(req,res,url,{json,reject,body,allowMutation}))return;
     if(req.method==='GET'&&url.pathname==='/api/health') {
       json(res,sessionReady()?200:503,{status:sessionReady()?'ok':'configuration_required',service:'think-first',
         research:'disabled',ai:coachSettings().enabled?'opt_in_available':'disabled',sessionStorage:'encrypted_cookie',sessionsReady:sessionReady()});return;

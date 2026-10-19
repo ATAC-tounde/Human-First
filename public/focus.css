@@ -7,3 +7,6 @@
 @media print{.site-header,.site-footer,#focus-picker,#focus-intention,#focus-intention-label,#focus-leave,#focus-skip,#focus-back,#focus-return,#focus-end,#focus-print,#focus-language-switch,.focus-privacy,.focus-reflection-prompts,#focus-reflection,#focus-reflection-label{display:none!important}.focus-page{padding:10px!important}.focus-lead,.focus-principles{display:none!important}#focus-activity{display:block!important}#focus-away,#focus-reflect{display:none!important}.focus-material,.focus-steps{break-inside:avoid}body{background:white!important}}
 
 .focus-age{margin:27px 0 16px}.focus-age .age-check{width:max-content;max-width:100%}.focus-age .form-error{max-width:620px}
+
+.focus-learn-link{color:#9d6a45;font-size:12px;font-weight:800;letter-spacing:1.2px;text-decoration:none}
+.focus-learn-link:focus-visible{outline:3px solid #b2633d;outline-offset:4px}

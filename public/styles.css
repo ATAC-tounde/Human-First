@@ -46,3 +46,7 @@
  .offscreen-box{border:1px solid #b4c8b6;background:white!important;color:black!important;box-shadow:none}
  .offscreen-box h3,.offscreen-box li,.offscreen-box p{color:black!important}
 }
+
+/* LEARN space link */
+.learn-nav-link{color:var(--peach);font-weight:800;text-decoration:none;border-bottom:2px solid var(--peach);padding-bottom:4px}
+@media(max-width:780px){.site-header .nav .learn-nav-link{display:inline-block}}

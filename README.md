@@ -111,3 +111,17 @@ Le deuxième pilier possède une page autonome : `/focus` et `/focus?lang=en`, �
 La fonctionnalité FOCUS ne crée aucun compte et ne transmet ni ne stocke les textes saisis : ils restent dans les champs vivants de la page et sont effacés à la fin, à l’annulation, à l’actualisation ou à la fermeture. **Attention : le prestataire d’hébergement peut disposer de journaux techniques HTTP, distincts des textes saisis.** Tous les contenus sont des propositions pédagogiques non validées expérimentalement ; aucun bénéfice cognitif ou thérapeutique n’est revendiqué.
 
 Voir [docs/FOCUS_V0.5_SPEC_RECETTE.md](docs/FOCUS_V0.5_SPEC_RECETTE.md). Exécuter `npm run check`, `npm start`, puis la recette visuelle, mobile, clavier et impression. Ne pas fusionner `main` avant validation.
+
+
+## HUMAN FIRST LEARN - V0.6 Alpha (développement)
+
+Le **troisième pilier LEARN** est disponible à `/learn` (ou `/learn?lang=en`). Six leçons originales FR/EN organisées en quatre domaines. Chaque leçon suit **lecture guidée → rappel sans support → confrontation à une explication → transfert sans indice → activité papier**. Les leçons et leurs corrections sont servies progressivement : aucune correction de transfert dans le catalogue public.
+
+- Pas de connexion, publicité, appel IA, note, classement, minuteur ni collecte de texte côté serveur.
+- Cookie `hf_learn` chiffré, distinct de `hf_session` utilisé par THINK, pour les étapes de démonstration adultes.
+- Brouillons seulement dans l'onglet ; faculté d'enregistrer **une date** de rappel J+2 dans ce navigateur avec consentement local, puis d'effacer ce calendrier. Pas de notification.
+- Tout est explicitement **une démonstration non évaluée scientifiquement**. Leçons non validées ; aucune mesure cognitive individuelle.
+
+Tester depuis la branche Preview : `npm run check && npm start`, puis http://127.0.0.1:4173/learn . Si Playwright Python et Chromium sont installés, `python tests/learn_visual_smoke.py` réalise une recette d'interface et enregistre des captures locales non versionnées sous `artifacts/learn`.
+
+Document complet : [docs/LEARN_V0.6_SPEC_RECETTE.md](docs/LEARN_V0.6_SPEC_RECETTE.md). Ne pas activer d'étude de terrain ni déployer sur `main` avant revue pédagogique, sécurité, accessibilité et acceptation de la recette.
