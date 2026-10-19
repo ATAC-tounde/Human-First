@@ -55,3 +55,13 @@
  .offscreen-box{border:1px solid #b4c8b6;background:white!important;color:black!important;box-shadow:none}
  .offscreen-box h3,.offscreen-box li,.offscreen-box p{color:black!important}
 }
+
+/* FOCUS V0.5: discovery panel integrated into the current 20-exercise THINK homepage. */
+.focus-link-panel{display:flex;align-items:center;justify-content:space-between;gap:26px;padding:32px 36px;margin:30px 0 64px;border-radius:12px;background:#e5ecdf}
+.focus-link-panel .eyebrow{margin:0 0 8px}
+.focus-link-panel h3{font:400 clamp(24px,3vw,32px)/1.25 Georgia,serif;color:var(--pine);margin:0 0 10px}
+.focus-link-panel p:not(.eyebrow){font-size:14px;line-height:1.7;color:#536b58;margin:0}
+.focus-link-panel>a{flex-shrink:0}
+#focus-nav-link{font-weight:750;color:#3b6349}
+@media(max-width:720px){.focus-link-panel{flex-direction:column;align-items:flex-start;padding:25px 23px}.focus-link-panel>a{width:100%;justify-content:center}}
+@media print{.focus-link-panel{display:none!important}}
