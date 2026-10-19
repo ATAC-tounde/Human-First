@@ -130,3 +130,8 @@ Tests : `npm run check`. Recette : filtres des domaines/niveaux, 20 cartes FR/EN
 ## V0.4.1 - Défis papier pour les 20 exercices
 
 Les 20 exercices (FR/EN) proposent après la résolution un défi papier facultatif à trois étapes, accessible également à la fin d'un rappel autonome. Les brouillons de l'onglet sont isolés par session. Voir [documentation V0.4.1](docs/HF_V041_HORS_ECRAN_ET_CONFIDENTIALITE.md).
+
+
+## FOCUS V0.5 - Deuxième pilier (alpha)
+
+La page `/focus` contient six activités pédagogiques FR/EN facultatives à réaliser hors écran. Pas de compte, chronomètre, classement, requête externe ni conservation des notes. Le trajet THINK existant à **20 exercices** et les révisions V0.4.1 restent intacts. Cette branche réintégrée repart de `main` après la PR #12. Voir [spécification FOCUS](docs/FOCUS_V0.5_SPEC_RECETTE.md).
