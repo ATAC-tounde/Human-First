@@ -46,3 +46,13 @@
 - Indices cachés côté serveur jusqu’à la demande ; transferts sans fuite de grille ni d’indices.
 - Bilan imprimable avec réponse et grille de réflexion qualitative, sans score.
 - Recette locale/visuelle humaine requise avant fusion dans `main`.
+
+## Lot V0.2.1 - reprise des sessions Vercel (19/10/2026)
+
+- Le prototype reste dédié aux **adultes volontaires et aux données fictives**. Aucune expérimentation clinique ou scolaire activée.
+- Progression portée par des cookies chiffrés AES-256-GCM signés par authentification AEAD, avec expiration absolue 2h.
+- Texte des réponses conservé dans `sessionStorage` uniquement, après soumission ; pas de collecte distante de textes.
+- Reprise possible entre deux processus Node si le même secret d’environnement est configuré.
+- Limites : impossible de révoquer immédiatement un cookie volé sans stockage partagé ; rotation de la clé invalide toutes les sessions.
+- `HF_SESSION_SECRET` configuré dans les variables Vercel **Preview** uniquement, ne pas copier dans le dépôt.
+- À revoir avant ouverture : modalités d’information sur sessionStorage, consentement des volontaires, protection mineurs, audit et approbation des contenus scientifiques.

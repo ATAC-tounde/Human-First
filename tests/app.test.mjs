@@ -3,15 +3,18 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { randomBytes } from 'node:crypto';
 
 let child, base;
+const testKey=randomBytes(32).toString('hex');
+const cookieJar=new Map();
 async function freePort() {
   const server=createServer();server.listen(0,'127.0.0.1');await once(server,'listening');
   const port=server.address().port;server.close();await once(server,'close');return port;
 }
 before(async()=>{
   const port=await freePort();base=`http://127.0.0.1:${port}`;
-  child=spawn(process.execPath,['server/index.mjs'],{env:{...process.env,PORT:String(port),HOST:'127.0.0.1'},stdio:'ignore'});
+  child=spawn(process.execPath,['server/index.mjs'],{env:{...process.env,PORT:String(port),HOST:'127.0.0.1',HF_SESSION_SECRET:testKey},stdio:'ignore'});
   for(let i=0;i<90;i++){
     if(child.exitCode!==null) throw new Error('Serveur arrêté au démarrage');
     try{const r=await fetch(base+'/api/health');if(r.ok)return;}catch{}
@@ -21,19 +24,21 @@ before(async()=>{
 });
 after(()=>{child?.kill();});
 
-async function request(path,{method='GET',data,session,origin}={}) {
+async function request(path,{method='GET',data,session,origin,host}={}) {
   const headers={};
   if(method!=='GET'){headers['Content-Type']='application/json';headers['X-Think-First']='1';}
-  if(session)headers.Cookie=`hf_session=${session}`;
+  if(session){const current=cookieJar.has(session)?cookieJar.get(session):session;if(current)headers.Cookie=`hf_session=${current}`;}
   if(origin)headers.Origin=origin;
-  const res=await fetch(base+path,{method,headers,...(data!==undefined?{body:JSON.stringify(data)}:{})});
+  const res=await fetch((host||base)+path,{method,headers,...(data!==undefined?{body:JSON.stringify(data)}:{})});
   const json=await res.json();
-  const cookie=res.headers.get('set-cookie')?.match(/hf_session=([^;]+)/)?.[1];
+  const setCookie=res.headers.get('set-cookie');
+  const cookie=setCookie?.match(/hf_session=([^;]+)/)?.[1];
+  if(session&&setCookie?.includes('hf_session='))cookieJar.set(session,cookie||null);
   return {status:res.status,body:json,headers:res.headers,cookie};
 }
 async function start(id='causalite') {
   const res=await request('/api/session/start',{method:'POST',data:{exerciseId:id,adult:true}});
-  assert.equal(res.status,200);assert.ok(res.cookie);return res;
+  assert.equal(res.status,200);assert.ok(res.cookie);cookieJar.set(res.cookie,res.cookie);return res;
 }
 
 test('santé : services IA et recherche désactivés',async()=>{
@@ -158,4 +163,70 @@ test('mode anglais : aucune fuite par la route front-end non publique',async()=>
   const r=await fetch(base+'/i18n.js');assert.equal(r.status,200);
   const txt=await r.text();assert.ok(txt.includes('Your turn to think'));
   const unserved=await fetch(base+'/server/catalog.en.mjs');assert.equal(unserved.status,404);
+});
+
+test('cookie chiffré : pas de réponse utilisateur, intégrité et session expirée',async()=>{
+  const opened=await start();const session=opened.cookie;
+  const secret='REFLEXION_PRIVEE_NE_DOIT_PAS_ETRE_DANS_LE_COOKIE';
+  const attempt=await request('/api/session/attempt',{method:'POST',session,data:{answer:secret}});
+  assert.equal(attempt.body.attempt,secret);
+  const cookie=cookieJar.get(session);
+  assert.ok(cookie?.startsWith('v1.'));
+  assert.ok(!cookie.includes(secret));
+  assert.ok(!Buffer.from(cookie.slice(3),'base64url').toString('utf8').includes(secret));
+  const bad=cookie.slice(0,-5)+'XXXXX';
+  const tampered=await request('/api/session',{session:bad});
+  assert.equal(tampered.body.stage,'idle');
+  const refresh=await request('/api/session',{session});
+  assert.equal(refresh.body.stage,'training');assert.equal(refresh.body.attempted,true);
+  assert.equal(refresh.body.attempt,''); // The browser tab, not the cookie, keeps optional display text.
+});
+
+test('reprise entre deux processus Node distincts partageant HF_SESSION_SECRET',async()=>{
+  const started=await start('deduction');const session=started.cookie;
+  await request('/api/session/attempt',{method:'POST',session,data:{answer:'Première tentative.'}});
+  await request('/api/session/hint',{method:'POST',session,data:{}});
+  const port=await freePort();
+  const second=spawn(process.execPath,['server/index.mjs'],{env:{...process.env,PORT:String(port),HOST:'127.0.0.1',HF_SESSION_SECRET:testKey},stdio:'ignore'});
+  const host=`http://127.0.0.1:${port}`;
+  try {
+    let ok=false;
+    for(let i=0;i<100;i++) {
+      try{const r=await fetch(host+'/api/health');if(r.ok){ok=true;break;}}catch{}
+      await new Promise(resolve=>setTimeout(resolve,30));
+    }
+    assert.equal(ok,true);
+    const resumed=await request('/api/session',{session,host});
+    assert.equal(resumed.body.stage,'training');assert.equal(resumed.body.hintsUsed,1);
+    const explanation=await request('/api/session/explanation',{method:'POST',session,host,data:{}});
+    assert.equal(explanation.status,200);
+    const back=await request('/api/session',{session});
+    assert.equal(back.body.stage,'explanation');
+  }finally{second.kill();}
+});
+
+test('accueil bilingue avec paramètres d’URL et fichiers statiques disponibles',async()=>{
+  for(const uri of ['/?lang=fr','/?lang=en','/index.html?lang=en','/styles.css?v=21','/app.js?v=21']) {
+    const r=await fetch(base+uri);
+    assert.equal(r.status,200,uri);
+    assert.ok((await r.text()).length>100);
+  }
+});
+
+test('aucune session chiffrée n’est activée sur Vercel sans secret',async()=>{
+  const port=await freePort();const host=`http://127.0.0.1:${port}`;
+  const environment={...process.env,HOST:'127.0.0.1',PORT:String(port),VERCEL:'1',NODE_ENV:'production'};
+  delete environment.HF_SESSION_SECRET;
+  const isolated=spawn(process.execPath,['server/index.mjs'],{env:environment,stdio:'ignore'});
+  try {
+    let health;
+    for(let i=0;i<100;i++) {
+      try{health=await fetch(host+'/api/health');break;}catch{}
+      await new Promise(resolve=>setTimeout(resolve,30));
+    }
+    assert.ok(health);assert.equal(health.status,503);
+    const detail=await health.json();assert.equal(detail.sessionsReady,false);
+    const attempt=await request('/api/session/start',{host,method:'POST',data:{adult:true,exerciseId:'causalite'}});
+    assert.equal(attempt.status,503);
+  }finally{isolated.kill();}
 });

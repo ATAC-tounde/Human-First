@@ -1,8 +1,8 @@
-# HUMAN FIRST — THINK FIRST 0.2
+# HUMAN FIRST — THINK FIRST 0.2.1
 
 > **Avant la réponse, ta réflexion.** Prototype web pédagogique indépendant — aucun compte, aucune publicité, aucune API d'IA et aucune collecte scientifique.
 
-Cette application illustre le parcours **tenter → indice(s) → explication → transfert sans aide → bilan qualitatif** prévu dans la spécification fonctionnelle et scientifique V0.2 du 18 octobre 2026.
+Cette application illustre le parcours **tenter → indice(s) → explication → transfert sans aide → bilan qualitatif** prévu dans la spécification fonctionnelle et scientifique V0.1 du 18 octobre 2026.
 
 ## Démarrage (Windows, macOS, Linux)
 
@@ -31,7 +31,7 @@ npm start
 - Question de guidage et deux indices, révélés progressivement par le serveur ; explication directe toujours accessible.
 - Transfert sur un item distinct, sans accès serveur à ses solutions avant soumission.
 - Bilan qualitatif et activité hors écran ; aucune note psychométrique.
-- Données temporaires en mémoire serveur, expirant en deux heures ou supprimées à la sortie. Choix de langue dans l’URL (FR/EN).
+- Session de démonstration dans un cookie chiffré et authentifié (AES-256-GCM), valable au maximum deux heures ; aucune session serveur persistante. Les textes de réflexion restent uniquement dans l’onglet du navigateur (`sessionStorage`), le temps de la démonstration.
 - Aucun fournisseur IA externe ; les indices sont prédéfinis et nécessitent une connexion lors de leur révélation.
 - Tests automatisés sur transitions, secrets non divulgués, langue, droits de session et en-têtes de sécurité.
 
@@ -42,7 +42,7 @@ npm start
 - Pas de bibliothèque de 20 à 24 exercices approuvés ; pas de jeu A/B/C équivalent validé ; pas de tests différés.
 - Pas d'authentification nominative, d'administration, de journal d'audit qualifié ou d'accès mineurs.
 - Pas de mode IA générative, facturation, déploiement ou internationalisation des contenus approuvée.
-- Le stockage en RAM est adapté à une démo locale mono-processus, **pas** à la production ni à une expérimentation sur plusieurs serveurs.
+- Le cookie cryptographique V0.2.1 fonctionne entre instances partageant la même clé de chiffrement. Il ne permet pas de révocation serveur d’un ancien cookie volé : **aucune donnée sensible, compte ou expérimentation scientifique ne doit être accueillie sur cette démo**.
 - Vérifier l'accessibilité réelle avec technologies d'assistance ; ce prototype ne peut revendiquer une conformité WCAG vérifiée.
 
 ## Sécurité et vie privée
@@ -51,7 +51,7 @@ npm start
 - Aucun CDN, traceur, appel externe, formulaire d'inscription ou journalisation des réponses.
 - Requêtes POST protégées par en-tête personnalisé, contrôle d'origine et jeton de session imprévisible.
 - API de transfert n'expose que la question, jamais sa réponse ni sa grille avant validation.
-- Les réponses ne sont stockées que temporairement en mémoire. Elles sont perdues au redémarrage du processus.
+- Les textes saisis ne sont jamais mis dans le cookie ni persistés sur un serveur : l’onglet conserve seulement une copie temporaire via `sessionStorage` après soumission pour pouvoir afficher le bilan après actualisation. Elle est effacée par « Quitter »/« Terminer » et à l’expiration de la session ; une fermeture de l’onglet ou du navigateur peut également la faire disparaître.
 - Héberger derrière HTTPS et un reverse proxy maîtrisé si l'on envisage une démo en ligne ; tests de sécurité et accessibilité supplémentaires obligatoires.
 
 ## Architecture
@@ -61,6 +61,7 @@ public/          HTML, CSS, JavaScript natif (aucune dépendance)
 server/          Serveur HTTP Node.js et banque d'exercices privée
   catalog.mjs    Exercices, solutions et transferts privés
   index.mjs      API et machine à états de session
+  session-crypto.mjs Cookies de session chiffrés, sans persistance côté serveur
 tests/           Tests automatisés Node.js
 docs/            Correspondance avec la spécification et étapes futures
 ```
@@ -86,3 +87,14 @@ python tests/visual_smoke.py
 ```
 
 Captures dans `artifacts/visual/` (non versionnées). La recette visuelle doit être faite **sur la machine du testeur**. Pour Windows, aucun chemin `/mnt/data` ni `/usr/bin/chromium` n'est nécessaire.
+
+## Lot V0.2.1 - compatibilité Vercel Preview
+
+- Remplacement des sessions stockées en mémoire d’un processus par un **cookie de progression chiffré et authentifié**, utilisable entre plusieurs instances Vercel partageant la même clé.
+- Réponses écrites conservées uniquement dans le navigateur (`sessionStorage`, jamais dans le cookie, Redis ou une base de données). Réponse éventuellement indisponible si l’onglet change ou si son stockage a été effacé.
+- Correction des pages `/?lang=fr`, `/?lang=en` et des ressources avec paramètres d’URL.
+- Expiration des sessions après deux heures. Attention, l’effacement du cookie ne révoque pas une copie qui aurait été dérobée avant expiration ; ce compromis est acceptable **uniquement pour la démo sans données sensibles**. Une base de sessions révocables est requise avant tout compte utilisateur ou pilote institutionnel.
+- Variable obligatoire sur Vercel et en production : `HF_SESSION_SECRET` (type **Encrypted**, portée **Preview** pour cette version).
+- Tests automatiques : reprise entre deux processus distincts, altération du cookie, absence du secret en production, parcours FR/EN et URL avec paramètres.
+
+La PR reste en environnement **Preview**. Ne pas fusionner vers `main` ni annoncer un lancement public avant une recette humaine complète.
