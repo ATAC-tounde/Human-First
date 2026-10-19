@@ -6,6 +6,22 @@ const w = (key) => word(locale,key);
 let state = {stage:'idle'};
 let catalog = [];
 let locked = false;
+// Text is only retained in the browser tab for a reload, never in the server cookie.
+const draftKey='human-first:think-first:draft-v1';
+function loadDraft() {
+  try {return JSON.parse(sessionStorage.getItem(draftKey)||'{}');} catch {return {};}
+}
+function keepDraft(field,value) {
+  try {const draft=loadDraft();draft[field]=value;sessionStorage.setItem(draftKey,JSON.stringify(draft));}catch{}
+}
+function clearDraft() {try{sessionStorage.removeItem(draftKey);}catch{}}
+function hydrateSession(session) {
+  if(session?.stage==='idle'){clearDraft();return session;}
+  const draft=loadDraft();
+  if(session.attempted&&!session.attempt)session.attempt=draft.attempt||'';
+  if(session.transferAnswered&&!session.transferAnswer)session.transferAnswer=draft.transferAnswer||'';
+  return session;
+}
 // Hints are revealed by the server only when requested; never preload unpublished hints.
 
 async function api(path, data) {
@@ -42,6 +58,7 @@ function createCard(ex,index) {
   btn.append(top,mid,bottom);
   btn.addEventListener('click',()=>guarded(async()=>{
     if(!$('adult-check').checked) {errorIn('home-error',w('adult'));$('adult-check').focus();return;}
+    clearDraft();
     state=await api('/api/session/start',{exerciseId:ex.id,adult:true,locale});
     render();scrollTop();
   },'home-error'));
@@ -59,7 +76,7 @@ async function bootstrap() {
     catalog=loaded.exercises;
     const grid=$('exercise-grid');grid.replaceChildren();
     catalog.forEach((ex,i)=>grid.append(createCard(ex,i)));
-    state=resumed;
+    state=hydrateSession(resumed);
     render();
   } catch(e){errorIn('home-error',`${w('loadError')} : ${e.message}`);}
 }
@@ -105,32 +122,32 @@ function render() {
   if(mode==='transfer') setText('prompt-text',state.transfer);
   if(mode==='explanation')setText('explanation-text',state.explanation);
   if(mode==='training') {
-    setText('attempt-recap',state.attempted?`${w('attemptPrefix')}${state.attempt}`:w('skippedIntro'));
+    setText('attempt-recap',state.attempted?`${w('attemptPrefix')}${state.attempt || (locale==='en'?'Reflection submitted; text not saved in this tab.':'Réflexion soumise ; texte indisponible dans cet onglet.')}`:w('skippedIntro'));
     if(state.attempted||state.skipped) showHints();
   }
   if(mode==='finished') {
     setText('finished-question',state.transfer);
-    setText('finished-own-answer',state.transferAnswer || (locale==='en'?'No answer provided.':'Pas de réponse saisie.'));
+    setText('finished-own-answer',state.transferAnswer || (state.transferAnswered?(locale==='en'?'Answer submitted; text not saved in this tab.':'Réponse soumise ; texte indisponible dans cet onglet.'):(locale==='en'?'No answer provided.':'Pas de réponse saisie.')));
     const container=$('review-items');container.replaceChildren();
     for(const point of state.reflection.review) {const item=document.createElement('li');item.textContent=point;container.append(item);}
     setText('sample-answer',state.reflection.example);
-    setText('session-summary',`${state.transferAnswer?w('summaryDone'):w('summarySkip')} ${w('noGrade')} ${state.summary.hintsUsed} ${w('hintCount')}`);
+    setText('session-summary',`${state.transferAnswered?w('summaryDone'):w('summarySkip')} ${w('noGrade')} ${state.summary.hintsUsed} ${w('hintCount')}`);
   }
 }
-async function sync(){state=await api('/api/session');render();}
+async function sync(){state=hydrateSession(await api('/api/session'));render();}
 function on(id,event,handler){$(id).addEventListener(event,handler);}
-on('brand-link','click',e=>{if(state.stage!=='idle'){e.preventDefault();guarded(async()=>{await api('/api/session/reset',{});state={stage:'idle'};render();scrollTop();});}});
-on('quit-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});state={stage:'idle'};render();scrollTop();}));
-on('attempt-button','click',()=>guarded(async()=>{state=await api('/api/session/attempt',{answer:$('attempt').value});render();}));
+on('brand-link','click',e=>{if(state.stage!=='idle'){e.preventDefault();guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};render();scrollTop();});}});
+on('quit-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};render();scrollTop();}));
+on('attempt-button','click',()=>guarded(async()=>{state=await api('/api/session/attempt',{answer:$('attempt').value});keepDraft('attempt',state.attempt);render();}));
 on('skip-button','click',()=>guarded(async()=>{state=await api('/api/session/attempt',{skip:true});render();}));
 on('hint-button','click',()=>guarded(async()=>{state=await api('/api/session/hint',{});render();}));
 on('explanation-button','click',()=>guarded(async()=>{state=await api('/api/session/explanation',{});render();scrollTop();}));
 on('direct-button','click',()=>guarded(async()=>{state=await api('/api/session/explanation',{});render();scrollTop();}));
 on('transfer-button','click',()=>guarded(async()=>{state=await api('/api/session/transfer',{});render();scrollTop();}));
-on('submit-transfer','click',()=>guarded(async()=>{state=await api('/api/session/answer',{answer:$('transfer-answer').value});render();scrollTop();}));
+on('submit-transfer','click',()=>guarded(async()=>{state=await api('/api/session/answer',{answer:$('transfer-answer').value});keepDraft('transferAnswer',state.transferAnswer);render();scrollTop();}));
 on('skip-transfer','click',()=>guarded(async()=>{state=await api('/api/session/answer',{skip:true});render();scrollTop();}));
 on('print-button','click',()=>window.print());
-on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});state={stage:'idle'};$('attempt').value='';$('transfer-answer').value='';render();scrollTop();}));
+on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};$('attempt').value='';$('transfer-answer').value='';render();scrollTop();}));
 function updateLanguageSwitch() {
   const btn=$('language-switch');btn.textContent=locale==='fr'?'EN':'FR';
   btn.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
