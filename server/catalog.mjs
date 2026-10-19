@@ -1,4 +1,6 @@
 import {englishExercises} from './catalog.en.mjs';
+import {pedagogicalExercises} from './catalog.v03.mjs';
+import {englishPedagogicalExercises} from './catalog.v03.en.mjs';
 // Documents de démonstration : ils ne constituent PAS des contenus validés pour la recherche.
 // Les solutions et les items de transfert restent dans le module serveur uniquement.
 export const catalog = Object.freeze([
@@ -61,12 +63,13 @@ export const catalog = Object.freeze([
       'As-tu identifié les données nécessaires pour conclure ?'
     ],
     example: 'Non, une baisse de la moyenne ne signifie pas que chacun gagne du temps. Il faudrait disposer des durées avant et après pour chaque salarié et vérifier que les populations comparées sont identiques.'
-  }
+  },
+  ...pedagogicalExercises
 ]);
 
 export function localizeExercise(exercise, locale = 'fr') {
   if (locale !== 'en') return exercise;
-  return {...exercise, ...(englishExercises[exercise.id] || {})};
+  return {...exercise, ...(englishExercises[exercise.id] || englishPedagogicalExercises[exercise.id] || {})};
 }
 export function publicCatalog(locale = 'fr') {
   return catalog.filter(x => x.status === 'demonstration').map(original => {
