@@ -85,8 +85,28 @@
         <div class="exit-panel"><h3 data-text="exitTitle">La suite t’appartient.</h3><p data-text="exitDescription">Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.</p></div>
       </section>
       <section class="portability" aria-labelledby="portability-title"><div><p class="eyebrow" data-text="portabilityEyebrow">TU RESTES PROPRIÉTAIRE DU PARCOURS</p><h2 id="portability-title" data-text="portabilityTitle">Tu peux repartir avec tes données.</h2></div><p data-text="portabilityText">Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.</p><div class="portability-actions"><label for="import-home" class="file-label" data-text="importHome">Reprendre un portfolio exporté</label><input type="file" id="import-home" accept="application/json,.json"><label for="aliases-file" class="file-label" data-text="aliasesLabel">Table d’équivalences pour anciens référentiels (facultative)</label><input type="file" id="aliases-file" accept="application/json,.json"><span id="alias-state" role="status" aria-live="polite"></span></div></section>
+
+      <section class="vault-panel" id="vault-panel" aria-labelledby="vault-heading">
+        <div><p class="eyebrow" id="vault-eyebrow">CONTINUITÉ · SAUVEGARDE PRIVÉE</p>
+          <h2 id="vault-heading">Un coffre chiffré, sans compte.</h2>
+          <p id="vault-intro">Sauvegarde ton parcours dans un fichier chiffré ou, volontairement, sur cet appareil. Rien n'est synchronisé en ligne.</p>
+          <p id="vault-warning" class="privacy">Choisis une phrase secrète longue et unique (12 caractères minimum). Si tu l'oublies, nous ne pourrons pas récupérer ta sauvegarde. Conserve aussi une copie du fichier hors de cet appareil. Les données de navigation et métadonnées peuvent rester visibles pour l'utilisateur de ce navigateur.</p>
+        </div>
+        <label class="vault-passphrase" for="vault-passphrase" id="vault-passphrase-label">Ma phrase secrète (jamais enregistrée)</label>
+        <input id="vault-passphrase" type="password" autocomplete="off" minlength="12" maxlength="256" spellcheck="false" aria-describedby="vault-warning" placeholder="Phrase secrète unique · 12 caractères minimum">
+        <div class="vault-actions">
+          <button type="button" class="primary" id="vault-download">Télécharger une sauvegarde chiffrée</button>
+          <label class="file-label" for="vault-import" id="vault-import-label">Ouvrir une sauvegarde chiffrée</label>
+          <input type="file" id="vault-import" accept=".json,.hfvault,application/json">
+          <button type="button" class="secondary" id="vault-save-device">Enregistrer chiffré sur cet appareil</button>
+          <button type="button" class="secondary" id="vault-resume-device">Reprendre depuis cet appareil</button>
+          <button type="button" class="secondary" id="vault-clear-device">Supprimer la sauvegarde de cet appareil</button>
+        </div>
+        <p id="vault-status" class="vault-status" role="status" aria-live="polite"></p>
+        <p class="vault-note" id="vault-note">Cette sauvegarde n'est ni automatique ni certifiée. Le stockage du navigateur peut être effacé par le système : garde une copie externe.</p>
+      </section>
     </main>
-    <footer><strong>HUMAN FIRST</strong><span data-text="footer">18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.</span><small>V0.8</small></footer>
+    <footer><strong>HUMAN FIRST</strong><span data-text="footer">18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.</span><small>V1.1 Alpha</small></footer>
   </div>
 </body>
 </html>
