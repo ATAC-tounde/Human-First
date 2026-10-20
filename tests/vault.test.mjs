@@ -9,6 +9,8 @@ import {installedPacks} from '../public/journey/packs.mjs';
 import {makeFormativeObservation} from '../public/journey/assessment.mjs';
 import {VAULT_SCHEMA,VAULT_MIN_ITERATIONS,encryptPortfolio,decryptPortfolio,parseEncryptedVault} from '../public/journey/vault.mjs';
 import {VAULT_DB_NAME,saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from '../public/journey/device-vault.mjs';
+import {restorePortablePortfolio} from '../public/journey/restore.mjs';
+import {ALIAS_SCHEMA} from '../public/journey/continuity.mjs';
 const registry=createRegistry(installedPacks);
 const profile={adult:true,locale:'fr',stage:'work',ageBand:'unspecified',pathId:'core.foundations',
  qualification:'Secret personal qualification',occupation:'Private learner occupation',minutesPerWeek:60,familiarity:{}};
@@ -87,18 +89,22 @@ test('V1.1: reject malformed salts/nonces, injected fields and invalid ciphertex
 // Minimal deterministic IndexedDB mock for transaction behaviour without new packages.
 function fakeIndexedDB(){
  const storage=new Map();
+ let created=false;
+ let upgrades=0;
  const factory={
   raw:storage,
+  get upgrades(){return upgrades;},
   open(name,version){
    assert.equal(name,VAULT_DB_NAME);
    assert.equal(version,1);
    const request={result:null,onupgradeneeded:null,onsuccess:null,onerror:null,onblocked:null};
    const db={
-    objectStoreNames:{contains:s=>s==='encrypted'},
-    createObjectStore(){},
+    objectStoreNames:{contains:s=>created&&s==='encrypted'},
+    createObjectStore(name){assert.equal(name,'encrypted');assert.equal(created,false);created=true;upgrades++;},
     close(){},
     transaction(name,mode){
      assert.equal(name,'encrypted');
+     assert.equal(created,true,'The object store must be created in onupgradeneeded');
      const tx={oncomplete:null,onerror:null,onabort:null};
      tx.objectStore=()=>({
       get(key){return schedule(()=>storage.get(key));},
@@ -117,7 +123,11 @@ function fakeIndexedDB(){
      return tx;
     }
    };
-   queueMicrotask(()=>{request.result=db;request.onsuccess?.();});
+   queueMicrotask(()=>{
+    request.result=db;
+    if(!created)request.onupgradeneeded?.();
+    request.onsuccess?.();
+   });
    return request;
   }
  };
@@ -126,6 +136,7 @@ function fakeIndexedDB(){
 test('V1.1: device storage is strictly opt-in, encrypted only, clearable and contains no passphrase',async()=>{
  const factory=fakeIndexedDB();
  assert.equal(await readEncryptedDevice({indexedDB:factory}),null);
+ assert.equal(factory.upgrades,1,'IndexedDB onupgradeneeded must create the store exactly once');
  const cipher=await encryptPortfolio(plain,password,options);
  assert.equal(await saveEncryptedDevice(cipher,{indexedDB:factory}),true);
  assert.equal(factory.raw.size,1);
@@ -139,6 +150,41 @@ test('V1.1: device storage is strictly opt-in, encrypted only, clearable and con
  assert.equal(factory.raw.size,0);
  await assert.rejects(saveEncryptedDevice('{"profile":"plaintext"}',{indexedDB:factory}),/Unknown or missing/);
 });
+
+test('V1.1: unavailable IndexedDB, blocked and failed opens report errors without losing the current portfolio',async()=>{
+ const broken=(event)=>({open:()=>{
+  const request={onerror:null,onblocked:null,onsuccess:null,onupgradeneeded:null};
+  queueMicrotask(()=>request[event]?.());
+  return request;
+ }});
+ await assert.rejects(readEncryptedDevice({indexedDB:{}}),/not available/);
+ await assert.rejects(readEncryptedDevice({indexedDB:broken('onerror')}),/could not be opened/);
+ await assert.rejects(readEncryptedDevice({indexedDB:broken('onblocked')}),/Close other HUMAN FIRST tabs/);
+ await assert.rejects(saveEncryptedDevice(await encryptPortfolio(plain,password,options),{indexedDB:broken('onerror')}),/could not be opened/);
+});
+
+test('V1.1: current-catalog backup ignores a stale old-catalog alias, but older portfolios require an exact mapping',()=>{
+ const current=JSON.parse(plain);
+ const manifest={schema:ALIAS_SCHEMA,fromCatalogVersion:'old-pack-v0',toCatalogVersion:registry.version,
+  competencies:[{from:'core.old-evidence',to:'core.evidence'}],pathways:[]};
+ assert.equal(restorePortablePortfolio(plain,registry,manifest).profile.pathId,'core.foundations');
+ const old=structuredClone(current);
+ old.catalogVersion=manifest.fromCatalogVersion;
+ old.profile.familiarity={'core.old-evidence':'exploring'};
+ assert.throws(()=>restorePortablePortfolio(JSON.stringify(old),registry),/Different catalog version/);
+ const restored=restorePortablePortfolio(JSON.stringify(old),registry,manifest);
+ assert.equal(restored.profile.familiarity['core.evidence'],'exploring');
+ assert.equal(restored.migrated,true);
+ const wrong=JSON.stringify({...current,catalogVersion:'version-without-manifest'});
+ assert.throws(()=>restorePortablePortfolio(wrong,registry,manifest),/version does not match/);
+ const drop=structuredClone(current);
+ drop.profile.familiarity={'core.removed-skill':'confident'};
+ assert.throws(()=>restorePortablePortfolio(JSON.stringify(drop),registry),/Unknown competency/);
+ const missing=structuredClone(current);
+ delete missing.catalogVersion;
+ assert.throws(()=>restorePortablePortfolio(JSON.stringify(missing),registry),/Missing catalog version/);
+});
+
 test('V1.1: existing JSON import remains functional and no secrets are sent by learning code',async()=>{
  const base=join(dirname(fileURLToPath(import.meta.url)),'..');
  const app=await readFile(join(base,'public/journey/app.mjs'),'utf8');
@@ -146,14 +192,15 @@ test('V1.1: existing JSON import remains functional and no secrets are sent by l
  const server=await readFile(join(base,'server/index.mjs'),'utf8');
  for(const id of ['vault-panel','vault-passphrase','vault-confirm','vault-download','vault-import','vault-save-device',
   'vault-resume-device','vault-clear-device','vault-status'])assert.ok(html.includes('id="'+id+'"'),id);
- assert.ok(app.includes("const plain=exportPortfolio(registry,program.generatedFor,events,{formative})"));
- assert.ok(app.includes("const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry)"));
- assert.ok(app.includes("$('vault-passphrase').value=''"));
- assert.ok(app.includes("secret!==$('vault-confirm').value"),'Backups require passphrase confirmation');
- assert.ok(app.includes("await readEncryptedDevice()&&!window.confirm"),'Overwriting an old device backup requires confirmation');
- assert.ok(app.includes("$('vault-confirm').value=''"),'Confirmation field must also be cleared');
- assert.ok(html.includes('id="vault-import-label" role="button" tabindex="0"'),'Keyboard file import must be reachable');
- assert.ok(app.includes("if(program&&!window.confirm(vaultWords[locale].replace))return false"));
+ assert.match(app,/exportPortfolio\s*\(\s*registry\s*,\s*program\.generatedFor\s*,\s*events\s*,\s*\{\s*formative\s*\}\s*\)/);
+ assert.match(app,/restorePortablePortfolio\s*\(\s*plain\s*,\s*registry\s*,\s*aliasManifest\s*\)/);
+ assert.match(app,/\$\(['"]vault-passphrase['"]\)\.value\s*=\s*['"]{2}/);
+ assert.match(app,/secret\s*!==\s*\$\(['"]vault-confirm['"]\)\.value/,'Backups require passphrase confirmation');
+ assert.match(app,/readEncryptedDevice\s*\(\s*\)\s*&&\s*!window\.confirm/,'Overwriting a device backup requires confirmation');
+ assert.match(app,/\$\(['"]vault-confirm['"]\)\.value\s*=\s*['"]{2}/,'Confirmation field must be cleared');
+ assert.match(html,/id="vault-import-label"[^>]*tabindex="0"/,'Keyboard file import must be reachable');
+ assert.match(html,/id="vault-import"[^>]*tabindex="-1"/,'The invisible native input must not add a second focus stop');
+ assert.match(app,/program\s*&&\s*!window\.confirm\s*\(/,'Restoration must preserve the current work unless approved');
  assert.ok(!/\bfetch\s*\(/.test(app.replace(/^\s*\/\/.*$/gm,'')),'No network posting of personal profile or password');
  assert.ok(!/\blocalStorage\s*[.\[]/.test(app),'No cleartext localStorage');
  for(const route of ['/journey/vault.mjs','/journey/device-vault.mjs'])assert.ok(server.includes("'"+route+"'"));
