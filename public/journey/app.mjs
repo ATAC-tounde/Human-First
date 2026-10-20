@@ -23,6 +23,7 @@ const vaultWords={
  intro:'Sauvegarde ton parcours dans un fichier chiffré ou, volontairement, sur cet appareil. Rien n’est synchronisé en ligne.',
  warning:'Choisis une phrase secrète longue et unique (12 caractères minimum). Si tu l’oublies, nous ne pouvons pas récupérer ta sauvegarde. Conserve une copie du fichier ailleurs. Toute personne ayant accès à ce navigateur peut voir qu’une sauvegarde existe.',
  password:'Ma phrase secrète (jamais enregistrée)',placeholder:'Phrase secrète unique · 12 caractères minimum',
+ confirm:'Confirmer la phrase secrète (uniquement pour créer une sauvegarde)',confirmPlaceholder:'Répéter la phrase secrète pour enregistrer',mismatch:'Les deux phrases secrètes ne correspondent pas.',overwrite:'Une sauvegarde existe déjà sur cet appareil. Voulez-vous la remplacer ? L’ancienne ne pourra pas être récupérée.',
  download:'Télécharger une sauvegarde chiffrée',import:'Ouvrir une sauvegarde chiffrée',
  save:'Enregistrer chiffré sur cet appareil',resume:'Reprendre depuis cet appareil',
  clear:'Supprimer la sauvegarde de cet appareil',
@@ -43,6 +44,7 @@ const vaultWords={
  intro:'Back up your pathway to an encrypted file, or voluntarily on this device. Nothing is synced online.',
  warning:'Choose a long unique passphrase (at least 12 characters). We cannot recover a forgotten passphrase. Keep another copy of the file elsewhere. Anyone with access to this browser can see that a backup exists.',
  password:'My passphrase (never stored)',placeholder:'Unique passphrase · at least 12 characters',
+ confirm:'Confirm passphrase (only when creating a backup)',confirmPlaceholder:'Repeat the passphrase to save',mismatch:'The two passphrases do not match.',overwrite:'An encrypted backup already exists on this device. Replace it? The old backup cannot be recovered.',
  download:'Download encrypted backup',import:'Open encrypted backup',
  save:'Save encrypted on this device',resume:'Restore from this device',
  clear:'Delete this device backup',
@@ -61,7 +63,7 @@ const vaultWords={
 };
 const vaultLabels={
  'vault-eyebrow':'eyebrow','vault-heading':'title','vault-intro':'intro',
- 'vault-warning':'warning','vault-passphrase-label':'password',
+ 'vault-warning':'warning','vault-passphrase-label':'password','vault-confirm-label':'confirm',
  'vault-download':'download','vault-import-label':'import','vault-save-device':'save',
  'vault-resume-device':'resume','vault-clear-device':'clear','vault-note':'note'
 };
@@ -69,6 +71,7 @@ function translateVault(){
  const l=vaultWords[locale];
  for(const [id,key] of Object.entries(vaultLabels))$(id).textContent=l[key];
  $('vault-passphrase').placeholder=l.placeholder;
+ $('vault-confirm').placeholder=l.confirmPlaceholder;
 }
 function vaultStatus(message){$('vault-status').textContent=message;}
 
@@ -78,7 +81,7 @@ fr:{
  noScore:'✓ Sans notation automatisée',noAccount:'✓ Sans compte',portable:'✓ Exportable et modifiable',foundationTitle:'L’IDÉE CENTRALE',foundationHeading:'Des compétences, pas des cases.',foundationCopy:'Aucun métier, diplôme, pays ou domaine n’est intégré en dur au moteur. De nouveaux référentiels s’ajoutent comme modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.',
  packTitle:'Ajouter un référentiel pédagogique',packHelp:'Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.',packImport:'Importer un pack JSON',packAdded:'Référentiel importé dans cet onglet. Contenu non certifié : contrôle pédagogique nécessaire.',packFailed:'Référentiel refusé : ',
  builderEyebrow:'ATELIER DE PARCOURS',builderTitle:'Construire mon programme',adultTitle:'Accès au prototype',adultNotice:'Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.',stageTitle:'Ma situation actuelle',stagePersonal:'Apprendre par intérêt personnel',stageSchool:'Reprise d’études à l’âge adulte',stageHigher:'Études supérieures',stageWork:'Vie professionnelle',stageTransition:'Reconversion / transition',stageTeaching:'Enseignement / formation',ageTitle:'Tranche d’âge (facultatif)',ageUnspecified:'Je préfère ne pas préciser',ageHelp:'Jamais utilisée pour déduire tes capacités.',qualificationTitle:'Études / diplôme (facultatif)',qualificationHelp:'Description libre, non utilisée comme classement.',occupationTitle:'Métier / domaine (facultatif)',occupationHelp:'Pour préciser ton contexte, sans limiter les choix.',paceTitle:'Temps souhaité par semaine',pace30:'30 minutes environ',pace60:'1 heure environ',pace120:'2 heures environ',pace180:'3 heures environ',paceHelp:'Simple repère facultatif, pas un chronomètre.',pathTitle:'Mon objectif d’apprentissage',familiarityTitle:'Ce que je connais déjà (facultatif)',familiarityHelp:'Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.',create:'Créer mon parcours ↗',clear:'Effacer cette séance',privacyNotice:'Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.',
- resultEyebrow:'PROGRAMME INDIVIDUEL · DÉMONSTRATION',export:'Exporter mon portfolio JSON',import:'Importer un portfolio JSON',resetProgress:'Effacer les étapes déclarées',exitTitle:'La suite t’appartient.',exitDescription:'Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.',portabilityEyebrow:'TU RESTES PROPRIÉTAIRE DU PARCOURS',portabilityTitle:'Tu peux repartir avec tes données.',portabilityText:'Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.',importHome:'Reprendre un portfolio exporté',footer:'18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.',
+ resultEyebrow:'PROGRAMME INDIVIDUEL · DÉMONSTRATION',export:'Exporter mon portfolio JSON non chiffré',import:'Importer un portfolio JSON',resetProgress:'Effacer les étapes déclarées',exitTitle:'La suite t’appartient.',exitDescription:'Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.',portabilityEyebrow:'TU RESTES PROPRIÉTAIRE DU PARCOURS',portabilityTitle:'Tu peux repartir avec tes données.',portabilityText:'Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.',importHome:'Reprendre un portfolio exporté',footer:'18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.',
  stats:(p,c,g)=>`${p} modules · ${c} compétences · ${g} parcours`,
  levels:['Je débute','J’explore','Je pratique','Je me sens à l’aise'],
  count:x=>`${x} compétences avec prérequis explicites`,estimate:(t,p)=>`Environ ${t} minutes d’activités indicatives · rythme choisi ${p} min/semaine`,
@@ -93,7 +96,7 @@ en:{
  noScore:'✓ No automatic grading',noAccount:'✓ No account',portable:'✓ Portable and editable',foundationTitle:'THE CORE IDEA',foundationHeading:'Competencies, not labels.',foundationCopy:'No occupation, degree, country or field is hard-coded into the engine. New versioned content packs can add explicit prerequisites and activities across the four pillars.',
  packTitle:'Add a learning content pack',packHelp:'Import a declarative JSON pack from your device: it will be validated, used in this tab only, and never automatically published.',packImport:'Import a JSON pack',packAdded:'Pack available in this tab. Not certified: educational review required.',packFailed:'Pack rejected: ',
  builderEyebrow:'JOURNEY WORKSHOP',builderTitle:'Build my learning program',adultTitle:'Demo access',adultNotice:'I confirm that I am 18 or older. Learning paths for minors need additional safeguards.',stageTitle:'My current situation',stagePersonal:'Personal learning',stageSchool:'Returning to education as an adult',stageHigher:'Higher education',stageWork:'Professional life',stageTransition:'Career change / transition',stageTeaching:'Teaching / training',ageTitle:'Age band (optional)',ageUnspecified:'Prefer not to say',ageHelp:'Never used to infer your ability.',qualificationTitle:'Education / qualification (optional)',qualificationHelp:'Free description, not used as a ranking.',occupationTitle:'Occupation / field (optional)',occupationHelp:'Adds context without limiting your choices.',paceTitle:'Preferred time per week',pace30:'About 30 minutes',pace60:'About 1 hour',pace120:'About 2 hours',pace180:'About 3 hours',paceHelp:'Only a guide; never an enforced timer.',pathTitle:'My learning goal',familiarityTitle:'What I already know (optional)',familiarityHelp:'Self-description only, not a diagnostic or certificate. Every competency remains open.',create:'Create my pathway ↗',clear:'Erase this session',privacyNotice:'Your entries remain in this tab only. No profile is sent to a server. You can explicitly export a JSON file to return later.',
- resultEyebrow:'PERSONAL PROGRAM · DEMONSTRATION',export:'Export my JSON portfolio',import:'Import a JSON portfolio',resetProgress:'Erase self-reported steps',exitTitle:'The next step is yours.',exitDescription:'Explore the skills through THINK, FOCUS, LEARN and DECIDE. Stop whenever you want or change your pathway freely.',portabilityEyebrow:'YOU CONTROL YOUR PATHWAY',portabilityTitle:'Your data can travel with you.',portabilityText:'No account needed. Your exported portfolio contains your chosen context and self-reported steps, never free-text answers or rankings of ability. Keep your file private.',importHome:'Continue from an exported portfolio',footer:'18+ · Demonstration · No intelligence measurement · Think first. AI second.',
+ resultEyebrow:'PERSONAL PROGRAM · DEMONSTRATION',export:'Export my unencrypted JSON portfolio',import:'Import a JSON portfolio',resetProgress:'Erase self-reported steps',exitTitle:'The next step is yours.',exitDescription:'Explore the skills through THINK, FOCUS, LEARN and DECIDE. Stop whenever you want or change your pathway freely.',portabilityEyebrow:'YOU CONTROL YOUR PATHWAY',portabilityTitle:'Your data can travel with you.',portabilityText:'No account needed. Your exported portfolio contains your chosen context and self-reported steps, never free-text answers or rankings of ability. Keep your file private.',importHome:'Continue from an exported portfolio',footer:'18+ · Demonstration · No intelligence measurement · Think first. AI second.',
  stats:(p,c,g)=>`${p} packs · ${c} competencies · ${g} pathways`,
  levels:['New to this','Exploring','Practicing','Feel confident'],
  count:x=>`${x} competencies with explicit prerequisites`,estimate:(t,p)=>`About ${t} minutes of suggested activities · selected pace ${p} min/week`,
@@ -375,6 +378,10 @@ async function vaultAction(action){
    throw new Error(vaultWords[locale].mustCreate);
   const secret=encryptedPassphrase();
   if(action==='download'||action==='device-save'){
+   if(secret!==$('vault-confirm').value)throw new Error(vaultWords[locale].mismatch);
+   if(action==='device-save'&&await readEncryptedDevice()&&!window.confirm(vaultWords[locale].overwrite)){
+    vaultStatus('');return;
+   }
    const plain=exportPortfolio(registry,program.generatedFor,events,{formative});
    const cipher=await encryptPortfolio(plain,secret);
    if(action==='download'){downloadEncrypted(cipher);vaultStatus(vaultWords[locale].savedFile);}
@@ -389,7 +396,7 @@ async function vaultAction(action){
   }
  }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
  finally{
-  $('vault-passphrase').value='';vaultBusy=false;
+  $('vault-passphrase').value='';$('vault-confirm').value='';vaultBusy=false;
   for(const id of ['vault-download','vault-save-device','vault-resume-device','vault-clear-device'])$(id).disabled=false;
  }
 }
@@ -406,7 +413,7 @@ async function importEncryptedVault(input){
   if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
   else vaultStatus('');
  }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
- finally{$('vault-passphrase').value='';vaultBusy=false;}
+ finally{$('vault-passphrase').value='';$('vault-confirm').value='';vaultBusy=false;}
 }
 
 async function loadFile(input){
@@ -469,6 +476,9 @@ $('vault-save-device').addEventListener('click',()=>vaultAction('device-save'));
 $('vault-resume-device').addEventListener('click',()=>vaultAction('device-resume'));
 $('vault-clear-device').addEventListener('click',()=>vaultAction('clear'));
 $('vault-import').addEventListener('change',e=>importEncryptedVault(e.target));
+$('vault-import-label').addEventListener('keydown',event=>{
+ if(event.key==='Enter'||event.key===' '){event.preventDefault();$('vault-import').click();}
+});
 $('formative-close').addEventListener('click',closeFormative);
 $('formative-reveal').addEventListener('click',revealFormative);
 $('formative-save').addEventListener('click',saveFormative);
