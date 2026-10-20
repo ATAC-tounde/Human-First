@@ -41,7 +41,7 @@ test('Continuity V1.0: missing alias never silently deletes self-declared progre
 test('Continuity V1.0: manifest target, source version and aliases must be exact',()=>{
  assert.throws(()=>normalizeAliasManifest({...manifest,toCatalogVersion:'other'},registry),/target/);
  assert.throws(()=>planPortfolioTransition(original,registry,{...manifest,fromCatalogVersion:'other'}),/version/);
- assert.throws(()=>normalizeAliasManifest({...manifest,competencies:[{from:'old.value',to:'not-in-registry'}]},registry),/unknown destination/);
+ assert.throws(()=>normalizeAliasManifest({...manifest,competencies:[{from:'old.value',to:'none.new-skill'}]},registry),/unknown destination/);
  assert.throws(()=>normalizeAliasManifest({...manifest,competencies:[{from:'a.old',to:'core.evidence'},{from:'b.old',to:'core.evidence'}]},registry),/collision/);
  assert.throws(()=>normalizeAliasManifest({...manifest,competencies:[{from:'core.evidence',to:'core.causality'},{from:'core.old',to:'core.evidence'}]},registry),/chained/);
 });
