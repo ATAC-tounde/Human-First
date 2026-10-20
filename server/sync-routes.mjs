@@ -28,9 +28,16 @@ function send(res,status,data,extra={}){
 }
 function failure(res,status,code){send(res,status,{error:code});}
 function secureRequest(req){
+ // A Host header is attacker-controlled: it must NEVER grant a loopback-only
+ // HTTP exemption without verifying the actual socket endpoints.
  const hostname=(req.headers.host??'').split(':')[0].toLowerCase();
- if((hostname==='localhost'||hostname==='127.0.0.1'||hostname==='[::1]')&&!process.env.VERCEL)return true;
+ const loopback=value=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(value);
+ const local=(hostname==='localhost'||hostname==='127.0.0.1'||hostname==='[::1]')&&
+  loopback(req.socket.remoteAddress)&&loopback(req.socket.localAddress);
+ if(local&&!process.env.VERCEL)return true;
  if(req.socket.encrypted)return true;
+ // Only enable TRUST_PROXY behind a trusted reverse proxy that strips spoofed
+ // forwarding headers on untrusted connections.
  return process.env.TRUST_PROXY==='1'&&req.headers['x-forwarded-proto']==='https';
 }
 function sameOrigin(req){
@@ -70,6 +77,9 @@ export async function handleEncryptedSync(req,res,url){
  if(!secureRequest(req)){failure(res,403,'secure_origin_required');return true;}
  if(!sameOrigin(req)){failure(res,403,'origin_not_allowed');return true;}
  if(!['GET','PUT','DELETE'].includes(req.method)){failure(res,405,'method_not_allowed');return true;}
+ if(req.method!=='GET'&&req.headers['x-think-first']!=='1'){
+  failure(res,403,'mutation_header_required');return true;
+ }
  let token;
  try{token=validateSyncKey(req.headers['x-hf-sync-key']);}
  catch{failure(res,401,'invalid_capability');return true;}
