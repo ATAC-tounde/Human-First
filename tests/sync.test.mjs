@@ -98,6 +98,19 @@ test('V1.2: spoofing Host localhost from a public socket never bypasses TLS',()=
  assert.equal(secureRequest(req('127.0.0.1:4173','203.0.113.50','127.0.0.1')),false);
  assert.equal(secureRequest(req('127.0.0.1:4173','127.0.0.1','127.0.0.1')),true);
  assert.equal(secureRequest(req('public.example','203.0.113.50','10.0.0.4',true)),true);
+ const before=process.env.TRUST_PROXY,oldPeer=process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS;
+ try{
+  process.env.TRUST_PROXY='1';delete process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS;
+  const external={headers:{host:'public.example','x-forwarded-proto':'https'},
+   socket:{remoteAddress:'203.0.113.50',localAddress:'10.0.0.4',encrypted:false}};
+  assert.equal(secureRequest(external),false,'Untrusted external peer cannot spoof HTTPS forwarding');
+  process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS='203.0.113.50';
+  assert.equal(secureRequest(external),true,'Explicitly approved reverse proxy can terminate HTTPS');
+ }finally{
+  if(before===undefined)delete process.env.TRUST_PROXY;else process.env.TRUST_PROXY=before;
+  if(oldPeer===undefined)delete process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS;
+  else process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS=oldPeer;
+ }
 });
 
 test('V1.2: end-to-end HTTP never receives portfolio plaintext, uses explicit preconditions and no cookies',async()=>{
