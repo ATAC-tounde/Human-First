@@ -222,6 +222,7 @@ async function startRecall(id){
 }
 
 async function bootstrap() {
+  const preferredLocale=locale; // Active server exercises may be locked to another language.
   try {
     const [loaded, resumed, pathData, coaching]=await Promise.all([api(`/api/catalog?lang=${locale}`),api('/api/session'),api(`/api/paths?lang=${locale}`),api('/api/coach/config')]);
     if(resumed.stage!=='idle' && locale !== (resumed.locale || 'fr')) {
