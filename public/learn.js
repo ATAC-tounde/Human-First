@@ -174,7 +174,9 @@ function bind(){
 }
 async function bootstrap(){const preferredLocale=locale;bind();localeCopy();try{
  const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
- if(session.stage!=='idle'&&session.locale!==locale){locale=session.locale;localeCopy();loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;}
+ if(session.stage!=='idle'&&session.locale!==locale){locale=session.locale;localeCopy();loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;
+  // Keep the chosen navigation language, although the in-progress lesson is fixed.
+  syncLanguage(preferredLocale);}
  catalog=loaded.lessons;state=session;filters();render();
  }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}}
 bootstrap();
