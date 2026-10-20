@@ -92,7 +92,7 @@ test('i18n: all actual page links propagate the preference across the six pillar
  const seen=new Set();
  for(const page of pages){
   const html=await read('public/'+page);
-  const hrefs=[...html.matchAll(/href="([^"]+)"/g)].map(m=>m[1]);
+  const hrefs=[...html.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map(m=>m[1]);
   const links=hrefs.map(href=>({
    href,getAttribute(attr){return attr==='href'?this.href:null;},
    setAttribute(attr,value){assert.equal(attr,'href');this.href=value;}
@@ -139,14 +139,18 @@ test('i18n: actual Studio UI translation preserves unsaved form fields and recom
  const previewPanel={hidden:false};
  const textNode={nodeValue:'Paramètres du référentiel',parentElement:{closest:()=>false}};
  const summaryNode={nodeValue:'7 structural error(s) found.',parentElement:{closest:selector=>selector.includes('#validation-summary')}};
- const seen=[];
  const root={
   body:{querySelectorAll:()=>[]},
   documentElement:{lang:'fr'},title:'',
   querySelectorAll:selector=>selector==='a[href]'?[link]:[],
-  createTreeWalker:()=>({nextNode(){
-    return seen.length?null:(seen.push(true),textNode);
-  }}),
+  createTreeWalker:()=>{
+   let consumed=false;
+   return {nextNode(){
+    if(consumed)return null;
+    consumed=true;
+    return textNode;
+   }};
+  },
   getElementById:id=>id==='studio-language-switch'?button:id==='preview-panel'?previewPanel:null
  };
  const before=globalThis.NodeFilter;
