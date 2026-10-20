@@ -42,6 +42,7 @@ const publicFiles = {
   '/journey/app.mjs': ['journey/app.mjs', 'text/javascript; charset=utf-8'],
   '/journey/assessment.mjs': ['journey/assessment.mjs', 'text/javascript; charset=utf-8'],
   '/journey/continuity.mjs': ['journey/continuity.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/restore.mjs': ['journey/restore.mjs', 'text/javascript; charset=utf-8'],
   '/journey/vault.mjs': ['journey/vault.mjs', 'text/javascript; charset=utf-8'],
   '/journey/device-vault.mjs': ['journey/device-vault.mjs', 'text/javascript; charset=utf-8'],
   '/studio': ['studio.html', 'text/html; charset=utf-8'],
