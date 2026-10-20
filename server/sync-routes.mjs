@@ -27,7 +27,7 @@ function send(res,status,data,extra={}){
  res.end(JSON.stringify(data));
 }
 function failure(res,status,code){send(res,status,{error:code});}
-function secureRequest(req){
+export function secureRequest(req){
  // A Host header is attacker-controlled: it must NEVER grant a loopback-only
  // HTTP exemption without verifying the actual socket endpoints.
  const hostname=(req.headers.host??'').split(':')[0].toLowerCase();
