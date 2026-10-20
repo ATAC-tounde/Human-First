@@ -1,6 +1,7 @@
 import {installedPacks} from './packs.mjs';
 import {availableFormative,makeFormativeObservation} from './assessment.mjs';
-import {normalizeAliasManifest,migratePortfolio} from './continuity.mjs';
+import {normalizeAliasManifest} from './continuity.mjs';
+import {restorePortablePortfolio} from './restore.mjs';
 import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs';
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
@@ -37,7 +38,7 @@ const vaultWords={
  mustCreate:'Crée ou importe d’abord un parcours pour l’enregistrer.',
  replace:'Remplacer le parcours actuellement ouvert ? Tout travail non enregistré sera perdu.',
  confirmDelete:'Supprimer le coffre chiffré stocké sur cet appareil ? Cette action est irréversible.',
- busy:'Chiffrement en cours…'
+ busy:'Opération sécurisée en cours…',encrypting:'Chiffrement en cours…',restoring:'Déchiffrement et validation en cours…',clearing:'Suppression de la sauvegarde locale en cours…'
  },
  en:{
  eyebrow:'CONTINUITY · PRIVATE BACKUP',title:'An encrypted vault, no account needed.',
@@ -58,7 +59,7 @@ const vaultWords={
  mustCreate:'Create or import a learning pathway before saving it.',
  replace:'Replace the currently open pathway? Unsaved work will be lost.',
  confirmDelete:'Delete the encrypted backup stored on this device? This cannot be undone.',
- busy:'Encrypting…'
+ busy:'Secure operation in progress…',encrypting:'Encrypting backup…',restoring:'Decrypting and validating backup…',clearing:'Removing device backup…'
  }
 };
 const vaultLabels={
@@ -343,6 +344,7 @@ function applyImportedPortfolio(portfolio){
  familiarity={...p.familiarity};
  renderPathways();$('path').value=p.pathId;renderPathways();
  $('result').hidden=false;renderLocale();renderProgram();
+ if(aliasManifest){aliasManifest=null;$('alias-state').textContent='';}
  message(portfolio.migrated?w('migrated'):w('imported'));
  $('result').scrollIntoView({behavior:'auto',block:'start'});
  return true;
@@ -366,7 +368,7 @@ async function vaultAction(action){
  if(vaultBusy)return;
  vaultBusy=true;
  for(const id of ['vault-download','vault-save-device','vault-resume-device','vault-clear-device'])$(id).disabled=true;
- vaultStatus(vaultWords[locale].busy);
+ vaultStatus(vaultWords[locale][action==='clear'?'clearing':action==='device-resume'?'restoring':'encrypting']);
  try{
   if(action==='clear'){
    if(!window.confirm(vaultWords[locale].confirmDelete)){vaultStatus('');return;}
@@ -390,7 +392,7 @@ async function vaultAction(action){
    const encrypted=await readEncryptedDevice();
    if(!encrypted)throw new Error(vaultWords[locale].missing);
    const plain=await decryptPortfolio(encrypted,secret);
-   const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry);
+   const restored=restorePortablePortfolio(plain,registry,aliasManifest);
    if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
    else vaultStatus('');
   }
@@ -404,7 +406,7 @@ async function importEncryptedVault(input){
  const file=input.files?.[0];input.value='';if(!file)return;
  if(vaultBusy)return;
  vaultBusy=true;
- vaultStatus(vaultWords[locale].busy);
+ vaultStatus(vaultWords[locale].restoring);
  try{
   if(file.size>VAULT_MAX_ENVELOPE)throw new Error('Encrypted backup exceeds size limit');
   const secret=encryptedPassphrase();
@@ -421,7 +423,7 @@ async function loadFile(input){
  try{
    if(file.size>80_000)throw new TypeError('File exceeds 80 kB');
    const raw=await file.text();
-   const portfolio=aliasManifest?migratePortfolio(raw,registry,aliasManifest):importPortfolio(raw,registry);
+   const portfolio=restorePortablePortfolio(raw,registry,aliasManifest);
    applyImportedPortfolio(portfolio);
  }catch(e){message(w('importError')+e.message);$('form-status').scrollIntoView({block:'nearest'});}
 }
