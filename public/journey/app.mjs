@@ -1,5 +1,6 @@
 import {installedPacks} from './packs.mjs';
 import {availableFormative,makeFormativeObservation} from './assessment.mjs';
+import {normalizeAliasManifest,migratePortfolio} from './continuity.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -12,6 +13,7 @@ let program=null;
 let events=[];
 let formative=[];
 let activeFormative=null;
+let aliasManifest=null;
 let familiarity={};
 const words={
 fr:{
@@ -55,6 +57,7 @@ function renderLocale(){
    const key=element.dataset.text;
    if(typeof w(key)==='string')element.textContent=w(key);
  }
+ document.querySelector('[data-text="aliasesLabel"]').textContent=locale==='en'?'Load an equivalence map for older catalogs (optional)':'Table d’équivalences pour anciens référentiels (facultative)';
  $('lang').textContent=locale==='en'?'FR':'EN';$('lang').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
  for(const pillar of PILLARS)$('link-'+pillar).href=tags[pillar]+'?lang='+locale;
  const qual=$('qualification'),occupation=$('occupation');
@@ -233,7 +236,7 @@ function renderProgram(){
   list.append(li);
  });
 }
-function resetAll(){closeFormative();registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
+function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
@@ -248,7 +251,8 @@ async function loadFile(input){
  const file=input.files?.[0];input.value='';if(!file)return;
  try{
    if(file.size>80_000)throw new TypeError('File exceeds 80 kB');
-   const portfolio=importPortfolio(await file.text(),registry);
+   const raw=await file.text();
+   const portfolio=aliasManifest?migratePortfolio(raw,registry,aliasManifest):importPortfolio(raw,registry);
    const p=portfolio.profile;
    $('adult').checked=true;$('stage').value=p.stage;$('age-band').value=p.ageBand;
    $('qualification').value=p.qualification;$('occupation').value=p.occupation;$('pace').value=String(p.minutesPerWeek);
@@ -268,6 +272,7 @@ async function loadPack(input) {
    // JSON only: never execute imported scripts or import arbitrary JavaScript URLs.
    const next=createRegistry([...installedPacks,...importedPacks,parsed]);
    importedPacks.push(parsed);registry=next;
+   aliasManifest=null;$('alias-state').textContent='';
    const oldProfile=program?.generatedFor;
    closeFormative();renderLocale();
    if(oldProfile&&registry.paths.has(oldProfile.pathId)){
@@ -278,6 +283,22 @@ async function loadPack(input) {
    message(w('packAdded'));
  }catch(error){message(w('packFailed')+error.message);}
 }
+async function loadAliasFile(input){
+ const file=input.files?.[0];input.value='';
+ if(!file)return;
+ try{
+  if(file.size>30_000)throw new TypeError('Alias map exceeds 30 kB');
+  const raw=JSON.parse(await file.text());
+  // Aliases are not inferred and cannot execute code; only a manifest matching
+  // the installed catalog is accepted. No learner answer is read at this step.
+  normalizeAliasManifest(raw,registry);
+  aliasManifest=raw;
+  $('alias-state').textContent=locale==='en'?'Explicit mapping ready. The original portfolio is never modified.':'Table d’équivalences prête. Le portfolio d’origine reste intact.';
+ }catch(error){
+  aliasManifest=null;$('alias-state').textContent=String(error.message||error);
+ }
+}
+
 $('profile-form').addEventListener('submit',e=>{e.preventDefault();generate();});
 $('pack-file').addEventListener('change',e=>loadPack(e.target));
 $('path').addEventListener('change',()=>{$('path-help').textContent=local(registry.paths.get($('path').value).summary);renderFamiliarity();});
@@ -287,6 +308,7 @@ $('export').addEventListener('click',savePortfolio);
 $('reset-progress').addEventListener('click',()=>{closeFormative();events=[];formative=[];renderProgram();});
 $('import').addEventListener('change',e=>loadFile(e.target));
 $('import-home').addEventListener('change',e=>loadFile(e.target));
+$('aliases-file').addEventListener('change',e=>loadAliasFile(e.target));
 $('formative-close').addEventListener('click',closeFormative);
 $('formative-reveal').addEventListener('click',revealFormative);
 $('formative-save').addEventListener('click',saveFormative);
