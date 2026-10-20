@@ -9,6 +9,7 @@ import {reviewTask} from './reviews.mjs';
 import {coachSettings,askCoach} from './coach.mjs';
 import {offlineCard} from './offline.mjs';
 import {handleLearn} from './learn-routes.mjs';
+import {handleEncryptedSync} from './sync-routes.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(here, '../public');
@@ -46,6 +47,7 @@ const publicFiles = {
   '/journey/restore.mjs': ['journey/restore.mjs', 'text/javascript; charset=utf-8'],
   '/journey/vault.mjs': ['journey/vault.mjs', 'text/javascript; charset=utf-8'],
   '/journey/device-vault.mjs': ['journey/device-vault.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/sync-client.mjs': ['journey/sync-client.mjs', 'text/javascript; charset=utf-8'],
   '/studio': ['studio.html', 'text/html; charset=utf-8'],
   '/studio.html': ['studio.html', 'text/html; charset=utf-8'],
   '/studio/studio.css': ['studio/studio.css', 'text/css; charset=utf-8'],
@@ -123,6 +125,7 @@ function response(session,{attempt='',transferAnswer=''}={}) {
 const app=createServer(async(req,res)=>{
   try {
     const url=new URL(req.url||'/','http://localhost');
+    if(await handleEncryptedSync(req,res,url))return;
     if(await handleLearn(req,res,url,{json,reject,body,allowMutation}))return;
     if(req.method==='GET'&&Object.hasOwn(publicFiles,url.pathname)) {
       const [name,type]=publicFiles[url.pathname];const bytes=await readFile(join(publicDir,name));

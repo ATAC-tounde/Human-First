@@ -40,3 +40,12 @@
 .vault-status{margin:0;min-height:1.8rem;font-size:14px;font-weight:650;color:#234b31;overflow-wrap:anywhere}
 @media(max-width:700px){.vault-panel{padding:22px 18px}.vault-actions{display:grid;grid-template-columns:1fr}.vault-actions>*{width:100%;justify-content:center}}
 @media print{.vault-panel{display:none!important}}
+
+/* V1.2 optional encrypted remote backup pilot. */
+.remote-sync-panel{border-color:#8f9dae;background:#edf1f4}
+.remote-sync-panel button:disabled{opacity:.5;cursor:not-allowed}
+#remote-sync-key{width:min(100%,700px);padding:13px 15px;border:1px solid #71848f;border-radius:8px;font:inherit;background:white;color:#173044}
+#remote-sync-key:focus-visible{outline:3px solid #326a44;outline-offset:3px}
+#remote-sync-status{min-height:1.6em;overflow-wrap:anywhere;font-size:14px;font-weight:650}
+.remote-sync-panel .privacy{max-width:76ch}
+@media print{.remote-sync-panel{display:none!important}}
