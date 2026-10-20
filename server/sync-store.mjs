@@ -1,18 +1,20 @@
 /**
  * HUMAN FIRST V1.2 - opt-in encrypted backup storage adapter.
  * Pilot: one trusted Node process with a durable filesystem, NEVER Vercel ephemeral disk.
- * The server only accepts the V1.1 authenticated ciphertext envelope and cannot
- * read learner metadata without the learner's independent encryption passphrase.
+ * The server validates the V1.1 envelope shape but cannot authenticate AES-GCM
+ * without the passphrase. The official client encrypts before each transfer.
  * A possession-only high entropy capability controls READ/WRITE/DELETE. This is
  * not an account, identity verification, or multi-tenant authorization system.
  */
-import {mkdir,readFile,writeFile,rename,unlink,open} from 'node:fs/promises';
+import {mkdir,readFile,rename,unlink,open} from 'node:fs/promises';
 import {createHash,randomBytes} from 'node:crypto';
 import {isAbsolute,join} from 'node:path';
 import {parseEncryptedVault,VAULT_MAX_ENVELOPE} from '../public/journey/vault.mjs';
 export const SYNC_KEY_PATTERN=/^hfs1_[A-Za-z0-9_-]{43}$/;
 export const SYNC_MAX_ENVELOPE=VAULT_MAX_ENVELOPE;
-const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+// Single-process pilot: in-memory per-vault queue; a crashed process leaves
+// no persistent .lock files that could deny all future writes on restart.
+const pendingWrites=new Map();
 export function validateSyncKey(token){
  if(typeof token!=='string'||!SYNC_KEY_PATTERN.test(token))throw Object.assign(new Error('Invalid capability format'),{httpCode:401});
  const bytes=Buffer.from(token.slice(5),'base64url');
@@ -37,18 +39,27 @@ export function validateEncryptedPayload(raw){
  return raw;
 }
 async function locked(path,action){
- let handle;
- for(let attempt=0;attempt<20;attempt++){
-  try{handle=await open(path+'.lock','wx',0o600);break;}
-  catch(error){
-   if(error.code!=='EEXIST')throw error;
-   await delay(30);
-  }
- }
- if(!handle)throw Object.assign(new Error('Encrypted vault is busy; retry later'),{httpCode:503});
+ const previous=pendingWrites.get(path)??Promise.resolve();
+ let release;
+ const held=new Promise(resolve=>{release=resolve;});
+ pendingWrites.set(path,held);
+ await previous;
  try{return await action();}
- finally{await handle.close();await unlink(path+'.lock').catch(()=>{});}
+ finally{
+  if(pendingWrites.get(path)===held)pendingWrites.delete(path);
+  release();
+ }
 }
+// On POSIX, sync the containing directory after rename/unlink to persist
+// directory entry changes on durable media. Windows does not consistently
+// expose directory fsync through Node; durability remains platform-dependent.
+async function syncDirectory(root){
+ if(process.platform==='win32')return;
+ const handle=await open(root,'r');
+ try{await handle.sync();}
+ finally{await handle.close();}
+}
+
 async function existing(path){
  try{
   const raw=await readFile(path,'utf8');
@@ -89,8 +100,13 @@ export function createEncryptedSyncStore(rootDir){
     const stored=JSON.stringify({schema:'hf.remote.slot.v1',revision,content});
     const tmp=path+'.'+randomBytes(12).toString('hex')+'.tmp';
     try{
-     await writeFile(tmp,stored,{encoding:'utf8',flag:'wx',mode:0o600});
+     const handle=await open(tmp,'wx',0o600);
+     try{
+      await handle.writeFile(stored,'utf8');
+      await handle.sync();
+     }finally{await handle.close();}
      await rename(tmp,path);
+     await syncDirectory(root);
     }finally{await unlink(tmp).catch(()=>{});}
     return {revision,created:!old};
    });
@@ -104,6 +120,7 @@ export function createEncryptedSyncStore(rootDir){
     if(!condition)throw Object.assign(new Error('Conditional deletion required'),{httpCode:428});
     if(condition!==old.revision)throw Object.assign(new Error('Backup changed; deletion refused'),{httpCode:412});
     await unlink(path);
+    await syncDirectory(root);
     return true;
    });
   }
