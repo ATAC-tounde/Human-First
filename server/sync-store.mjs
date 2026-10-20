@@ -25,8 +25,10 @@ export function vaultFileName(token){
  // Domain separation prevents cross-protocol token-hash correlation.
  return createHash('sha256').update('HUMAN-FIRST-VAULT-V1:'+token).digest('hex')+'.vault';
 }
-export function contentRevision(text){
- return '"'+createHash('sha256').update(text,'utf8').digest('hex')+'"';
+export function newRevision(){
+ // Fresh generation token rather than a ciphertext digest: prevents ABA when
+ // an earlier ciphertext is re-uploaded and stale If-Match would otherwise pass.
+ return '"'+randomBytes(32).toString('hex')+'"';
 }
 export function validateEncryptedPayload(raw){
  if(typeof raw!=='string'||Buffer.byteLength(raw,'utf8')>SYNC_MAX_ENVELOPE)
@@ -49,9 +51,13 @@ async function locked(path,action){
 }
 async function existing(path){
  try{
-  const content=await readFile(path,'utf8');
-  validateEncryptedPayload(content);
-  return {content,revision:contentRevision(content)};
+  const raw=await readFile(path,'utf8');
+  let slot;
+  try{slot=JSON.parse(raw);}catch{throw new Error('Encrypted slot metadata is corrupt');}
+  if(slot?.schema!=='hf.remote.slot.v1'||!/^"[a-f0-9]{64}"$/.test(slot.revision))
+   throw new Error('Encrypted slot metadata is invalid');
+  validateEncryptedPayload(slot.content);
+  return {content:slot.content,revision:slot.revision};
  }catch(error){
   if(error.code==='ENOENT')return null;
   throw error;
@@ -79,12 +85,14 @@ export function createEncryptedSyncStore(rootDir){
     }else if(!old||condition!==old.revision){
      throw Object.assign(new Error('Backup changed; nothing overwritten'),{httpCode:412});
     }
+    const revision=newRevision();
+    const stored=JSON.stringify({schema:'hf.remote.slot.v1',revision,content});
     const tmp=path+'.'+randomBytes(12).toString('hex')+'.tmp';
     try{
-     await writeFile(tmp,content,{encoding:'utf8',flag:'wx',mode:0o600});
+     await writeFile(tmp,stored,{encoding:'utf8',flag:'wx',mode:0o600});
      await rename(tmp,path);
     }finally{await unlink(tmp).catch(()=>{});}
-    return {revision:contentRevision(content),created:!old};
+    return {revision,created:!old};
    });
   },
   async delete(token,condition){
