@@ -1,6 +1,8 @@
 import {installedPacks} from './packs.mjs';
 import {availableFormative,makeFormativeObservation} from './assessment.mjs';
 import {normalizeAliasManifest,migratePortfolio} from './continuity.mjs';
+import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs';
+import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -15,6 +17,61 @@ let formative=[];
 let activeFormative=null;
 let aliasManifest=null;
 let familiarity={};
+const vaultWords={
+ fr:{
+ eyebrow:'CONTINUITÉ · SAUVEGARDE PRIVÉE',title:'Un coffre chiffré, sans compte.',
+ intro:'Sauvegarde ton parcours dans un fichier chiffré ou, volontairement, sur cet appareil. Rien n’est synchronisé en ligne.',
+ warning:'Choisis une phrase secrète longue et unique (12 caractères minimum). Si tu l’oublies, nous ne pouvons pas récupérer ta sauvegarde. Conserve une copie du fichier ailleurs. Toute personne ayant accès à ce navigateur peut voir qu’une sauvegarde existe.',
+ password:'Ma phrase secrète (jamais enregistrée)',placeholder:'Phrase secrète unique · 12 caractères minimum',
+ download:'Télécharger une sauvegarde chiffrée',import:'Ouvrir une sauvegarde chiffrée',
+ save:'Enregistrer chiffré sur cet appareil',resume:'Reprendre depuis cet appareil',
+ clear:'Supprimer la sauvegarde de cet appareil',
+ note:'Sauvegarde volontaire, non automatique : le navigateur peut effacer ses données. Garde une copie externe.',
+ savedFile:'Fichier chiffré téléchargé. Conserve la phrase secrète et le fichier séparément.',
+ savedDevice:'Coffre chiffré enregistré sur cet appareil. Enregistre aussi un fichier de secours.',
+ restored:'Portfolio déchiffré et restauré. Aucun texte libre n’a été conservé.',
+ deleted:'Sauvegarde chiffrée locale supprimée. Les copies téléchargées existent toujours.',
+ missing:'Aucune sauvegarde chiffrée trouvée sur cet appareil.',
+ failed:'Opération impossible : ',
+ mustCreate:'Crée ou importe d’abord un parcours pour l’enregistrer.',
+ replace:'Remplacer le parcours actuellement ouvert ? Tout travail non enregistré sera perdu.',
+ confirmDelete:'Supprimer le coffre chiffré stocké sur cet appareil ? Cette action est irréversible.',
+ busy:'Chiffrement en cours…'
+ },
+ en:{
+ eyebrow:'CONTINUITY · PRIVATE BACKUP',title:'An encrypted vault, no account needed.',
+ intro:'Back up your pathway to an encrypted file, or voluntarily on this device. Nothing is synced online.',
+ warning:'Choose a long unique passphrase (at least 12 characters). We cannot recover a forgotten passphrase. Keep another copy of the file elsewhere. Anyone with access to this browser can see that a backup exists.',
+ password:'My passphrase (never stored)',placeholder:'Unique passphrase · at least 12 characters',
+ download:'Download encrypted backup',import:'Open encrypted backup',
+ save:'Save encrypted on this device',resume:'Restore from this device',
+ clear:'Delete this device backup',
+ note:'Voluntary, not automatic: the browser can erase its data. Keep an external copy.',
+ savedFile:'Encrypted file downloaded. Keep the passphrase and backup separately.',
+ savedDevice:'Encrypted backup saved on this device. Keep an external file too.',
+ restored:'Portfolio decrypted and restored. No free-text answers were stored.',
+ deleted:'Encrypted local backup deleted. Previously downloaded files still exist.',
+ missing:'No encrypted backup found on this device.',
+ failed:'Could not complete: ',
+ mustCreate:'Create or import a learning pathway before saving it.',
+ replace:'Replace the currently open pathway? Unsaved work will be lost.',
+ confirmDelete:'Delete the encrypted backup stored on this device? This cannot be undone.',
+ busy:'Encrypting…'
+ }
+};
+const vaultLabels={
+ 'vault-eyebrow':'eyebrow','vault-heading':'title','vault-intro':'intro',
+ 'vault-warning':'warning','vault-passphrase-label':'password',
+ 'vault-download':'download','vault-import-label':'import','vault-save-device':'save',
+ 'vault-resume-device':'resume','vault-clear-device':'clear','vault-note':'note'
+};
+function translateVault(){
+ const l=vaultWords[locale];
+ for(const [id,key] of Object.entries(vaultLabels))$(id).textContent=l[key];
+ $('vault-passphrase').placeholder=l.placeholder;
+}
+function vaultStatus(message){$('vault-status').textContent=message;}
+
 const words={
 fr:{
  skip:'Aller au contenu',journeyNav:'PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V0.8',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
@@ -52,6 +109,7 @@ function message(value){$('form-status').textContent=value;}
 const tags={think:'/',focus:'/focus',learn:'/learn',decide:'/decide'};
 function renderLocale(){
  document.documentElement.lang=locale;
+ translateVault();
  document.title=(locale==='en'?'My journey':'Mon parcours')+' | HUMAN FIRST';
  for(const element of document.querySelectorAll('[data-text]')){
    const key=element.dataset.text;
@@ -267,20 +325,97 @@ function savePortfolio(){
    message(w('saved'));
  }catch(e){message(w('invalid')+e.message);}
 }
+function applyImportedPortfolio(portfolio){
+ // Build and validate the new plan before replacing the current in-memory state.
+ const p=portfolio.profile;
+ const restoredProgram=buildJourney(registry,p);
+ if(program&&!window.confirm(vaultWords[locale].replace))return false;
+ closeFormative();
+ program=restoredProgram;
+ events=portfolio.evidence;
+ formative=portfolio.formative;
+ locale=p.locale;
+ $('adult').checked=true;$('stage').value=p.stage;$('age-band').value=p.ageBand;
+ $('qualification').value=p.qualification;$('occupation').value=p.occupation;$('pace').value=String(p.minutesPerWeek);
+ familiarity={...p.familiarity};
+ renderPathways();$('path').value=p.pathId;renderPathways();
+ $('result').hidden=false;renderLocale();renderProgram();
+ message(portfolio.migrated?w('migrated'):w('imported'));
+ $('result').scrollIntoView({behavior:'auto',block:'start'});
+ return true;
+}
+function encryptedPassphrase(){
+ // No passphrase is written to storage, cookies, URLs, logs, or portfolio exports.
+ const value=$('vault-passphrase').value;
+ if(value.length<12||value.length>256||!value.trim())
+   throw new TypeError(locale==='en'?'Use a unique passphrase of 12–256 characters.':'Choisis une phrase secrète unique de 12 à 256 caractères.');
+ return value;
+}
+function downloadEncrypted(envelope){
+ const link=document.createElement('a');
+ const url=URL.createObjectURL(new Blob([envelope],{type:'application/json'}));
+ link.href=url;link.download='human-first-parcours-prive.hfvault';
+ document.body.append(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+let vaultBusy=false;
+async function vaultAction(action){
+ if(vaultBusy)return;
+ vaultBusy=true;
+ for(const id of ['vault-download','vault-save-device','vault-resume-device','vault-clear-device'])$(id).disabled=true;
+ vaultStatus(vaultWords[locale].busy);
+ try{
+  if(action==='clear'){
+   if(!window.confirm(vaultWords[locale].confirmDelete)){vaultStatus('');return;}
+   await clearEncryptedDevice();
+   vaultStatus(vaultWords[locale].deleted);
+   return;
+  }
+  if((action==='download'||action==='device-save')&&!program)
+   throw new Error(vaultWords[locale].mustCreate);
+  const secret=encryptedPassphrase();
+  if(action==='download'||action==='device-save'){
+   const plain=exportPortfolio(registry,program.generatedFor,events,{formative});
+   const cipher=await encryptPortfolio(plain,secret);
+   if(action==='download'){downloadEncrypted(cipher);vaultStatus(vaultWords[locale].savedFile);}
+   else{await saveEncryptedDevice(cipher);vaultStatus(vaultWords[locale].savedDevice);}
+  }else{
+   const encrypted=await readEncryptedDevice();
+   if(!encrypted)throw new Error(vaultWords[locale].missing);
+   const plain=await decryptPortfolio(encrypted,secret);
+   const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry);
+   if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
+   else vaultStatus('');
+  }
+ }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
+ finally{
+  $('vault-passphrase').value='';vaultBusy=false;
+  for(const id of ['vault-download','vault-save-device','vault-resume-device','vault-clear-device'])$(id).disabled=false;
+ }
+}
+async function importEncryptedVault(input){
+ const file=input.files?.[0];input.value='';if(!file)return;
+ if(vaultBusy)return;
+ vaultBusy=true;
+ vaultStatus(vaultWords[locale].busy);
+ try{
+  if(file.size>VAULT_MAX_ENVELOPE)throw new Error('Encrypted backup exceeds size limit');
+  const secret=encryptedPassphrase();
+  const plain=await decryptPortfolio(await file.text(),secret);
+  const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry);
+  if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
+  else vaultStatus('');
+ }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
+ finally{$('vault-passphrase').value='';vaultBusy=false;}
+}
+
 async function loadFile(input){
  const file=input.files?.[0];input.value='';if(!file)return;
  try{
    if(file.size>80_000)throw new TypeError('File exceeds 80 kB');
    const raw=await file.text();
    const portfolio=aliasManifest?migratePortfolio(raw,registry,aliasManifest):importPortfolio(raw,registry);
-   const p=portfolio.profile;
-   $('adult').checked=true;$('stage').value=p.stage;$('age-band').value=p.ageBand;
-   $('qualification').value=p.qualification;$('occupation').value=p.occupation;$('pace').value=String(p.minutesPerWeek);
-   familiarity={...p.familiarity};renderPathways();$('path').value=p.pathId;renderPathways();
-   closeFormative();events=portfolio.evidence;formative=portfolio.formative;locale=p.locale;renderLocale();
-   program=buildJourney(registry,p);$('result').hidden=false;renderProgram();
-   message(portfolio.migrated?w('migrated'):w('imported'));
-   $('result').scrollIntoView({behavior:'auto',block:'start'});
+   applyImportedPortfolio(portfolio);
  }catch(e){message(w('importError')+e.message);$('form-status').scrollIntoView({block:'nearest'});}
 }
 async function loadPack(input) {
@@ -329,6 +464,11 @@ $('reset-progress').addEventListener('click',()=>{closeFormative();events=[];for
 $('import').addEventListener('change',e=>loadFile(e.target));
 $('import-home').addEventListener('change',e=>loadFile(e.target));
 $('aliases-file').addEventListener('change',e=>loadAliasFile(e.target));
+$('vault-download').addEventListener('click',()=>vaultAction('download'));
+$('vault-save-device').addEventListener('click',()=>vaultAction('device-save'));
+$('vault-resume-device').addEventListener('click',()=>vaultAction('device-resume'));
+$('vault-clear-device').addEventListener('click',()=>vaultAction('clear'));
+$('vault-import').addEventListener('change',e=>importEncryptedVault(e.target));
 $('formative-close').addEventListener('click',closeFormative);
 $('formative-reveal').addEventListener('click',revealFormative);
 $('formative-save').addEventListener('click',saveFormative);
