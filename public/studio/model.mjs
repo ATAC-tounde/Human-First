@@ -88,7 +88,7 @@ export function validateDocument(doc,referencePacks=[]){
  }catch(e){errors.push(String(e.message??e));}
  if(!doc.meta.sourceUrl&&!doc.meta.sourceNote)warnings.push('Renseigner la provenance des ressources avant toute diffusion institutionnelle.');
  if(doc.meta.license==='PROPRIETARY'||doc.meta.license==='PERMISSION-REQUIRED')warnings.push('Vérifier les autorisations de réutilisation et de redistribution.');
- if(!doc.pack.pathways?.length)warnings.push('Aucun parcours défini : le pack ne permet pas de créer un programme.');
+ if(!doc.pack.pathways?.length)errors.push('Au moins un parcours est requis pour une version publiable.');
  return {ok:errors.length===0,errors,warnings,stats};
 }
 function actorValid(value){return typeof value==='string'&&value.trim().length>=2&&value.trim().length<=80;}
@@ -135,14 +135,21 @@ export function exportPack(doc,referencePacks=[]){
  guard(doc.status==='published','Publie d’abord une version approuvée dans ce Studio.');
  const check=validateDocument(doc,referencePacks);
  guard(check.ok,check.errors.join('; '));
- // Keep this runtime pack importable by JOURNEY v0.8; discard studio metadata.
- return JSON.stringify(copy(doc.pack),null,2);
+ // Keep the pack importable by JOURNEY v0.8 and document its unverified provenance.
+ const pack=copy(doc.pack);
+ pack.hfStudio={schema:'hf.studio.release.v1',publication:'local-only',
+  approvedBy:doc.review.reviewer,approvedAt:doc.review.approvedAt,license:doc.meta.license,
+  sourceUrl:doc.meta.sourceUrl,sourceNote:doc.meta.sourceNote,territory:doc.meta.territory,
+  occupationTags:[...doc.meta.occupationTags],qualificationTags:[...doc.meta.qualificationTags],
+  reviewerIdentityVerified:false,certification:'none'};
+ return JSON.stringify(pack,null,2);
 }
 export function exportStudioDocument(doc){guard(isObj(doc)&&doc.schema===STUDIO_SCHEMA,'Document incompatible.');return JSON.stringify(copy(doc),null,2);}
 export function importForEditing(input,{author='Équipe pédagogique',limit=500_000}={}){
  guard(typeof input==='string'&&input.length<=limit,'Fichier trop volumineux.');
  let value;try{value=JSON.parse(input);}catch{throw new TypeError('Fichier JSON invalide.');}
  guard(isObj(value),'Un document JSON est attendu.');
+ guard(!Object.hasOwn(value,'schema')||value.schema===STUDIO_SCHEMA,'Schéma Studio inconnu.');
  const asDocument=value.schema===STUDIO_SCHEMA;
  const pack=asDocument?value.pack:value;
  guard(isObj(pack)&&packIdPattern.test(pack.id),'Identifiant de pack invalide.');
