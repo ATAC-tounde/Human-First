@@ -13,15 +13,23 @@ export function chooseLanguage({search='',stored=null,browser='fr'}={}){
  const input=new URLSearchParams(search.startsWith('?')?search.slice(1):search).get('lang');
  return valid(input)??valid(stored)??(String(browser).toLowerCase().startsWith('en')?'en':'fr');
 }
-export function savedLanguage(storage=globalThis.localStorage){
- try{return valid(storage?.getItem(UI_LANGUAGE_KEY));}catch{return null;}
+export function savedLanguage(storage){
+ try{
+  const target=storage===undefined?globalThis.localStorage:storage;
+  return valid(target?.getItem(UI_LANGUAGE_KEY));
+ }catch{return null;}
 }
 export function initialLanguage({location=globalThis.location,storage,language=globalThis.navigator?.language}={}){
  return chooseLanguage({search:location?.search??'',stored:savedLanguage(storage),browser:language??'fr'});
 }
-export function rememberLanguage(locale,storage=globalThis.localStorage){
+export function rememberLanguage(locale,storage){
  if(!valid(locale))throw new TypeError('Unsupported UI language');
- try{storage?.setItem(UI_LANGUAGE_KEY,locale);return true;}catch{return false;}
+ try{
+  const target=storage===undefined?globalThis.localStorage:storage;
+  if(!target)return false;
+  target.setItem(UI_LANGUAGE_KEY,locale);
+  return true;
+ }catch{return false;}
 }
 export function localizeHref(href,lang,{origin='https://human-first.local'}={}){
  if(!valid(lang))throw new TypeError('Unsupported UI language');
