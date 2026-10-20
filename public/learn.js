@@ -172,11 +172,23 @@ function bind(){
   localeCopy();filter='all';filters();cards();reviewCards();history.replaceState(null,'',`${location.pathname}?lang=${locale}`);
  },'catalog-error'));
 }
-async function bootstrap(){const preferredLocale=locale;bind();localeCopy();try{
- const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
- if(session.stage!=='idle'&&session.locale!==locale){locale=session.locale;localeCopy();loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;
-  // Keep the chosen navigation language, although the in-progress lesson is fixed.
-  syncLanguage(preferredLocale);}
- catalog=loaded.lessons;state=session;filters();render();
- }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}}
+async function bootstrap(){
+ const preferredLocale=locale;
+ bind();
+ // Avoid a race between user switching the language and the initial requests.
+ $('switch-lang').disabled=true;
+ localeCopy();
+ try{
+  const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
+  if(session.stage!=='idle'&&session.locale!==locale){
+   locale=session.locale;
+   localeCopy();
+   // Restore the chosen navigation language BEFORE any additional request can fail.
+   syncLanguage(preferredLocale);
+   loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;
+  }
+  catalog=loaded.lessons;state=session;filters();render();
+ }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}
+ finally{$('switch-lang').disabled=state.stage!=='idle';}
+}
 bootstrap();
