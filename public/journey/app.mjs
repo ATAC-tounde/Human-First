@@ -161,6 +161,26 @@ function openFormative(skillId){
  $('formative-panel').scrollIntoView({behavior:'auto',block:'start'});
  $('formative-heading').focus();
 }
+/**
+ * Locale switches must not destroy a learner's unfinished private response.
+ * Snapshot lives only in this call stack; never stored or exported.
+ */
+function relocalizeActiveFormative(){
+ if(!activeFormative)return;
+ const skillId=activeFormative.skillId;
+ const answer=$('formative-answer').value;
+ const revealed=!$('formative-feedback').hidden;
+ const checked=new Set([...document.querySelectorAll('#formative-criteria input:checked')].map(x=>x.value));
+ openFormative(skillId);
+ $('formative-answer').value=answer;
+ if(revealed){
+  revealFormative();
+  for(const input of document.querySelectorAll('#formative-criteria input')){
+   input.checked=checked.has(input.value);
+  }
+ }
+}
+
 function revealFormative(){
  if(!activeFormative)return;
  $('formative-answer').disabled=true;
@@ -315,7 +335,8 @@ $('formative-save').addEventListener('click',saveFormative);
 $('lang').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
-  closeFormative();locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
+  locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
   renderLocale();
+  relocalizeActiveFormative();
 });
 renderLocale();
