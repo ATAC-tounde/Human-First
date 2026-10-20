@@ -489,11 +489,7 @@ $('vault-import-label').addEventListener('keydown',event=>{
 $('formative-close').addEventListener('click',closeFormative);
 $('formative-reveal').addEventListener('click',revealFormative);
 $('formative-save').addEventListener('click',saveFormative);
-$('lang').addEventListener('click',()=>{
-  // Do not drop what the learner typed when translating the UI.
-  familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
-  locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
-  const remoteUi=mountEncryptedRemoteSync({
+const remoteUi=mountEncryptedRemoteSync({
  lang:()=>locale,
  busy:()=>vaultBusy,
  createPlaintext:()=>program?exportPortfolio(registry,program.generatedFor,events,{formative}):null,
@@ -504,8 +500,12 @@ $('lang').addEventListener('click',()=>{
  downloadCipher:downloadEncrypted,
  confirm:message=>window.confirm(message)
 });
-remoteUi.initialize();
-renderLocale();
+$('lang').addEventListener('click',()=>{
+  // Do not drop what the learner typed when translating the UI.
+  familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
+  locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
+  renderLocale();
   relocalizeActiveFormative();
 });
 renderLocale();
+void remoteUi.initialize();
