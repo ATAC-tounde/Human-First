@@ -28,7 +28,7 @@ Un navigateur compromis, une extension malveillante ou du JavaScript injecté pe
 - Le chiffrement et l'enregistrement demandent un acte volontaire ; il n'existe **aucune** sauvegarde automatique, inscription ou notification.
 - `/journey` reste libre d'accès pour les 18+. Un profil peut être créé sans utiliser le coffre.
 - L'import/chiffrement refuse les fichiers non `hf.portfolio.v1` et contrôle le schéma après déchiffrement.
-- Les versions de compétences sont toujours contrôlées ; une table explicite `hf.portfolio.aliases.v1` doit être chargée si les identifiants ont été modifiés.
+- **À l'import dans JOURNEY**, `restorePortablePortfolio` exige que `catalogVersion` corresponde exactement au référentiel chargé. Toute autre version est refusée sans une table explicite `hf.portfolio.aliases.v1` compatible. Même à version identique, un identifiant de familiarité inconnu est refusé plutôt que supprimé silencieusement. Une table devenue obsolète est ignorée pour un portfolio de version courante ; après une restauration réussie, la table temporaire est déchargée.
 - Une restauration d'un ancien portefeuille demande confirmation si un autre parcours est déjà ouvert ; une annulation conserve le parcours courant.
 - En cas de manque de données (pack externe non chargé, version de tâche non correspondante, passphrase oubliée), **aucune** restauration destructive et pas de correspondance déduite automatiquement.
 
@@ -39,3 +39,8 @@ Un navigateur compromis, une extension malveillante ou du JavaScript injecté pe
 Authentification nominative, sauvegarde cloud multi-appareils, gestion des droits d'organisations, clés de récupération, extension aux moins de 18 ans, certificats de compétences, conformité réglementaire auditée. La migration PostgreSQL V0.9 reste non appliquée et nécessite une revue de sécurité dédiée.
 
 Vercel : les builds Container Registry de la Preview ont précédemment été rejetés ; GitHub Actions ne valide pas une Preview bloquée. La production ne doit pas être modifiée avant recette.
+
+
+## Revue de code V1.1
+
+Contrôles supplémentaires : import de versions anciennes sans perte silencieuse, manifeste d'équivalences périmé, mise à niveau IndexedDB avec création du magasin, échecs d'ouverture et blocages d'onglets, navigation clavier sans double arrêt sur l'input masqué, champs mot de passe visuellement cohérents, messages de progression adaptés à l'opération. Ces assertions complètent les tests Node : un test navigateur réel et une revue externe restent requis avant diffusion.
