@@ -172,7 +172,7 @@ function bind(){
   localeCopy();filter='all';filters();cards();reviewCards();history.replaceState(null,'',`${location.pathname}?lang=${locale}`);
  },'catalog-error'));
 }
-async function bootstrap(){bind();localeCopy();try{
+async function bootstrap(){const preferredLocale=locale;bind();localeCopy();try{
  const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
  if(session.stage!=='idle'&&session.locale!==locale){locale=session.locale;localeCopy();loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;}
  catalog=loaded.lessons;state=session;filters();render();
