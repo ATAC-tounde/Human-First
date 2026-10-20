@@ -1,7 +1,7 @@
 /** HUMAN FIRST Studio. No fetch, external API, analytics or storage of authored content.\n * Only the two-letter interface language may be persisted locally. */
 import {installedPacks} from '../journey/packs.mjs';
 import {initialLanguage} from '../language.mjs';
-import {studioText,renderStudioLanguage} from './translations.mjs';
+import {studioText,renderStudioLanguage,refreshStudioPanels} from './translations.mjs';
 import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approveDocument,
   reopenDraft,publishDocument,nextDraft,exportPack,exportStudioDocument,importForEditing,
   previewDocument,versionFormativeTask,REVIEW_CHECKS,LICENSES} from './model.mjs';
@@ -177,15 +177,15 @@ function draw(){drawTree();editorFields();showValidation();text('quality-title',
 function checkUnsaved(){if(dirty)applyForm();}
 function renderReviewChecks(){const c=$('review-checks');const labels={accuracy:'Exactitude des contenus',pedagogy:'Pertinence pédagogique',accessibility:'Accessibilité et clarté',licensing:'Droits / provenance',privacy:'Confidentialité',translation:'Traductions FR / EN'};
  for(const key of REVIEW_CHECKS){const label=create('label');const ch=create('input');ch.type='checkbox';ch.value=key;ch.name='review-check';label.append(ch,document.createTextNode(' '+labels[key]));c.append(label);}}
-function renderPreview(){const result=previewDocument(doc,installedPacks,locale);const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
- for(const x of result.plan){const card=create('article','preview-item');card.append(create('h3',null,`${x.order}. ${x.title}`),create('p',null,x.outcome),create('p',null,`${x.explanation} / ${x.pillars.think}`));box.append(card);} $('preview-panel').hidden=false;$('preview-title').focus();$('preview-panel').scrollIntoView({behavior:'smooth',block:'start'});}
+function renderPreview(focus=true){const result=previewDocument(doc,installedPacks,locale);const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
+ for(const x of result.plan){const card=create('article','preview-item');card.append(create('h3',null,`${x.order}. ${x.title}`),create('p',null,x.outcome),create('p',null,`${x.explanation} / ${x.pillars.think}`));box.append(card);} $('preview-panel').hidden=false;if(focus){$('preview-title').focus();$('preview-panel').scrollIntoView({behavior:'smooth',block:'start'});}}
 function events(){
  $('studio-language-switch').addEventListener('click',()=>{
   locale=locale==='en'?'fr':'en';
   const newUrl=new URL(location.href);newUrl.searchParams.set('lang',locale);
   history.replaceState(null,'',newUrl);
-  // Only UI text nodes change. Unsaved FR/EN competency drafts are preserved.
-  refreshStudioLanguage();
+  // Refresh localized tree, audit and existing preview without rebuilding editor fields.
+  refreshStudioPanels(locale,{drawTree,showValidation,renderPreview});
  });
  $('editor-form').addEventListener('submit',e=>{e.preventDefault();tryDo(applyForm)});
  $('select-pack').addEventListener('click',()=>choose('pack'));
