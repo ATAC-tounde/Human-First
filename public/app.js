@@ -231,6 +231,9 @@ async function bootstrap() {
       loaded.exercises=localized.exercises;
     }
     applyLocale(locale);updateLanguageSwitch();refreshLearningCopy();
+    // Keep navigational language and stored preference even when this older active
+    // server session must finish with its original exercise language.
+    if(resumed.stage!=='idle'&&locale!==preferredLocale)syncLanguage(preferredLocale);
     catalog=loaded.exercises;paths=pathData.paths;aiConfig=coaching;
     if(resumed.stage!=='idle' && pathData.locale!==locale){paths=(await api(`/api/paths?lang=${locale}`)).paths;}
     renderFilters();rebuildPathFilters();renderCards();refreshReviews();
