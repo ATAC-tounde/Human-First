@@ -36,7 +36,9 @@ export function renderStudioLanguage(locale,root=globalThis.document){
  while((node=walker.nextNode())){
   const parent=node.parentElement;
   if(!parent||parent.closest(forbidden))continue;
-  const original=originalTexts.get(node)??backTranslations.get(node.nodeValue?.trim())??node.nodeValue;
+  const raw=node.nodeValue??'';
+  const equivalent=backTranslations.get(raw.trim());
+  const original=originalTexts.get(node)??(equivalent?raw.replace(raw.trim(),equivalent):raw);
   if(!originalTexts.has(node))originalTexts.set(node,original);
   node.nodeValue=locale==='en'?studioText(original,'en'):original;
  }
