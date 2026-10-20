@@ -144,11 +144,15 @@ test('V1.1: existing JSON import remains functional and no secrets are sent by l
  const app=await readFile(join(base,'public/journey/app.mjs'),'utf8');
  const html=await readFile(join(base,'public/journey.html'),'utf8');
  const server=await readFile(join(base,'server/index.mjs'),'utf8');
- for(const id of ['vault-panel','vault-passphrase','vault-download','vault-import','vault-save-device',
+ for(const id of ['vault-panel','vault-passphrase','vault-confirm','vault-download','vault-import','vault-save-device',
   'vault-resume-device','vault-clear-device','vault-status'])assert.ok(html.includes('id="'+id+'"'),id);
  assert.ok(app.includes("const plain=exportPortfolio(registry,program.generatedFor,events,{formative})"));
  assert.ok(app.includes("const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry)"));
  assert.ok(app.includes("$('vault-passphrase').value=''"));
+ assert.ok(app.includes("secret!==$('vault-confirm').value"),'Backups require passphrase confirmation');
+ assert.ok(app.includes("await readEncryptedDevice()&&!window.confirm"),'Overwriting an old device backup requires confirmation');
+ assert.ok(app.includes("$('vault-confirm').value=''"),'Confirmation field must also be cleared');
+ assert.ok(html.includes('id="vault-import-label" role="button" tabindex="0"'),'Keyboard file import must be reachable');
  assert.ok(app.includes("if(program&&!window.confirm(vaultWords[locale].replace))return false"));
  assert.ok(!/\bfetch\s*\(/.test(app.replace(/^\s*\/\/.*$/gm,'')),'No network posting of personal profile or password');
  assert.ok(!/\blocalStorage\s*[.\[]/.test(app),'No cleartext localStorage');
