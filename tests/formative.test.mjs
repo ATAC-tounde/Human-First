@@ -108,8 +108,9 @@ test('Formative V1.0: browser interface never exports raw answers and keeps the 
  assert.ok(js.includes('makeFormativeObservation('));
  assert.ok(js.includes('exportPortfolio(registry,program.generatedFor,events,{formative})'));
  assert.ok(js.includes("$('formative-answer').value=''"));
- assert.ok(!/\bfetch\s*\(/.test(js),'No network calls from personal learning page');
- assert.ok(!/\blocalStorage\s*[.\[]/.test(js),'No persistent answer storage');
+ const executable=js.replace(/^\s*\/\/.*$/gm,'');
+ assert.ok(!/\bfetch\s*\(/.test(executable),'No network calls from personal learning page');
+ assert.ok(!/\blocalStorage\s*[.\[]/.test(executable),'No persistent answer storage');
  for(const route of ['/','/focus','/learn','/decide','/studio','/journey/assessment.mjs'])
   assert.ok(server.includes("'"+route+"'"),route);
 });
