@@ -11,8 +11,8 @@ Ceci n'est pas un système de comptes, un cloud de production, un service multi-
 - **Deux secrets distincts**. (1) Le code de jumelage `hfs1_` suivi de 43 caractères base64url, généré aléatoirement à partir de 32 octets Web Crypto, est une **capacité d'accès**. Toute personne détenant ce code peut lire/écraser/supprimer la sauvegarde chiffrée à laquelle il correspond. (2) La phrase secrète du coffre sert à dériver la clé de chiffrement AES-256-GCM avec PBKDF2-SHA256. Le serveur ne connaît pas cette phrase.
 - Le code n'est pas ajouté à une URL, enregistré par HUMAN FIRST ou envoyé à un autre domaine. Il est saisi dans un champ de l'onglet, puis envoyé à la même origine dans un **en-tête privé**. Conserve-le séparément et protège-le comme un mot de passe. Les extensions, outils développeur et un navigateur compromis peuvent toujours l'observer en mémoire.
 - Les noms de fichiers utilisent le hachage SHA-256 d'une valeur dérivée du code avec séparation de domaine, jamais le code lui-même. Le contenu sauvegardé respecte le schéma strict d'enveloppe du coffre : le serveur refuse le JSON de profil en clair, les formats incorrects et les sauvegardes excessives.
-- **Transport HTTPS requis** à l'exception de loopback (`localhost`, `127.0.0.1`) utilisé pour la recette. Si un proxy termine TLS, n'activer `TRUST_PROXY=1` que derrière un réseau de confiance filtrant l'en-tête `X-Forwarded-Proto`.
-- Les écritures sont atomiques et **conditionnelles** : création seulement si aucun coffre n'existe (`If-None-Match: *`), modification seulement à partir de la révision ETag exacte (`If-Match`). Les suppressions exigent aussi l'ETag exact. Les collisions produisent un refus HTTP 412 : **aucun écrasement silencieux** ni fusion magique.
+- **Transport HTTPS requis** à l'exception de loopback (`localhost`, `127.0.0.1`) utilisé pour la recette. Si un proxy termine TLS, n'activer `TRUST_PROXY=1` que derrière un réseau de confiance filtrant l'en-tête `X-Forwarded-Proto`. La route de synchronisation n'accepte cet en-tête que lorsque la connexion vient de loopback ou de l'adresse configurée précisément par `HF_SYNC_TRUSTED_PROXY_ADDRESS`. Une valeur `Host: localhost` envoyée par un client extérieur ne suffit jamais à autoriser HTTP.
+- Les écritures sont atomiques et **conditionnelles** : création seulement si aucun coffre n'existe (`If-None-Match: *`), modification seulement à partir de la révision ETag exacte (`If-Match`). Les suppressions exigent aussi l'ETag exact. Chaque écriture reçoit une **nouvelle révision cryptographiquement aléatoire** (y compris si le ciphertext est identique à une version antérieure), empêchant le retour d'une ancienne révision de type ABA. Les collisions produisent un refus HTTP 412 : **aucun écrasement silencieux** ni fusion magique.
 - Pas de stockage de clé locale, de révision ou de mot de passe persistant. Chaque opération est déclenchée par l'utilisateur. Les réponses d'API ont `Cache-Control: no-store`, pas de cookie, et aucun journal d'activité des apprenants n'est introduit par ce lot.
 
 ### Limites explicites
@@ -56,7 +56,7 @@ Sur serveur distant, configure TLS, stockage et sauvegardes durables selon les p
 - `DELETE /api/sync/v1` : `x-hf-sync-key` et `If-Match` précis, suppression irréversible.
 - Codes importants : 401 capacité invalide ; 403 origine non sûre/interdite ; 404 absent ; 412 conflit ; 413 taille dépassée ; 428 précondition obligatoire ; 503 désactivé ou indisponible.
 
-Les appels ne reçoivent et ne retournent que le ciphertext plus une révision dérivée du ciphertext. L'API ne connaît pas les compétences du parcours.
+Les appels ne reçoivent et ne retournent que le ciphertext plus une révision **opaque et aléatoire**, stockée avec l'enveloppe chiffrée. L'API ne connaît pas les compétences du parcours.
 
 ## Protocole de recette
 
