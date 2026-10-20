@@ -55,11 +55,16 @@ export function planPortfolioTransition(content,registry,manifest){
  const updated=structuredClone(original);
  const resolve=(value,map,available,kind)=>{
   if(typeof value!=='string'||!idPattern.test(value)){issues.push(kind+': invalid identifier');return value;}
+  // Explicit author-approved remapping takes precedence even when the old key
+  // still exists in the new catalog: its meaning may have changed.
+  if(map.has(value)){
+   const to=map.get(value);
+   changes.push({kind,from:value,to});
+   return to;
+  }
   if(available.has(value))return value;
-  const to=map.get(value);
-  if(!to){issues.push(kind+': unmapped '+value);return value;}
-  changes.push({kind,from:value,to});
-  return to;
+  issues.push(kind+': unmapped '+value);
+  return value;
  };
  updated.profile.pathId=resolve(original.profile.pathId,alias.pathways,registry.paths,'pathway');
  if(plain(original.profile.familiarity)){
