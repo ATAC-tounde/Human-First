@@ -20,6 +20,7 @@ const publicFiles = {
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
   '/i18n.js': ['i18n.js', 'text/javascript; charset=utf-8'],
+  '/language.mjs': ['language.mjs', 'text/javascript; charset=utf-8'],
   '/focus': ['focus.html', 'text/html; charset=utf-8'],
   '/focus.html': ['focus.html', 'text/html; charset=utf-8'],
   '/focus.js': ['focus.js', 'text/javascript; charset=utf-8'],

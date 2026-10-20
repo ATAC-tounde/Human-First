@@ -1,9 +1,9 @@
 import {focusCards,getFocusCard} from './focus-library.mjs';
+import {initialLanguage,syncLanguage} from './language.mjs';
 
 // FOCUS is deliberately client-only: no fetch, cookies, localStorage or analytics.
 const $ = id => document.getElementById(id);
-const getLanguage = () => new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'fr';
-let locale=getLanguage();
+let locale=initialLanguage();
 let activeId=null;
 let phase='choose';
 const phrases={
@@ -88,6 +88,7 @@ function renderSteps(item){
 function render(){
  const p=phrases[locale];
  document.documentElement.lang=locale;
+ syncLanguage(locale);
  document.title=locale==='en'?'FOCUS - HUMAN FIRST':'FOCUS - HUMAN FIRST';
  txt('focus-eyebrow',p.eyebrow);txt('focus-title',p.title);const second=document.createElement('em');second.textContent=p.titleSecond;$('focus-title').append(document.createElement('br'),second);
  txt('focus-lead',p.lead);txt('focus-principles','');p.principles.forEach(value=>{const el=document.createElement('span');el.textContent=value;$('focus-principles').append(el);});

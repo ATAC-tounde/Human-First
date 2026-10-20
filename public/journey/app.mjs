@@ -1,4 +1,5 @@
 import {installedPacks} from './packs.mjs';
+import {initialLanguage,syncLanguage} from '../language.mjs';
 import {availableFormative,makeFormativeObservation} from './assessment.mjs';
 import {normalizeAliasManifest} from './continuity.mjs';
 import {restorePortablePortfolio} from './restore.mjs';
@@ -11,7 +12,7 @@ import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortf
 let registry=createRegistry(installedPacks);
 const importedPacks=[];
 const $=id=>document.getElementById(id);
-let locale=new URLSearchParams(location.search).get('lang')==='en'?'en':'fr';
+let locale=initialLanguage();
 let program=null;
 let events=[];
 let formative=[];
@@ -113,6 +114,7 @@ function message(value){$('form-status').textContent=value;}
 const tags={think:'/',focus:'/focus',learn:'/learn',decide:'/decide'};
 function renderLocale(){
  document.documentElement.lang=locale;
+ syncLanguage(locale);
  translateVault();
  document.title=(locale==='en'?'My journey':'Mon parcours')+' | HUMAN FIRST';
  for(const element of document.querySelectorAll('[data-text]')){
