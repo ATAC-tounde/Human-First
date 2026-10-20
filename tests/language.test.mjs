@@ -102,6 +102,7 @@ test('i18n: all actual page links propagate the preference across the six pillar
   assert.equal(storage.data.get(UI_LANGUAGE_KEY),'en');
   assert.ok(links.some(link=>link.href.includes('lang=en')),page+' must link to an application space');
   for(const link of links){
+   if(!link.href||link.href.startsWith('#'))continue; // In-page anchors never change language.
    const url=new URL(link.href,'https://human-first.local');
    if(UI_PATHS.has(url.pathname)&&url.origin==='https://human-first.local'){
     assert.equal(url.searchParams.get('lang'),'en',page+' → '+url.pathname);
