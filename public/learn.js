@@ -1,9 +1,9 @@
 // HUMAN FIRST LEARN. Intentionally no analytics, AI, timers, scores or third-party requests.
+import {initialLanguage,syncLanguage} from './language.mjs';
 const $=id=>document.getElementById(id);
 const text=(id,value)=>{const node=$(id);if(node)node.textContent=String(value??'');};
 const show=(id,on)=>{$(id).hidden=!on;};
-const language=new URLSearchParams(location.search).get('lang');
-let locale=language==='en'?'en':'fr';
+let locale=initialLanguage();
 let state={stage:'idle'};let catalog=[];let filter='all';let busy=false;
 const dateStore='hf-learn:dates:v1';
 const dictionary={
@@ -62,6 +62,7 @@ function schedule(){
 }
 function localeCopy(){
  document.documentElement.lang=locale;
+ syncLanguage(locale);
  $('lesson-filters').setAttribute('aria-label',locale==='en'?'Filter lessons':'Filtrer les leçons');
  document.querySelector('.site-header nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
  $('nav-decide').href='/decide?lang='+locale;
@@ -171,9 +172,23 @@ function bind(){
   localeCopy();filter='all';filters();cards();reviewCards();history.replaceState(null,'',`${location.pathname}?lang=${locale}`);
  },'catalog-error'));
 }
-async function bootstrap(){bind();localeCopy();try{
- const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
- if(session.stage!=='idle'&&session.locale!==locale){locale=session.locale;localeCopy();loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;}
- catalog=loaded.lessons;state=session;filters();render();
- }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}}
+async function bootstrap(){
+ const preferredLocale=locale;
+ bind();
+ // Avoid a race between user switching the language and the initial requests.
+ $('switch-lang').disabled=true;
+ localeCopy();
+ try{
+  const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
+  if(session.stage!=='idle'&&session.locale!==locale){
+   locale=session.locale;
+   localeCopy();
+   // Restore the chosen navigation language BEFORE any additional request can fail.
+   syncLanguage(preferredLocale);
+   loaded.lessons=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;
+  }
+  catalog=loaded.lessons;state=session;filters();render();
+ }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}
+ finally{$('switch-lang').disabled=state.stage!=='idle';}
+}
 bootstrap();

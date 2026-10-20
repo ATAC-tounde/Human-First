@@ -20,6 +20,7 @@ const publicFiles = {
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
   '/i18n.js': ['i18n.js', 'text/javascript; charset=utf-8'],
+  '/language.mjs': ['language.mjs', 'text/javascript; charset=utf-8'],
   '/focus': ['focus.html', 'text/html; charset=utf-8'],
   '/focus.html': ['focus.html', 'text/html; charset=utf-8'],
   '/focus.js': ['focus.js', 'text/javascript; charset=utf-8'],
@@ -49,6 +50,7 @@ const publicFiles = {
   '/studio.html': ['studio.html', 'text/html; charset=utf-8'],
   '/studio/studio.css': ['studio/studio.css', 'text/css; charset=utf-8'],
   '/studio/app.mjs': ['studio/app.mjs', 'text/javascript; charset=utf-8'],
+  '/studio/translations.mjs': ['studio/translations.mjs', 'text/javascript; charset=utf-8'],
   '/studio/model.mjs': ['studio/model.mjs', 'text/javascript; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']

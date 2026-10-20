@@ -1,9 +1,11 @@
 import {decisionStages,decideScenarios,decideScenario,reflectionPrompts} from './decide-data.mjs';
+import {initialLanguage,syncLanguage} from './language.mjs';
 
-// Purely client-side: no fetch, analytics, timer, account, WebSocket, localStorage or sessionStorage.
+// Purely client-side: no fetch, analytics, timer, account or WebSocket.
+// Only the shared non-personal language preference may use localStorage.
 // User notes live only in DOM inputs. No auto-ranking, automated decision or external AI.
 const $ = id => document.getElementById(id);
-let locale = new URLSearchParams(location.search).get('lang')==='en'?'en':'fr';
+let locale=initialLanguage();
 let activeId = null;
 let step = 0;
 const dict = {
@@ -120,6 +122,7 @@ function updateLinks(){
 }
 function applyCopy(){
   document.documentElement.lang=locale;
+  syncLanguage(locale);
   updateLinks();
   const c=copy();
   for(const [id,value] of Object.entries(c)){

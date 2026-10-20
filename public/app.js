@@ -1,7 +1,8 @@
 import {applyLocale,word} from './i18n.js';
-// Interface sans télémétrie ni traceur ; seules les dates de révision opt-in sont persistées localement.
+import {initialLanguage,syncLanguage} from './language.mjs';
+// Sans télémétrie : seuls les rappels facultatifs et la préférence UI FR/EN sont enregistrés.
 const $ = id => document.getElementById(id);
-let locale = (new URLSearchParams(location.search).get('lang') || navigator.language.slice(0,2)) === 'en' ? 'en' : 'fr';
+let locale=initialLanguage();
 const w = (key) => word(locale,key);
 let state = {stage:'idle'};
 let catalog = [];
@@ -221,6 +222,7 @@ async function startRecall(id){
 }
 
 async function bootstrap() {
+  const preferredLocale=locale; // Active server exercises may be locked to another language.
   try {
     const [loaded, resumed, pathData, coaching]=await Promise.all([api(`/api/catalog?lang=${locale}`),api('/api/session'),api(`/api/paths?lang=${locale}`),api('/api/coach/config')]);
     if(resumed.stage!=='idle' && locale !== (resumed.locale || 'fr')) {
@@ -229,6 +231,9 @@ async function bootstrap() {
       loaded.exercises=localized.exercises;
     }
     applyLocale(locale);updateLanguageSwitch();refreshLearningCopy();
+    // Keep navigational language and stored preference even when this older active
+    // server session must finish with its original exercise language.
+    if(resumed.stage!=='idle'&&locale!==preferredLocale)syncLanguage(preferredLocale);
     catalog=loaded.exercises;paths=pathData.paths;aiConfig=coaching;
     if(resumed.stage!=='idle' && pathData.locale!==locale){paths=(await api(`/api/paths?lang=${locale}`)).paths;}
     renderFilters();rebuildPathFilters();renderCards();refreshReviews();
@@ -322,6 +327,7 @@ on('skip-transfer','click',()=>guarded(async()=>{state=await api('/api/session/a
 on('print-button','click',()=>window.print());
 on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};$('attempt').value='';$('transfer-answer').value='';render();scrollTop();}));
 function updateLanguageSwitch() {
+  syncLanguage(locale);
   const btn=$('language-switch');btn.textContent=locale==='fr'?'EN':'FR';
   btn.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
   const url='/focus?lang='+locale;
@@ -353,6 +359,7 @@ function updateLanguageSwitch() {
   $('focus-link-heading').textContent=locale==='en'?'Make room for attention, away from the screen.':'Une pratique de l’attention, loin de l’écran.';
   $('focus-link-description').textContent=locale==='en'?'Six optional activities, with no timer or stored answers.':'Six activités libres, sans minuteur ni collecte des réponses.';
   $('focus-hero-link').textContent=locale==='en'?'Explore FOCUS ↗':'Explorer FOCUS ↗';
+  syncLanguage(locale);
 }
 on('language-switch','click',()=>guarded(async()=>{
   if(state.stage!=='idle')return;
