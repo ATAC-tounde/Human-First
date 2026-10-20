@@ -1,18 +1,31 @@
 /** HUMAN FIRST Studio v0.9. Deliberately no fetch, external API, analytics or persistent browser storage. */
 import {installedPacks} from '../journey/packs.mjs';
+import {initialLanguage,syncLanguage} from '../language.mjs';
+import {studioText,renderStudioLanguage} from './translations.mjs';
 import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approveDocument,
   reopenDraft,publishDocument,nextDraft,exportPack,exportStudioDocument,importForEditing,
   previewDocument,versionFormativeTask,REVIEW_CHECKS,LICENSES} from './model.mjs';
+let locale=initialLanguage();
+const tr=source=>studioText(source,locale);
 const $=id=>document.getElementById(id);
 const root=$('form-fields');
-const text=(id,value)=>{$(id).textContent=String(value??'');};
-const create=(tag,className,content)=>{const n=document.createElement(tag);if(className)n.className=className;if(content!==undefined)n.textContent=String(content);return n;};
+const text=(id,value)=>{$(id).textContent=tr(String(value??''));};
+const create=(tag,className,content)=>{const n=document.createElement(tag);if(className)n.className=className;if(content!==undefined)n.textContent=tr(String(content));return n;};
 const list=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
 const deep=x=>JSON.parse(JSON.stringify(x));
 let doc=makeDocument(),selection={kind:'pack',id:null},dirty=false;
+const confirmAction=message=>window.confirm(tr(message));
+const promptAction=(message,defaultValue)=>window.prompt(tr(message),defaultValue);
+function refreshStudioLanguage(){
+ renderStudioLanguage(locale);
+ const authorField=$('author');
+ if(authorField.value==='Équipe pédagogique'&&locale==='en')authorField.value='Learning team';
+ else if(authorField.value==='Learning team'&&locale==='fr')authorField.value='Équipe pédagogique';
+}
+
 const isAdult=()=>$('adult').checked;
 const author=()=>$('author').value.trim();
-function notice(message,error=false){const el=$('notice');el.textContent=message;el.classList.toggle('is-error',error);}
+function notice(message,error=false){const el=$('notice');el.textContent=tr(message);el.classList.toggle('is-error',error);}
 function tryDo(action){try{if(!isAdult())throw new Error('Confirme avoir 18 ans ou plus avant d’utiliser le Studio.');Promise.resolve(action()).catch(e=>notice(e.message||'Erreur de validation.',true));}catch(e){notice(e.message||'Erreur de validation.',true);}}
 function download(name,body){const blob=new Blob([body],{type:'application/json;charset=utf-8'});const uri=URL.createObjectURL(blob);const link=create('a');link.href=uri;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(uri),2000);}
 function labelFor(n,caption,hint=''){const wrap=create('div','field');wrap.classList.toggle('wide',n.wide===true);const label=create('label',null,caption);label.htmlFor='f-'+n.name;wrap.append(label);
@@ -121,7 +134,7 @@ function applyForm(){
  }
  draw();notice('Modifications appliquées au brouillon. Contrôle qualité recommandé.');
 }
-function abandonDirty(){return !dirty||window.confirm('Des modifications ne sont pas appliquées. Les abandonner ?');}
+function abandonDirty(){return !dirty||confirmAction('Des modifications ne sont pas appliquées. Les abandonner ?');}
 function choose(kind,id=null){if(!abandonDirty())return;selection={kind,id};draw();}
 function autoName(prefix,collection){let i=1;while(collection.some(x=>x.id===`${prefix}-${i}`))i++;return `${prefix}-${i}`;}
 function addSkill(){if(!abandonDirty())return;const pack=deep(doc.pack);const name=autoName(pack.id+'.competence',pack.competencies);
@@ -133,7 +146,7 @@ function addPath(){if(!abandonDirty())return;const pack=deep(doc.pack);const nam
  doc=editDraft(doc,{pack},author());selection={kind:'path',id:name};draw();notice('Parcours ajouté. Associe les compétences cibles.');
 }
 function deleteSelected(){const kind=selection.kind;if(kind==='pack')return;
- if(!window.confirm('Supprimer cet élément du brouillon ? Cette action ne peut être annulée.'))return;
+ if(!confirmAction('Supprimer cet élément du brouillon ? Cette action ne peut être annulée.'))return;
  const pack=deep(doc.pack);
  if(kind==='skill'){
   if(pack.competencies.length===1)throw new Error('Le référentiel doit conserver au moins une compétence.');
@@ -148,26 +161,33 @@ function drawTree(){
  text('status-tag',({draft:'BROUILLON','in-review':'EN REVUE',approved:'APPROUVÉ',published:'EXPORT PUBLIÉ'})[doc.status]||doc.status);
  text('version-label','v'+doc.pack.version);
  $('select-pack').classList.toggle('selected',selection.kind==='pack');
- function fill(container,items,kind){container.replaceChildren();for(const item of items){const b=create('button','node',item.title?.fr||item.id);b.type='button';b.title=item.id;b.classList.toggle('selected',selection.kind===kind&&selection.id===item.id);b.addEventListener('click',()=>choose(kind,item.id));container.append(b);}}
+ function fill(container,items,kind){container.replaceChildren();for(const item of items){const b=create('button','node',item.title?.[locale]||item.title?.fr||item.id);b.type='button';b.title=item.id;b.classList.toggle('selected',selection.kind===kind&&selection.id===item.id);b.addEventListener('click',()=>choose(kind,item.id));container.append(b);}}
  fill($('skills'),doc.pack.competencies,'skill');fill($('paths'),doc.pack.pathways,'path');
  $('add-skill').disabled=doc.status!=='draft';$('add-path').disabled=doc.status!=='draft';
  $('request-review').hidden=doc.status!=='draft';$('approval-panel').hidden=doc.status!=='in-review';
  $('reopen').hidden=!['in-review','approved'].includes(doc.status);
  $('publish').hidden=doc.status!=='approved';$('next-release').hidden=doc.status!=='published';
  const box=$('audit');box.replaceChildren();
- for(const event of doc.audit.slice().reverse().slice(0,18))box.append(create('li',null,`${event.event} · ${event.actor} · ${new Date(event.at).toLocaleDateString('fr-FR')}`));
+ for(const event of doc.audit.slice().reverse().slice(0,18))box.append(create('li',null,`${event.event} · ${event.actor} · ${new Date(event.at).toLocaleDateString(locale==='en'?'en-GB':'fr-FR')}`));
 }
 function showValidation(){const r=validateDocument(doc,installedPacks);
  text('validation-summary',r.ok?`Structure valide : ${r.stats.competencies} compétence(s), ${r.stats.pathways} parcours. Revue éditoriale toujours nécessaire.`:`${r.errors.length} erreur(s) structurelle(s) détectée(s).`);
  const e=$('validation-errors');e.replaceChildren();for(const item of [...r.errors.map(x=>'✖ '+x),...r.warnings.map(x=>'⚠ '+x)])e.append(create('p',null,item));return r;
 }
-function draw(){drawTree();editorFields();showValidation();text('quality-title','Vérification humaine');}
+function draw(){drawTree();editorFields();showValidation();text('quality-title','Vérification humaine');refreshStudioLanguage();}
 function checkUnsaved(){if(dirty)applyForm();}
 function renderReviewChecks(){const c=$('review-checks');const labels={accuracy:'Exactitude des contenus',pedagogy:'Pertinence pédagogique',accessibility:'Accessibilité et clarté',licensing:'Droits / provenance',privacy:'Confidentialité',translation:'Traductions FR / EN'};
  for(const key of REVIEW_CHECKS){const label=create('label');const ch=create('input');ch.type='checkbox';ch.value=key;ch.name='review-check';label.append(ch,document.createTextNode(' '+labels[key]));c.append(label);}}
-function renderPreview(){const result=previewDocument(doc,installedPacks,'fr');const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
+function renderPreview(){const result=previewDocument(doc,installedPacks,locale);const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
  for(const x of result.plan){const card=create('article','preview-item');card.append(create('h3',null,`${x.order}. ${x.title}`),create('p',null,x.outcome),create('p',null,`${x.explanation} / ${x.pillars.think}`));box.append(card);} $('preview-panel').hidden=false;$('preview-title').focus();$('preview-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 function events(){
+ $('studio-language-switch').addEventListener('click',()=>{
+  locale=locale==='en'?'fr':'en';
+  const newUrl=new URL(location.href);newUrl.searchParams.set('lang',locale);
+  history.replaceState(null,'',newUrl);
+  // Only UI text nodes change. Unsaved FR/EN competency drafts are preserved.
+  refreshStudioLanguage();
+ });
  $('editor-form').addEventListener('submit',e=>{e.preventDefault();tryDo(applyForm)});
  $('select-pack').addEventListener('click',()=>choose('pack'));
  $('add-skill').addEventListener('click',()=>tryDo(addSkill));$('add-path').addEventListener('click',()=>tryDo(addPath));
@@ -176,10 +196,10 @@ function events(){
  $('preview').addEventListener('click',()=>tryDo(()=>{checkUnsaved();renderPreview();notice('Aperçu calculé localement, sans envoi des données.');}));
  $('close-preview').addEventListener('click',()=>{$('preview-panel').hidden=true;});
  $('save-draft').addEventListener('click',()=>tryDo(()=>{checkUnsaved();download(`${doc.pack.id}-studio-${doc.pack.version}.json`,exportStudioDocument(doc));notice('Document Studio exporté localement. Conserve-le en lieu sûr.');}));
- $('new').addEventListener('click',()=>tryDo(()=>{if(!window.confirm('Créer un nouveau référentiel ? Sauvegarde d’abord tout travail non exporté.'))return;
-  const id=window.prompt('Identifiant court du nouveau pack (lettres minuscules et tirets)','mon-referentiel');if(id===null)return;doc=makeDocument({id:id.trim(),author:author()});selection={kind:'pack',id:null};draw();notice('Nouveau référentiel créé, dans cet onglet uniquement.');}));
+ $('new').addEventListener('click',()=>tryDo(()=>{if(!confirmAction('Créer un nouveau référentiel ? Sauvegarde d’abord tout travail non exporté.'))return;
+  const id=promptAction('Identifiant court du nouveau pack (lettres minuscules et tirets)','mon-referentiel');if(id===null)return;doc=makeDocument({id:id.trim(),author:author()});selection={kind:'pack',id:null};draw();notice('Nouveau référentiel créé, dans cet onglet uniquement.');}));
  $('import').addEventListener('change',()=>tryDo(async()=>{const file=$('import').files?.[0];if(!file)return;if(file.size>500_000)throw new Error('Limite : 500 ko.');
-  if(!window.confirm('Importer un document comme brouillon ? Le travail courant non exporté sera remplacé.'))return;
+  if(!confirmAction('Importer un document comme brouillon ? Le travail courant non exporté sera remplacé.'))return;
   const candidate=importForEditing(await file.text(),{author:author()});const report=validateDocument(candidate,installedPacks);
   doc=candidate;selection={kind:'pack',id:null};draw();notice(report.ok?'Import réussi. Contenu non approuvé : vérifier les sources et licences.':'Brouillon importé avec erreurs à corriger : '+report.errors.join(' | '),!report.ok);
   $('import').value='';}));
