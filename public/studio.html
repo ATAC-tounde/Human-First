@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f6f0">
+<meta name="description" content="Studio pédagogique HUMAN FIRST : concevoir, vérifier et exporter des référentiels de compétences versionnés, hors ligne et sous contrôle humain.">
+<title>Content Studio - HUMAN FIRST</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/studio/studio.css">
+<script src="/studio/app.mjs" type="module"></script>
+</head><body>
+<a class="skip" href="#main">Aller au contenu</a>
+<div class="page">
+<header class="topbar"><a href="/" class="brand" aria-label="HUMAN FIRST, accueil"><span class="mark">HF</span><span>HUMAN <strong>FIRST</strong><small>CONTENT STUDIO · V0.9 ALPHA</small></span></a>
+<nav aria-label="Espaces HUMAN FIRST"><a href="/journey">MON PARCOURS</a><a href="/">THINK</a><a href="/focus">FOCUS</a><a href="/learn">LEARN</a><a href="/decide">DECIDE</a></nav></header>
+<main id="main">
+<section class="heading"><div><p class="eyebrow">CRÉATION PÉDAGOGIQUE · RÉFÉRENTIELS OUVERTS</p><h1>Concevoir des compétences.<br><em>Transmettre sans enfermer.</em></h1><p class="lede">Un atelier indépendant pour structurer des compétences, leurs prérequis et des activités THINK, FOCUS, LEARN et DECIDE. Les contenus restent dans cet onglet jusqu’à un export volontaire.</p></div>
+<div class="promise"><span class="number">04</span><p>Piliers<br><strong>Un moteur commun</strong></p><p class="caveat">Démonstration adulte (18+). Ni diplôme certifié, ni approbation institutionnelle, ni publication automatique.</p></div></section>
+<div class="disclosure" role="note"><strong>Données privées.</strong> Aucun compte ni synchronisation. Le contenu de travail n’est jamais envoyé au serveur. Exporter ton brouillon avant d’actualiser ou fermer l’onglet. Les revues indiquées ici sont <strong>déclaratives, non authentifiées</strong>. <label class="adult-gate" for="adult"><input id="adult" type="checkbox"> Je confirme avoir au moins 18 ans pour utiliser cet atelier.</label></div>
+<section class="toolbar" aria-label="Outils du Studio"><div class="toolbar-left"><label for="author">Rédacteur ou équipe</label><input id="author" autocomplete="off" maxlength="80" value="Équipe pédagogique"><button id="new" type="button" class="small">+ Nouveau</button><label class="small file-button" for="import">Importer un JSON<input id="import" type="file" accept=".json,application/json" hidden></label></div>
+<div class="toolbar-right"><button id="save-draft" type="button" class="small">Exporter le brouillon</button><button id="preview" type="button" class="small">Aperçu pédagogique</button><button id="validate" type="button" class="primary">Contrôler la qualité ↗</button></div></section>
+<div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
+<div class="workspace"><aside class="tree" aria-label="Plan du référentiel"><div class="pack-badge"><span id="status-tag" class="status-tag">BROUILLON</span><span id="version-label">1.0.0</span></div>
+<button type="button" id="select-pack" class="tree-pack">Paramètres du référentiel <span>↗</span></button>
+<div class="tree-header"><h2>Compétences</h2><button type="button" id="add-skill" aria-label="Ajouter une compétence" title="Ajouter une compétence">+</button></div><div id="skills" class="nodes" role="group" aria-label="Liste des compétences"></div>
+<div class="tree-header"><h2>Parcours</h2><button type="button" id="add-path" aria-label="Ajouter un parcours" title="Ajouter un parcours">+</button></div><div id="paths" class="nodes" role="group" aria-label="Liste des parcours"></div>
+<div class="tree-footer"><p>Les compétences ne sont pas limitées à un métier ou un diplôme. Le niveau se construit à travers les acquis et les activités.</p></div></aside>
+<section class="editor" aria-labelledby="editor-heading"><div class="editor-head"><p class="eyebrow" id="editor-kind">RÉFÉRENTIEL</p><h2 id="editor-heading">Paramètres du référentiel</h2><p id="editor-help">Chaque contenu doit rester compréhensible en français et en anglais.</p></div><form id="editor-form" novalidate><div id="form-fields"></div><div class="editor-actions"><button class="primary" id="apply" type="submit">Appliquer les modifications</button><button class="danger" id="delete-item" type="button" hidden>Supprimer l’élément</button></div></form></section>
+<aside class="review" aria-labelledby="quality-title"><p class="eyebrow">QUALITÉ ÉDITORIALE</p><h2 id="quality-title">Vérification humaine</h2><p class="review-intro">Le contrôle technique détecte les erreurs de structure. Il ne remplace ni la vérification des contenus ni une véritable revue indépendante.</p>
+<div id="validation-summary" class="validation-summary" role="status">Vérification non lancée</div><div id="validation-errors" class="validation-errors" aria-live="polite"></div>
+<div class="divider"></div><h3>Cycle de publication</h3><p class="muted">Brouillon → En revue → Approuvé → Export publié.</p><div id="review-controls">
+<button id="request-review" class="small full" type="button">Soumettre à une revue</button>
+<div id="approval-panel" hidden><label for="reviewer">Relecteur (autre que l’auteur)</label><input id="reviewer" maxlength="80" autocomplete="off" placeholder="Nom du relecteur"><div id="review-checks" class="checks"></div><button id="approve" type="button" class="small full">Enregistrer l’approbation déclarée</button></div>
+<button id="reopen" class="small full" type="button" hidden>Revenir en brouillon</button><button id="publish" class="primary full" type="button" hidden>Publier et exporter le pack JSON</button>
+<div id="next-release" hidden><label for="next-version">Nouvelle version (SemVer)</label><input id="next-version" value="1.0.1" pattern="[0-9]+\.[0-9]+\.[0-9]+"><button id="make-revision" type="button" class="small full">Créer une révision modifiable</button></div>
+</div><div class="divider"></div><h3>Historique local</h3><ol id="audit" class="audit"></ol>
+</aside></div>
+<section class="preview" id="preview-panel" hidden aria-labelledby="preview-title"><div class="preview-head"><h2 id="preview-title" tabindex="-1">Aperçu du programme</h2><button id="close-preview" type="button" class="small">Fermer</button></div><p>Prévisualisation déterministe du premier parcours dans un contexte professionnel fictif. Aucune recommandation automatique sur les capacités.</p><div id="preview-body"></div></section>
+<section class="method" aria-labelledby="method-title"><p class="eyebrow">UNE ARCHITECTURE OUVERTE</p><h2 id="method-title">Concevoir maintenant. Déployer avec exigence.</h2><div class="method-cards"><article><b>01 / CONTRAT</b><h3>Référentiels versionnés</h3><p>Identifiants, traductions FR/EN, prérequis et descriptions séparés de l’interface.</p></article><article><b>02 / QUALITÉ</b><h3>Revue humaine</h3><p>Contrôles de contenu, accessibilité, licence et confidentialité avant export.</p></article><article><b>03 / PORTABILITÉ</b><h3>JSON interopérable</h3><p>Le pack exporté s’importe dans MON PARCOURS sans exécuter du code tiers.</p></article><article><b>04 / LONGÉVITÉ</b><h3>Versions et migrations</h3><p>Les publications sont figées dans l’onglet ; chaque évolution devient un nouveau brouillon.</p></article></div></section>
+</main><footer><a href="/journey">Retour au parcours</a><span>HUMAN FIRST · THINK FIRST. AI SECOND. · © 2026</span><span>Démo locale 18+ · Pas de télémétrie</span></footer></div></body></html>
