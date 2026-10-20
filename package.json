@@ -1,6 +1,6 @@
 {
   "name": "human-first-think-first",
-  "version": "1.1.0-alpha.1",
+  "version": "1.1.1-alpha.1",
   "private": true,
   "description": "Prototype éducatif autonome, sans compte ni API IA, pour apprendre à raisonner avant de demander la réponse.",
   "type": "module",

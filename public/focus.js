@@ -1,7 +1,8 @@
 import {focusCards,getFocusCard} from './focus-library.mjs';
 import {initialLanguage,syncLanguage} from './language.mjs';
 
-// FOCUS is deliberately client-only: no fetch, cookies, localStorage or analytics.
+// FOCUS is client-only: no fetch, cookies, analytics or learner-data persistence.
+// The shared module may save the non-personal FR/EN UI preference only.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
 let activeId=null;

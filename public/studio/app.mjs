@@ -1,6 +1,6 @@
-/** HUMAN FIRST Studio v0.9. Deliberately no fetch, external API, analytics or persistent browser storage. */
+/** HUMAN FIRST Studio. No fetch, external API, analytics or storage of authored content.\n * Only the two-letter interface language may be persisted locally. */
 import {installedPacks} from '../journey/packs.mjs';
-import {initialLanguage,syncLanguage} from '../language.mjs';
+import {initialLanguage} from '../language.mjs';
 import {studioText,renderStudioLanguage} from './translations.mjs';
 import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approveDocument,
   reopenDraft,publishDocument,nextDraft,exportPack,exportStudioDocument,importForEditing,

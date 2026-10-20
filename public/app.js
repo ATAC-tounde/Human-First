@@ -1,6 +1,6 @@
 import {applyLocale,word} from './i18n.js';
 import {initialLanguage,syncLanguage} from './language.mjs';
-// Interface sans télémétrie ni traceur ; seules les dates de révision opt-in sont persistées localement.
+// Sans télémétrie : seuls les rappels facultatifs et la préférence UI FR/EN sont enregistrés.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
 const w = (key) => word(locale,key);
