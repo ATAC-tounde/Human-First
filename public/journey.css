@@ -25,3 +25,18 @@
 .formative-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:18px 0 6px;color:#617267;font-size:13px}
 @media(max-width:710px){.formative-panel{padding:17px}.formative-top{flex-direction:column}}
 @media print{.formative-panel{display:none!important}}
+
+/* V1.1 private encrypted vault. Opt-in, no engagement nudges. */
+.vault-panel{margin:34px 0 60px;padding:30px 36px;background:#e7eee4;border:1px solid #a0b7a2;border-radius:14px;display:grid;gap:18px}
+.vault-panel h2{font:400 clamp(27px,3.1vw,40px)/1.2 Georgia,serif;color:#23533d;margin:9px 0}
+.vault-panel p{line-height:1.7;max-width:72ch}
+.vault-panel .privacy,.vault-note{color:#4d6050;font-size:13px}
+.vault-passphrase{font-weight:750;display:block}
+#vault-passphrase{width:min(100%,520px);padding:13px 15px;font:inherit;background:#fff;color:#223930;border:1px solid #6f9778;border-radius:8px}
+#vault-passphrase:focus-visible,.vault-actions button:focus-visible,.vault-actions label:focus-visible{outline:3px solid #326a44;outline-offset:3px}
+.vault-actions{display:flex;flex-wrap:wrap;gap:11px 12px;align-items:center}
+.vault-actions button{min-height:44px;white-space:normal;text-align:center}
+.vault-actions input[type=file]{position:absolute;inline-size:1px;block-size:1px;opacity:0}
+.vault-status{margin:0;min-height:1.8rem;font-size:14px;font-weight:650;color:#234b31;overflow-wrap:anywhere}
+@media(max-width:700px){.vault-panel{padding:22px 18px}.vault-actions{display:grid;grid-template-columns:1fr}.vault-actions>*{width:100%;justify-content:center}}
+@media print{.vault-panel{display:none!important}}

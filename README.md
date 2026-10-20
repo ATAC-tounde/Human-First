@@ -170,3 +170,10 @@ Le Studio `/studio` permet aux auteurs de joindre une **évaluation formative bi
 Les profils JOURNEY et les textes de réponse ne sont pas transmis au serveur. Le blocage de déploiement Container Registry Vercel est indépendant et doit être corrigé avant toute validation en Preview. La production n'est pas modifiée par cette branche.
 
 **Continuité V1.0 :** JOURNEY accepte facultativement une table JSON explicite d'équivalences entre anciens et nouveaux identifiants de compétences/parcours. Une migration non résolue est refusée, sans perte silencieuse de données. Aucune équivalence n'est inventée par le moteur. Voir la documentation formative et continuité V1.0.
+
+
+## V1.1 Alpha - Coffre personnel chiffré sans compte
+
+Dans `/journey`, l'apprenant peut **volontairement** chiffrer son portfolio avec une phrase secrète (12 caractères minimum), télécharger un fichier de sauvegarde `.hfvault`, ou enregistrer la **seule forme chiffrée** dans IndexedDB sur son appareil. À l'ouverture, la phrase secrète est demandée à nouveau et n'est jamais enregistrée. Schéma versionné `hf.encrypted-portfolio.v1`, PBKDF2-SHA256 (310 000 itérations), clé AES-256-GCM, sel et nonce aléatoires, métadonnées liées par AAD. Aucun compte, serveur de synchronisation ou dépendance npm.
+
+**Ne pas oublier la phrase secrète : il n'existe aucune récupération.** Les fichiers JSON *non chiffrés* de V1.0 restent pris en charge, mais doivent être gardés privés. IndexedDB peut être supprimé automatiquement par le navigateur ; créer aussi un fichier externe de sauvegarde. Lire `docs/ENCRYPTED_VAULT_V1.1.md` pour la menace et les limites de sécurité. Les réponses libres de l'atelier formatif ne sont incluses dans aucun portfolio.
