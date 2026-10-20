@@ -94,9 +94,11 @@
         </div>
         <label class="vault-passphrase" for="vault-passphrase" id="vault-passphrase-label">Ma phrase secrète (jamais enregistrée)</label>
         <input id="vault-passphrase" type="password" autocomplete="off" minlength="12" maxlength="256" spellcheck="false" aria-describedby="vault-warning" placeholder="Phrase secrète unique · 12 caractères minimum">
+        <label class="vault-passphrase" for="vault-confirm" id="vault-confirm-label">Confirmer la phrase secrète (uniquement pour créer une sauvegarde)</label>
+        <input id="vault-confirm" type="password" autocomplete="off" minlength="12" maxlength="256" spellcheck="false" aria-describedby="vault-warning" placeholder="Répéter la phrase secrète pour enregistrer">
         <div class="vault-actions">
           <button type="button" class="primary" id="vault-download">Télécharger une sauvegarde chiffrée</button>
-          <label class="file-label" for="vault-import" id="vault-import-label">Ouvrir une sauvegarde chiffrée</label>
+          <label class="file-label" for="vault-import" id="vault-import-label" role="button" tabindex="0">Ouvrir une sauvegarde chiffrée</label>
           <input type="file" id="vault-import" accept=".json,.hfvault,application/json">
           <button type="button" class="secondary" id="vault-save-device">Enregistrer chiffré sur cet appareil</button>
           <button type="button" class="secondary" id="vault-resume-device">Reprendre depuis cet appareil</button>
