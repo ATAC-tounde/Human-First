@@ -4,12 +4,12 @@
  * This adapter never sends or saves the independent encryption passphrase.
  */
 import {encryptPortfolio,decryptPortfolio} from './vault.mjs';
-import {generateSyncKey,remoteSyncConfig,readRemoteBackup,writeRemoteBackup,deleteRemoteBackup} from './sync-client.mjs';
+import {generateSyncKey,remoteSyncConfig,readRemoteBackup,writeRemoteBackup,deleteRemoteBackup,REMOTE_SYNC_KEY_PATTERN} from './sync-client.mjs';
 const content={
  fr:{
   eyebrow:'V1.2 · SYNCHRONISATION CHIFFRÉE FACULTATIVE',heading:'Une copie distante, sous ton contrôle.',
   intro:'Pilote expérimental : seule une sauvegarde chiffrée est envoyée au serveur. Aucun compte ni synchronisation automatique.',
-  warning:'Le code de jumelage donne accès à ta copie chiffrée et permet de l’effacer. Ne le partage pas. La phrase secrète de chiffrement est indépendante. Perdre l’un des deux peut empêcher la récupération.',
+  warning:'Le code de jumelage permet de lire, remplacer ou effacer ta copie chiffrée. Ne le partage pas. La phrase secrète de chiffrement est indépendante. Perdre l’un des deux peut empêcher la récupération.',
   label:'Code de jumelage privé (32 octets aléatoires)',generate:'Créer un nouveau code',reveal:'Afficher / masquer le code',
   upload:'Envoyer une copie chiffrée',download:'Télécharger la copie distante',restore:'Restaurer ma copie distante',delete:'Effacer la copie distante',
   note:'HUMAN FIRST ne conserve pas le code de jumelage. Nécessite un serveur Node durable en HTTPS, désactivé par défaut, notamment sur Vercel.',
@@ -25,7 +25,7 @@ const content={
  },en:{
   eyebrow:'V1.2 · OPTIONAL ENCRYPTED SYNC',heading:'A remote copy under your control.',
   intro:'Experimental pilot: only an encrypted backup reaches the server. No account or automatic synchronization.',
-  warning:'Your pairing code grants access to the ciphertext and permits deletion. Never share it. Your encryption passphrase is separate. Losing either can prevent recovery.',
+  warning:'Your pairing code allows reading, replacing, or deleting the encrypted backup. Never share it. Your encryption passphrase is separate. Losing either can prevent recovery.',
   label:'Private pairing code (32 random bytes)',generate:'Create a new code',reveal:'Show / hide code',
   upload:'Send encrypted backup',download:'Download remote backup',restore:'Restore remote backup',delete:'Delete remote backup',
   note:'HUMAN FIRST does not save your pairing code. Requires a durable HTTPS Node server, disabled by default including on Vercel.',
@@ -57,22 +57,27 @@ export function mountEncryptedRemoteSync({
  const $=id=>root.getElementById(id);
  let enabled=false,locked=false,initialized=false;
  const words=()=>content[lang()==='en'?'en':'fr'];
- const status=message=>{$('remote-sync-status').textContent=message;};
+ let lastStatus=null;
+ const status=(code=null,detail='')=>{
+  lastStatus=code?{code,detail}:null;
+  $('remote-sync-status').textContent=lastStatus?words()[code]+detail:'';
+ };
  const lockControls=()=>{for(const id of controls)$(id).disabled=!enabled||locked;};
  function render(){
   const w=words();
   for(const [id,key] of Object.entries(fields))$(id).textContent=w[key];
   $('remote-sync-availability').textContent=initialized?(enabled?w.enabled:w.disabled):w.checking;
+  $('remote-sync-status').textContent=lastStatus?w[lastStatus.code]+lastStatus.detail:'';
   lockControls();
  }
  const key=()=>{
   const value=$('remote-sync-key').value.trim();
-  if(!/^hfs1_[A-Za-z0-9_-]{43}$/.test(value))throw new TypeError(words().needsKey);
+  if(!REMOTE_SYNC_KEY_PATTERN.test(value))throw new TypeError(words().needsKey);
   return value;
  };
  async function run(action){
   if(!enabled||locked||busy())return;
-  locked=true;lockControls();status(words().busy);
+  locked=true;lockControls();status('busy');
   try{
    const w=words(),token=key();
    if(action==='upload'){
@@ -81,27 +86,27 @@ export function mountEncryptedRemoteSync({
     const pass=getPassphrase();
     if(pass!==getConfirmation())throw new Error(w.mismatch);
     const previous=await readRemoteBackup(token);
-    if(previous.exists&&!confirm(w.overwrite)){status('');return;}
+    if(previous.exists&&!confirm(w.overwrite)){status();return;}
     const cipher=await encryptPortfolio(plain,pass);
     await writeRemoteBackup(token,cipher,previous.revision);
-    status(w.uploaded);
+    status('uploaded');
    }else if(action==='delete'){
     const old=await readRemoteBackup(token);
     if(!old.exists)throw new Error(w.missing);
-    if(!confirm(w.deleteConfirm)){status('');return;}
+    if(!confirm(w.deleteConfirm)){status();return;}
     await deleteRemoteBackup(token,old.revision);
-    status(w.deleted);
+    status('deleted');
    }else{
     const old=await readRemoteBackup(token);
     if(!old.exists)throw new Error(w.missing);
     if(action==='download'){
-     downloadCipher(old.content);status(w.downloaded);
+     downloadCipher(old.content);status('downloaded');
     }else{
      const plain=await decryptPortfolio(old.content,getPassphrase());
-     status(restorePlaintext(plain)===false?'':w.restored);
+     status(restorePlaintext(plain)===false?null:'restored');
     }
    }
-  }catch(error){status(words().failed+String(error.message||error));}
+  }catch(error){status('failed',String(error.message||error));}
   finally{
    clearPassphrases();locked=false;lockControls();
   }
@@ -111,7 +116,7 @@ export function mountEncryptedRemoteSync({
   const input=$('remote-sync-key');
   if(input.value&&!confirm(words().replaceKey))return;
   input.value=generateSyncKey();input.type='text';
-  status(words().created);input.focus();input.select();
+  status('created');input.focus();input.select();
  });
  $('remote-sync-reveal').addEventListener('click',()=>{
   const input=$('remote-sync-key');
