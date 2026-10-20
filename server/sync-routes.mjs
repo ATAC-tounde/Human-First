@@ -38,7 +38,11 @@ export function secureRequest(req){
  if(req.socket.encrypted)return true;
  // Only enable TRUST_PROXY behind a trusted reverse proxy that strips spoofed
  // forwarding headers on untrusted connections.
- return process.env.TRUST_PROXY==='1'&&req.headers['x-forwarded-proto']==='https';
+ const trustedAddress=process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS;
+ const trustedPeer=loopback(req.socket.remoteAddress)||
+  (Boolean(trustedAddress)&&req.socket.remoteAddress===trustedAddress);
+ return process.env.TRUST_PROXY==='1'&&trustedPeer&&
+  req.headers['x-forwarded-proto']==='https';
 }
 function sameOrigin(req){
  const origin=req.headers.origin;
