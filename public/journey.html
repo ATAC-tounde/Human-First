@@ -64,9 +64,27 @@
         <p class="disclaimer" id="disclaimer" role="note"></p>
         <div class="program-stats"><span id="program-count"></span><span id="program-estimate"></span></div>
         <ol id="program-list" class="program-list"></ol>
+        <section id="formative-panel" class="formative-panel" hidden aria-labelledby="formative-heading">
+          <div class="formative-top"><div><p class="eyebrow" id="formative-eyebrow">ATELIER FORMATIF · SANS NOTE</p><h3 id="formative-heading" tabindex="-1"></h3></div>
+            <button type="button" class="secondary" id="formative-close">Fermer sans conserver</button></div>
+          <p id="formative-scenario" class="formative-scenario"></p>
+          <p id="formative-question"></p>
+          <label for="formative-answer" id="formative-label">Ta tentative (facultative, privée, jamais exportée)</label>
+          <textarea id="formative-answer" rows="5" maxlength="3000" autocomplete="off" spellcheck="true"></textarea>
+          <p class="privacy" id="formative-privacy">Le texte reste uniquement dans cet onglet. Aucune correction automatique ni appréciation de ta capacité.</p>
+          <button type="button" class="secondary" id="formative-reveal">Comparer avec les critères d'auto-vérification</button>
+          <div id="formative-feedback" hidden>
+            <h4 id="formative-criteria-heading">Questions de relecture personnelle</h4>
+            <p id="formative-feedback-explanation">Coche seulement les éléments que tu juges avoir pris en compte. Cela ne constitue pas une évaluation certifiée.</p>
+            <div id="formative-criteria" class="formative-criteria"></div>
+            <h4 id="formative-transfer-heading">Essayer dans un nouveau contexte</h4>
+            <p id="formative-transfer"></p>
+            <button type="button" class="primary" id="formative-save">Garder la trace de cette réflexion (sans ma réponse)</button>
+          </div>
+        </section>
         <div class="exit-panel"><h3 data-text="exitTitle">La suite t’appartient.</h3><p data-text="exitDescription">Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.</p></div>
       </section>
-      <section class="portability" aria-labelledby="portability-title"><div><p class="eyebrow" data-text="portabilityEyebrow">TU RESTES PROPRIÉTAIRE DU PARCOURS</p><h2 id="portability-title" data-text="portabilityTitle">Tu peux repartir avec tes données.</h2></div><p data-text="portabilityText">Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.</p><div class="portability-actions"><label for="import-home" class="file-label" data-text="importHome">Reprendre un portfolio exporté</label><input type="file" id="import-home" accept="application/json,.json"></div></section>
+      <section class="portability" aria-labelledby="portability-title"><div><p class="eyebrow" data-text="portabilityEyebrow">TU RESTES PROPRIÉTAIRE DU PARCOURS</p><h2 id="portability-title" data-text="portabilityTitle">Tu peux repartir avec tes données.</h2></div><p data-text="portabilityText">Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.</p><div class="portability-actions"><label for="import-home" class="file-label" data-text="importHome">Reprendre un portfolio exporté</label><input type="file" id="import-home" accept="application/json,.json"><label for="aliases-file" class="file-label" data-text="aliasesLabel">Table d’équivalences pour anciens référentiels (facultative)</label><input type="file" id="aliases-file" accept="application/json,.json"><span id="alias-state" role="status" aria-live="polite"></span></div></section>
     </main>
     <footer><strong>HUMAN FIRST</strong><span data-text="footer">18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.</span><small>V0.8</small></footer>
   </div>

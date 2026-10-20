@@ -121,6 +121,29 @@ export function publishDocument(doc,referencePacks=[],actor){
  out.published={at:out.updatedAt,reviewer:out.review.reviewer,version:out.pack.version,notice:'Export local non signé : non publié sur un catalogue central et non certifié.'};
  return out;
 }
+/**
+ * Version each authored formative task independently from its enclosing content pack.
+ * Never carry an old assessment version over changed criteria/question/transfer.
+ * Patch auto-increments on ANY editorial content change, including wording updates.
+ * Incomplete drafts remain editable; createRegistry validates before release.
+ */
+export function versionFormativeTask(previous,candidate){
+ guard(isObj(candidate),'La tâche formative doit être un objet.');
+ const task=copy(candidate);
+ const oldVersion=previous?.version??'1.0.0';
+ guard(semver.test(oldVersion),'Version formative antérieure invalide.');
+ const shape=value=>JSON.stringify({
+  schema:value?.schema,scenario:value?.scenario,question:value?.question,
+  transfer:value?.transfer,criteria:value?.criteria
+ });
+ const changed=previous!==undefined&&shape(previous)!==shape(task);
+ if(changed){
+  const [major,minor,patch]=oldVersion.split('.');
+  task.version=`${major}.${minor}.${BigInt(patch)+1n}`;
+ }else task.version=oldVersion;
+ return task;
+}
+
 export function nextDraft(doc,newVersion,actor){
  guard(doc.status==='published','Commencer une révision depuis un document publié uniquement.');
  guard(semver.test(newVersion),'Format SemVer requis.');

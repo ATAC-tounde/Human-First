@@ -2,7 +2,7 @@
 import {installedPacks} from '../journey/packs.mjs';
 import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approveDocument,
   reopenDraft,publishDocument,nextDraft,exportPack,exportStudioDocument,importForEditing,
-  previewDocument,REVIEW_CHECKS,LICENSES} from './model.mjs';
+  previewDocument,versionFormativeTask,REVIEW_CHECKS,LICENSES} from './model.mjs';
 const $=id=>document.getElementById(id);
 const root=$('form-fields');
 const text=(id,value)=>{$(id).textContent=String(value??'');};
@@ -17,9 +17,9 @@ function tryDo(action){try{if(!isAdult())throw new Error('Confirme avoir 18 ans 
 function download(name,body){const blob=new Blob([body],{type:'application/json;charset=utf-8'});const uri=URL.createObjectURL(blob);const link=create('a');link.href=uri;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(uri),2000);}
 function labelFor(n,caption,hint=''){const wrap=create('div','field');wrap.classList.toggle('wide',n.wide===true);const label=create('label',null,caption);label.htmlFor='f-'+n.name;wrap.append(label);
  const el=create(n.multiline?'textarea':n.options?'select':'input');el.id='f-'+n.name;el.name=n.name;
- if(el.tagName==='INPUT'){el.type='text';el.maxLength=6000;}else if(el.tagName==='TEXTAREA'){el.maxLength=6000;el.rows=3;}
+ if(el.tagName==='INPUT'){el.type='text';el.maxLength=6000;}else if(el.tagName==='TEXTAREA'){el.maxLength=n.name==='skill.assessment.criteria'?22000:6000;el.rows=n.name==='skill.assessment.criteria'?8:3;}
  if(n.options){for(const choice of n.options){const option=create('option',null,choice);option.value=choice;el.append(option);}}
- el.value=String(n.value??'');el.disabled=doc.status!=='draft';el.addEventListener('input',()=>{dirty=true;notice('Modifications non appliquées - sélectionner « Appliquer » avant de changer d’élément.');});
+ el.value=String(n.value??'');el.disabled=doc.status!=='draft'||n.name==='skill.assessment.version';el.addEventListener('input',()=>{dirty=true;notice('Modifications non appliquées - sélectionner « Appliquer » avant de changer d’élément.');});
  wrap.append(el);if(hint)wrap.append(create('small',null,hint));return wrap;}
 function field(name,label,value,{multiline=false,wide=false,options=null,hint=''}={}){return labelFor({name,value,multiline,wide,options},label,hint);}
 function headline(title){return create('h3','subheading',title);}
@@ -53,6 +53,14 @@ function editorFields(){
   append(field('skill.tags','Mots-clés (virgules)',s.tags.join(', '),{wide:true}),field('skill.requires','Prérequis : identifiants séparés par virgules',s.requires.join(', '),{wide:true,hint:'Exemple : core.evidence, study.reading. Les cycles sont interdits.'}));
   append(headline('Quatre modalités pédagogiques'));
   for(const pillar of ['think','focus','learn','decide']){append(headline(pillar.toUpperCase()));append(...bilingualFields('skill.activities.'+pillar,'Activité '+pillar,s.activities[pillar],{multiline:true}));}
+  append(headline('Évaluation formative facultative (locale, non certifiante)'));
+  append(field('skill.assessment.version','Version automatique de la tâche',s.assessment?.version??'Nouvelle tâche : 1.0.0',{wide:true,hint:'La version est automatiquement incrémentée dès qu’une situation, une question ou une grille existante change. Version indépendante du pack.'}));
+  append(...bilingualFields('skill.assessment.scenario','Situation de départ',s.assessment?.scenario??{fr:'',en:''},{multiline:true}));
+  append(...bilingualFields('skill.assessment.question','Question à résoudre sans aide',s.assessment?.question??{fr:'',en:''},{multiline:true}));
+  append(...bilingualFields('skill.assessment.transfer','Nouveau cas de transfert',s.assessment?.transfer??{fr:'',en:''},{multiline:true}));
+  append(field('skill.assessment.criteria','Critères qualitatifs (tableau JSON)',s.assessment?.criteria?JSON.stringify(s.assessment.criteria,null,2):'',{
+   multiline:true,wide:true,hint:'Facultatif. Pour créer une activité, renseigne 3 textes FR/EN et 2 à 6 critères au format JSON : [{"id":"preuve","label":{"fr":"Une preuve vérifiable","en":"A verifiable piece of evidence"},"guidance":{"fr":"...","en":"..."}}, …]. Aucun score automatique.'
+  }));
   append(headline('Exemple contextuel facultatif'));
   append(...bilingualFields('skill.contexts.work','Contexte professionnel',s.contexts?.work??{fr:'',en:''},{multiline:true}));
  }else{
@@ -89,6 +97,16 @@ function applyForm(){
   for(const pillar of ['think','focus','learn','decide'])skill.activities[pillar]={fr:form['skill.activities.'+pillar+'.fr'],en:form['skill.activities.'+pillar+'.en']};
   skill.contexts??={};const work={fr:form['skill.contexts.work.fr'],en:form['skill.contexts.work.en']};
   if(work.fr&&work.en)skill.contexts.work=work;else delete skill.contexts.work;
+  const scenario={fr:form['skill.assessment.scenario.fr'],en:form['skill.assessment.scenario.en']};
+  const question={fr:form['skill.assessment.question.fr'],en:form['skill.assessment.question.en']};
+  const transfer={fr:form['skill.assessment.transfer.fr'],en:form['skill.assessment.transfer.en']};
+  const rawCriteria=form['skill.assessment.criteria'];
+  if(!scenario.fr&&!scenario.en&&!question.fr&&!question.en&&!transfer.fr&&!transfer.en&&!rawCriteria)delete skill.assessment;
+  else{
+   let criteria;
+   try{criteria=rawCriteria?JSON.parse(rawCriteria):[];}catch{throw new TypeError('Critères : JSON invalide.');}
+   skill.assessment=versionFormativeTask(skill.assessment,{schema:'hf.formative.task.v1',scenario,question,transfer,criteria});
+  }
   if(oldId!==nextId){
    for(const s of pack.competencies)s.requires=s.requires.map(x=>x===oldId?nextId:x);
    for(const path of pack.pathways)path.competencyIds=path.competencyIds.map(x=>x===oldId?nextId:x);

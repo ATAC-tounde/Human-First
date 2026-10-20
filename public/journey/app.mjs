@@ -1,4 +1,6 @@
 import {installedPacks} from './packs.mjs';
+import {availableFormative,makeFormativeObservation} from './assessment.mjs';
+import {normalizeAliasManifest,migratePortfolio} from './continuity.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -9,6 +11,9 @@ const $=id=>document.getElementById(id);
 let locale=new URLSearchParams(location.search).get('lang')==='en'?'en':'fr';
 let program=null;
 let events=[];
+let formative=[];
+let activeFormative=null;
+let aliasManifest=null;
 let familiarity={};
 const words={
 fr:{
@@ -52,6 +57,7 @@ function renderLocale(){
    const key=element.dataset.text;
    if(typeof w(key)==='string')element.textContent=w(key);
  }
+ document.querySelector('[data-text="aliasesLabel"]').textContent=locale==='en'?'Load an equivalence map for older catalogs (optional)':'Table d’équivalences pour anciens référentiels (facultative)';
  $('lang').textContent=locale==='en'?'FR':'EN';$('lang').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
  for(const pillar of PILLARS)$('link-'+pillar).href=tags[pillar]+'?lang='+locale;
  const qual=$('qualification'),occupation=$('occupation');
@@ -121,6 +127,89 @@ function record(skillId,type){
  events.push({skillId,type,at:new Date().toISOString(),source:'self-declared'});
  renderProgram();
 }
+// Formative work is deliberately not graded. The learner's writing only exists in
+// this textarea, not in the portfolio, analytics or any HTTP request.
+function closeFormative(){
+ activeFormative=null;
+ $('formative-answer').value='';
+ $('formative-answer').disabled=false;
+ $('formative-feedback').hidden=true;
+ $('formative-criteria').replaceChildren();
+ $('formative-panel').hidden=true;
+}
+function openFormative(skillId){
+ const task=availableFormative(registry,skillId,locale);
+ if(!task)return;
+ closeFormative();
+ activeFormative=task;
+ $('formative-panel').hidden=false;
+ $('formative-heading').textContent=task.title;
+ $('formative-scenario').textContent=task.scenario;
+ $('formative-question').textContent=task.question;
+ const en=locale==='en';
+ $('formative-eyebrow').textContent=en?'FORMATIVE PRACTICE · NO GRADE':'ATELIER FORMATIF · SANS NOTE';
+ $('formative-close').textContent=en?'Close without saving':'Fermer sans conserver';
+ $('formative-label').textContent=en?'Your attempt (optional, private, never exported)':'Ta tentative (facultative, privée, jamais exportée)';
+ $('formative-privacy').textContent=en?'Your writing stays only in this browser tab. No automated grade or ability assessment.':'Le texte reste uniquement dans cet onglet. Aucune correction automatique ni appréciation de tes capacités.';
+ $('formative-reveal').textContent=en?'Compare with self-check criteria':'Comparer avec les critères d’auto-vérification';
+ $('formative-criteria-heading').textContent=en?'Questions for your own review':'Questions de relecture personnelle';
+ $('formative-feedback-explanation').textContent=en?'Tick only what you believe you considered. No score or certification is generated.':'Coche seulement les éléments que tu penses avoir pris en compte. Aucune note ni certification.';
+ $('formative-transfer-heading').textContent=en?'Try another situation':'Essayer dans un nouveau contexte';
+ $('formative-save').textContent=en?'Keep a record of this reflection (not my answer)':'Garder une trace de cette réflexion (sans ma réponse)';
+ $('formative-reveal').hidden=false;
+ $('formative-feedback').hidden=true;
+ $('formative-panel').scrollIntoView({behavior:'auto',block:'start'});
+ $('formative-heading').focus();
+}
+/**
+ * Locale switches must not destroy a learner's unfinished private response.
+ * Snapshot lives only in this call stack; never stored or exported.
+ */
+function relocalizeActiveFormative(){
+ if(!activeFormative)return;
+ const skillId=activeFormative.skillId;
+ const answer=$('formative-answer').value;
+ const revealed=!$('formative-feedback').hidden;
+ const checked=new Set([...document.querySelectorAll('#formative-criteria input:checked')].map(x=>x.value));
+ openFormative(skillId);
+ $('formative-answer').value=answer;
+ if(revealed){
+  revealFormative();
+  for(const input of document.querySelectorAll('#formative-criteria input')){
+   input.checked=checked.has(input.value);
+  }
+ }
+}
+
+function revealFormative(){
+ if(!activeFormative)return;
+ $('formative-answer').disabled=true;
+ $('formative-reveal').hidden=true;
+ const list=$('formative-criteria');list.replaceChildren();
+ activeFormative.criteria.forEach(c=>{
+  const row=element('label','formative-criterion');
+  const check=document.createElement('input');check.type='checkbox';check.value=c.id;check.name='formative-criterion';
+  const body=element('span');
+  body.append(element('strong',null,c.label),element('small',null,c.guidance));
+  row.append(check,body);list.append(row);
+ });
+ $('formative-transfer').textContent=activeFormative.transfer;
+ $('formative-feedback').hidden=false;
+ $('formative-criteria-heading').focus?.();
+}
+function saveFormative(){
+ if(!activeFormative||$('formative-feedback').hidden)return;
+ try{
+  const selected=[...document.querySelectorAll('#formative-criteria input:checked')].map(x=>x.value);
+  const record=makeFormativeObservation(registry,activeFormative.skillId,selected);
+  if(formative.length>=500)throw new Error('Maximum 500 reflective entries. Export your portfolio first.');
+  formative.push(record);
+  closeFormative();
+  renderProgram();
+  message(locale==='en'?'Self-reflection noted. Your written answer was not saved.':'Réflexion notée. Ta réponse rédigée n’a pas été conservée.');
+ }catch(e){message(String(e.message||e));}
+}
+
 function renderProgram(){
  if(!program)return;
  // Recompute on locale toggle, keeping the learner-selected profile and events intact.
@@ -153,16 +242,27 @@ function renderProgram(){
     const button=element('button',null,w('progressNames')[i]);button.type='button';
     button.addEventListener('click',()=>record(item.skillId,PROGRESS_EVENTS[i]));progress.append(button);
   }
-  li.append(progress);list.append(li);
+  li.append(progress);
+  if(availableFormative(registry,item.skillId,locale)){
+   const bar=element('div','formative-cta');
+   const button=element('button','secondary',locale==='en'?'Try an optional practice task':'Essayer une tâche formative facultative');
+   button.type='button';
+   button.addEventListener('click',()=>openFormative(item.skillId));
+   bar.append(button);
+   const count=formative.filter(x=>x.skillId===item.skillId).length;
+   if(count)bar.append(element('span',null,locale==='en'?count+' personal reflection(s), not graded':count+' réflexion(s) personnelles, sans note'));
+   li.append(bar);
+  }
+  list.append(li);
  });
 }
-function resetAll(){registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
+function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
-   const json=exportPortfolio(registry,program.generatedFor,events);
+   const json=exportPortfolio(registry,program.generatedFor,events,{formative});
    const blob=new Blob([json],{type:'application/json'});const url=URL.createObjectURL(blob);
-   const anchor=document.createElement('a');anchor.href=url;anchor.download='human-first-mon-parcours-v08.json';
+   const anchor=document.createElement('a');anchor.href=url;anchor.download='human-first-mon-parcours-v10.json';
    document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
    message(w('saved'));
  }catch(e){message(w('invalid')+e.message);}
@@ -171,12 +271,13 @@ async function loadFile(input){
  const file=input.files?.[0];input.value='';if(!file)return;
  try{
    if(file.size>80_000)throw new TypeError('File exceeds 80 kB');
-   const portfolio=importPortfolio(await file.text(),registry);
+   const raw=await file.text();
+   const portfolio=aliasManifest?migratePortfolio(raw,registry,aliasManifest):importPortfolio(raw,registry);
    const p=portfolio.profile;
    $('adult').checked=true;$('stage').value=p.stage;$('age-band').value=p.ageBand;
    $('qualification').value=p.qualification;$('occupation').value=p.occupation;$('pace').value=String(p.minutesPerWeek);
    familiarity={...p.familiarity};renderPathways();$('path').value=p.pathId;renderPathways();
-   events=portfolio.evidence;locale=p.locale;renderLocale();
+   closeFormative();events=portfolio.evidence;formative=portfolio.formative;locale=p.locale;renderLocale();
    program=buildJourney(registry,p);$('result').hidden=false;renderProgram();
    message(portfolio.migrated?w('migrated'):w('imported'));
    $('result').scrollIntoView({behavior:'auto',block:'start'});
@@ -191,8 +292,9 @@ async function loadPack(input) {
    // JSON only: never execute imported scripts or import arbitrary JavaScript URLs.
    const next=createRegistry([...installedPacks,...importedPacks,parsed]);
    importedPacks.push(parsed);registry=next;
+   aliasManifest=null;$('alias-state').textContent='';
    const oldProfile=program?.generatedFor;
-   renderLocale();
+   closeFormative();renderLocale();
    if(oldProfile&&registry.paths.has(oldProfile.pathId)){
      program=buildJourney(registry,oldProfile);
      events=events.filter(item=>registry.skills.has(item.skillId));
@@ -201,19 +303,40 @@ async function loadPack(input) {
    message(w('packAdded'));
  }catch(error){message(w('packFailed')+error.message);}
 }
+async function loadAliasFile(input){
+ const file=input.files?.[0];input.value='';
+ if(!file)return;
+ try{
+  if(file.size>30_000)throw new TypeError('Alias map exceeds 30 kB');
+  const raw=JSON.parse(await file.text());
+  // Aliases are not inferred and cannot execute code; only a manifest matching
+  // the installed catalog is accepted. No learner answer is read at this step.
+  normalizeAliasManifest(raw,registry);
+  aliasManifest=raw;
+  $('alias-state').textContent=locale==='en'?'Explicit mapping ready. The original portfolio is never modified.':'Table d’équivalences prête. Le portfolio d’origine reste intact.';
+ }catch(error){
+  aliasManifest=null;$('alias-state').textContent=String(error.message||error);
+ }
+}
+
 $('profile-form').addEventListener('submit',e=>{e.preventDefault();generate();});
 $('pack-file').addEventListener('change',e=>loadPack(e.target));
 $('path').addEventListener('change',()=>{$('path-help').textContent=local(registry.paths.get($('path').value).summary);renderFamiliarity();});
 $('stage').addEventListener('change',renderPathways);
 $('clear').addEventListener('click',resetAll);
 $('export').addEventListener('click',savePortfolio);
-$('reset-progress').addEventListener('click',()=>{events=[];renderProgram();});
+$('reset-progress').addEventListener('click',()=>{closeFormative();events=[];formative=[];renderProgram();});
 $('import').addEventListener('change',e=>loadFile(e.target));
 $('import-home').addEventListener('change',e=>loadFile(e.target));
+$('aliases-file').addEventListener('change',e=>loadAliasFile(e.target));
+$('formative-close').addEventListener('click',closeFormative);
+$('formative-reveal').addEventListener('click',revealFormative);
+$('formative-save').addEventListener('click',saveFormative);
 $('lang').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
   locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
   renderLocale();
+  relocalizeActiveFormative();
 });
 renderLocale();
