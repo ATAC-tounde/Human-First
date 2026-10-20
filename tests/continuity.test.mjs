@@ -62,3 +62,49 @@ test('Continuity V1.0: cannot fake recorded mastery when migrating',()=>{
  assert.ok(plan.issues.some(x=>/validation/.test(x)));
  assert.throws(()=>migratePortfolio(JSON.stringify(forged),registry,manifest));
 });
+
+
+test('Continuity: explicit remapping overrides a still-present competency key',()=>{
+ const retained=JSON.parse(exportPortfolio(registry,profile,[
+  {skillId:'core.evidence',type:'practiced',at:'2026-10-20T05:00:00Z'}
+ ]));
+ retained.catalogVersion='older-catalog-with-reused-key';
+ const approved={
+  schema:ALIAS_SCHEMA,fromCatalogVersion:retained.catalogVersion,toCatalogVersion:registry.version,
+  competencies:[{from:'core.evidence',to:'core.causality'}],pathways:[]
+ };
+ const originalJson=JSON.stringify(retained);
+ const preview=planPortfolioTransition(originalJson,registry,approved);
+ assert.equal(preview.ready,true,preview.issues.join(' | '));
+ assert.ok(preview.changes.some(c=>c.from==='core.evidence'&&c.to==='core.causality'));
+ const migrated=migratePortfolio(originalJson,registry,approved);
+ assert.equal(migrated.profile.familiarity['core.causality'],'exploring');
+ assert.equal(migrated.profile.familiarity['core.evidence'],undefined);
+ assert.equal(migrated.evidence[0].skillId,'core.causality');
+ assert.equal(JSON.stringify(retained),originalJson);
+});
+
+test('Continuity: a retained destination collision is not silently merged',()=>{
+ const ambiguous=JSON.parse(exportPortfolio(registry,profile,[]));
+ ambiguous.catalogVersion='ambiguous-catalog';
+ ambiguous.profile.familiarity['core.causality']='confident';
+ const approved={schema:ALIAS_SCHEMA,fromCatalogVersion:ambiguous.catalogVersion,toCatalogVersion:registry.version,
+  competencies:[{from:'core.evidence',to:'core.causality'}],pathways:[]};
+ const check=planPortfolioTransition(JSON.stringify(ambiguous),registry,approved);
+ assert.equal(check.ready,false);
+ assert.ok(check.issues.some(x=>x.includes('collision')));
+});
+
+test('Continuity: explicit remapping cannot relabel a different formative task',()=>{
+ const previous=JSON.parse(original);
+ previous.profile.pathId='core.foundations';
+ previous.profile.familiarity={'core.evidence':'exploring'};
+ previous.evidence[0].skillId='core.evidence';
+ previous.formative[0].skillId='core.evidence';
+ previous.catalogVersion='old-assessment';
+ const approved={schema:ALIAS_SCHEMA,fromCatalogVersion:previous.catalogVersion,toCatalogVersion:registry.version,
+  competencies:[{from:'core.evidence',to:'core.causality'}],pathways:[]};
+ const check=planPortfolioTransition(JSON.stringify(previous),registry,approved);
+ assert.equal(check.ready,false);
+ assert.ok(check.issues.some(x=>x.startsWith('validation:')));
+});
