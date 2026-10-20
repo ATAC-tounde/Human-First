@@ -1,10 +1,11 @@
+import {validateFormativeTask,normalizeFormativeObservations} from './assessment.mjs';
 /**
  * HUMAN FIRST - Lifelong Learning Kernel v0.8.
  * Pure, deterministic, browser-side engine; no account, telemetry, AI or HTTP required.
  * Packs are declarative, versioned and validated before use.
  * Self-reported familiarity is never a certified skill assessment.
  */
-export const KERNEL_VERSION = '0.8.0';
+export const KERNEL_VERSION = '1.0.0';
 export const PILLARS = Object.freeze(['think', 'focus', 'learn', 'decide']);
 export const FAMILIARITY = Object.freeze(['new', 'exploring', 'practicing', 'confident']);
 const ID = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
@@ -61,7 +62,8 @@ export function createRegistry(packs) {
         id:skill.id,packId:pack.id,title:{...skill.title},outcome:{...skill.outcome},
         tags:[...skill.tags],requires:[...skill.requires],
         activities:Object.fromEntries(PILLARS.map(p=>[p,{...skill.activities[p]}])),
-        contexts:Object.fromEntries(Object.entries(contexts).map(([k,v])=>[k,{...v}]))
+        contexts:Object.fromEntries(Object.entries(contexts).map(([k,v])=>[k,{...v}])),
+        assessment:skill.assessment===undefined?null:validateFormativeTask(skill.assessment)
       }));
     }
     for (const path of pack.pathways) {
@@ -199,10 +201,11 @@ export function normalizeEvidence(registry, events) {
     return {skillId:item.skillId,type:item.type,at:new Date(item.at).toISOString(),source:'self-declared'};
   });
 }
-export function exportPortfolio(registry, rawProfile, events=[]) {
+export function exportPortfolio(registry, rawProfile, events=[], extras={}) {
   const profile=normalizeProfile(rawProfile, registry);
   return JSON.stringify({schema:'hf.portfolio.v1',savedAt:new Date().toISOString(),catalogVersion:registry.version,
-    profile,evidence:normalizeEvidence(registry,events)}, null, 2);
+    profile,evidence:normalizeEvidence(registry,events),
+    formative:normalizeFormativeObservations(registry,extras.formative??[])}, null, 2);
 }
 export function importPortfolio(content, registry) {
   assert(typeof content==='string' && content.length <= 80_000, 'Portfolio must be JSON under 80 kB');
@@ -212,5 +215,6 @@ export function importPortfolio(content, registry) {
   const profile=normalizeProfile(data.profile,registry);
   // Do not blindly accept unknown legacy fields, users or signed certificates.
   const evidence=normalizeEvidence(registry, data.evidence??[]);
-  return {profile,evidence,originVersion:data.catalogVersion??null,migrated:data.catalogVersion!==registry.version};
+  const formative=normalizeFormativeObservations(registry,data.formative??[]);
+  return {profile,evidence,formative,originVersion:data.catalogVersion??null,migrated:data.catalogVersion!==registry.version};
 }
