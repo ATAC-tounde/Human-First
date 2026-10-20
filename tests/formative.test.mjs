@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 import {createRegistry,exportPortfolio,importPortfolio,buildJourney} from '../public/journey/engine.mjs';
 import {installedPacks} from '../public/journey/packs.mjs';
-import {makeDocument,requestReview,approveDocument,publishDocument,exportPack,REVIEW_CHECKS} from '../public/studio/model.mjs';
+import {makeDocument,requestReview,approveDocument,publishDocument,exportPack,nextDraft,versionFormativeTask,REVIEW_CHECKS} from '../public/studio/model.mjs';
 import {FORMATIVE_SCHEMA,FORMATIVE_OBSERVATION,defaultFormativeTasks,
  validateFormativeTask,availableFormative,makeFormativeObservation,normalizeFormativeObservations} from '../public/journey/assessment.mjs';
 
@@ -113,4 +113,43 @@ test('Formative V1.0: browser interface never exports raw answers and keeps the 
  assert.ok(!/\blocalStorage\s*[.\[]/.test(executable),'No persistent answer storage');
  for(const route of ['/','/focus','/learn','/decide','/studio','/journey/assessment.mjs'])
   assert.ok(server.includes("'"+route+"'"),route);
+});
+
+
+test('Studio: a changed formative rubric or transfer auto-increments its own task version',()=>{
+ const previous=structuredClone(defaultFormativeTasks['core.evidence']);
+ const same=versionFormativeTask(previous,structuredClone(previous));
+ assert.equal(same.version,'1.0.0','Saving a task unchanged must not change its version');
+ const changed=structuredClone(previous);
+ changed.criteria[0].guidance.fr+=' Nouvelle formulation pour clarifier la preuve.';
+ const updated=versionFormativeTask(previous,changed);
+ assert.equal(updated.version,'1.0.1');
+ assert.equal(previous.version,'1.0.0');
+ const followup=structuredClone(updated);
+ followup.transfer.en+=' Apply the idea again.';
+ assert.equal(versionFormativeTask(updated,followup).version,'1.0.2');
+ const fresh=versionFormativeTask(undefined,{schema:FORMATIVE_SCHEMA,
+  scenario:previous.scenario,question:previous.question,transfer:previous.transfer,criteria:previous.criteria});
+ assert.equal(fresh.version,'1.0.0');
+});
+
+test('Studio: revising a published pack cannot reuse an older formative observation after rubric changes',()=>{
+ const doc=makeDocument({id:'rubric-history',author:'Auteur Original'});
+ doc.meta.sourceNote='Original exercises developed for this demonstration.';
+ doc.pack.competencies[0].assessment=structuredClone(defaultFormativeTasks['work.requirements']);
+ const review=requestReview(doc,installedPacks,'Auteur Original');
+ const approved=approveDocument(review,{reviewer:'Relecteur Original',checks:[...REVIEW_CHECKS]},'Auteur Original');
+ const release=publishDocument(approved,installedPacks,'Auteur Original');
+ const initialRegistry=createRegistry([...installedPacks,release.pack]);
+ const key='rubric-history.analyser-besoin';
+ const recorded=makeFormativeObservation(initialRegistry,key,['observable']);
+ const revision=nextDraft(release,'1.0.1','Auteur Révision');
+ const current=revision.pack.competencies[0];
+ const next=structuredClone(current.assessment);
+ next.question.en+=' Could you validate it independently?';
+ current.assessment=versionFormativeTask(current.assessment,next);
+ assert.equal(current.assessment.version,'1.0.1');
+ const revisedRegistry=createRegistry([...installedPacks,revision.pack]);
+ assert.throws(()=>normalizeFormativeObservations(revisedRegistry,[recorded]),/version/i);
+ assert.equal(normalizeFormativeObservations(initialRegistry,[recorded]).length,1);
 });
