@@ -12,7 +12,7 @@ const originalTexts=new WeakMap();
 const originalAttributes=new WeakMap();
 function translateModelDiagnostics(raw){
  const source=raw.trim();
- const marker=source.match(/^([✖⚠]\\s*)([\\s\\S]*)$/);
+ const marker=source.match(/^([✖⚠]\s*)([\s\S]*)$/);
  if(marker)return marker[1]+translateModelDiagnostics(marker[2]);
  const prefixes=[['Référentiel invalide : ','Invalid framework: '],
   ['Publication refusée : ','Publication refused: '],
@@ -25,11 +25,11 @@ function translateModelDiagnostics(raw){
  if(translations.has(source))return translations.get(source);
  const metadata=source.match(/^Métadonnée ([A-Za-z0-9_-]+) incorrecte\.$/);
  if(metadata)return 'Invalid metadata field '+metadata[1]+'.';
- const count=source.match(/^(\\d+) erreur\\(s\\) structurelle\\(s\\) détectée\\(s\\)\\.$/);
+ const count=source.match(/^(\d+) erreur\(s\) structurelle\(s\) détectée\(s\)\.$/);
  if(count)return count[1]+' structural error(s) found.';
- const valid=source.match(/^Structure valide : (\\d+) compétence\\(s\\), (\\d+) parcours\. Revue éditoriale toujours nécessaire\.$/);
+ const valid=source.match(/^Structure valide : (\d+) compétence\(s\), (\d+) parcours\. Revue éditoriale toujours nécessaire\.$/);
  if(valid)return `Valid structure: ${valid[1]} competency(ies), ${valid[2]} pathway(s). Editorial review is still required.`;
- const preview=source.match(/^(.+) · (\\d+) compétence\\(s\\) · temps indicatif (\\d+) min$/);
+ const preview=source.match(/^(.+) · (\d+) compétence\(s\) · temps indicatif (\d+) min$/);
  if(preview)return `${preview[1]} · ${preview[2]} competency(ies) · approx. ${preview[3]} min`;
  return source;
 }
