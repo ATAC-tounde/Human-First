@@ -153,3 +153,48 @@ test('Studio: revising a published pack cannot reuse an older formative observat
  assert.throws(()=>normalizeFormativeObservations(revisedRegistry,[recorded]),/version/i);
  assert.equal(normalizeFormativeObservations(initialRegistry,[recorded]).length,1);
 });
+
+
+test('Formative: switching language preserves an unfinished private draft, not just its heading',async()=>{
+ const base=join(dirname(fileURLToPath(import.meta.url)),'..');
+ const source=await readFile(join(base,'public/journey/app.mjs'),'utf8');
+ const start=source.indexOf('function relocalizeActiveFormative(){');
+ const end=source.indexOf('\nfunction revealFormative(){',start);
+ assert.ok(start>=0&&end>start,'Formative locale restoration hook must exist');
+ const definition=source.slice(start,end);
+ // Execute the actual restoration function with a minimal simulated DOM.
+ // No browser dependency, persisted store, or network access is involved.
+ for(const initiallyRevealed of [false,true]){
+  const answer={value:'Voici un raisonnement personnel non sauvegardé, FR et EN.'};
+  const feedback={hidden:!initiallyRevealed};
+  let checks=initiallyRevealed?[{value:'source',checked:true},{value:'limits',checked:false}]:[];
+  let openCount=0,revealCount=0;
+  const $=id=>({'formative-answer':answer,'formative-feedback':feedback})[id];
+  const document={querySelectorAll:selector=>selector==='#formative-criteria input:checked'?
+    checks.filter(x=>x.checked):checks};
+  const reopen=(id)=>{
+   assert.equal(id,'core.evidence');
+   openCount++;
+   answer.value='';
+   feedback.hidden=true;
+   checks=[];
+  };
+  const reveal=()=>{
+   revealCount++;
+   feedback.hidden=false;
+   checks=[{value:'source',checked:false},{value:'limits',checked:false}];
+  };
+  const restore=Function('$','document','openFormative','revealFormative','activeFormative',
+    definition+';return relocalizeActiveFormative;')
+      ($,document,reopen,reveal,{skillId:'core.evidence'});
+  restore();
+  assert.equal(answer.value,'Voici un raisonnement personnel non sauvegardé, FR et EN.');
+  assert.equal(openCount,1);
+  assert.equal(revealCount,Number(initiallyRevealed));
+  assert.equal(feedback.hidden,!initiallyRevealed);
+  if(initiallyRevealed)assert.deepEqual(checks.map(x=>x.checked),[true,false]);
+ }
+ const handler=source.slice(source.indexOf("$('lang').addEventListener('click'"));
+ assert.ok(handler.includes('relocalizeActiveFormative()'));
+ assert.ok(!handler.includes('closeFormative();locale='));
+});
