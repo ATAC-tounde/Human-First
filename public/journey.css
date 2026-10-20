@@ -11,3 +11,17 @@
 .pack-import strong{font-size:14px}.pack-import p{font-size:12px;line-height:1.6;color:#5c7563;margin:5px 0}
 .pack-import input{position:absolute;inline-size:1px;block-size:1px;opacity:0;pointer-events:none}
 @media(max-width:660px){.pack-import{flex-direction:column;align-items:flex-start}}
+/* V1.0 - voluntary formative practice; user writing stays exclusively in the textarea. */
+.formative-panel{margin:36px 0 44px;padding:26px 30px;border:2px solid #729778;border-radius:15px;background:#f3f7ef}
+.formative-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.formative-top h3{margin:7px 0 18px;font:400 clamp(25px,3.4vw,36px)/1.2 Georgia,serif;color:#204532}
+.formative-panel p{line-height:1.75}.formative-scenario{padding:18px;background:#e1eee3;border-radius:8px}
+.formative-panel label:not(.formative-criterion){display:block;font-weight:700;margin:19px 0 9px}
+.formative-panel textarea{width:100%;padding:15px;border:1px solid #8b9d8d;background:#fff;border-radius:8px;line-height:1.6;color:#263c31}
+.formative-panel .privacy{font-size:13px;color:#55675e}
+.formative-panel button{margin:8px 8px 8px 0}.formative-criteria{display:grid;gap:12px;margin:16px 0}
+.formative-criterion{display:flex;gap:15px;align-items:flex-start;padding:13px;background:#fff;border:1px solid #c9d8ce;border-radius:8px}
+.formative-criterion input{margin-top:5px}.formative-criterion small{display:block;line-height:1.6;color:#53665b}
+.formative-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:18px 0 6px;color:#617267;font-size:13px}
+@media(max-width:710px){.formative-panel{padding:17px}.formative-top{flex-direction:column}}
+@media print{.formative-panel{display:none!important}}
