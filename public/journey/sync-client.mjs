@@ -1,10 +1,10 @@
 /**
  * HUMAN FIRST V1.2 optional remote ciphertext transport.
- * The server receives an opaque 256-bit capability and AES-GCM ciphertext ONLY.
+ * The official client sends an opaque 256-bit capability and AES-GCM ciphertext.
  * No passphrase, portfolio plaintext, cookies, or account data are transferred.
  */
 import {parseEncryptedVault} from './vault.mjs';
-export const REMOTE_SYNC_KEY_PATTERN=/^hfs1_[A-Za-z0-9_-]{43}$/;
+export const REMOTE_SYNC_KEY_PATTERN=/^hfs1_[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/;
 const base='/api/sync/v1';
 function validateKey(key){
  if(typeof key!=='string'||!REMOTE_SYNC_KEY_PATTERN.test(key))
