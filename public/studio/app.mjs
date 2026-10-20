@@ -17,10 +17,9 @@ let doc=makeDocument(),selection={kind:'pack',id:null},dirty=false;
 const confirmAction=message=>window.confirm(tr(message));
 const promptAction=(message,defaultValue)=>window.prompt(tr(message),defaultValue);
 function refreshStudioLanguage(){
+ // Never rewrite the author/team field: it is authored data, not interface copy.
+ // Switch only UI labels, links and accessibility strings.
  renderStudioLanguage(locale);
- const authorField=$('author');
- if(authorField.value==='Équipe pédagogique'&&locale==='en')authorField.value='Learning team';
- else if(authorField.value==='Learning team'&&locale==='fr')authorField.value='Équipe pédagogique';
 }
 
 const isAdult=()=>$('adult').checked;
