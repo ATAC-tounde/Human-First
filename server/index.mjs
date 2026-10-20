@@ -34,6 +34,12 @@ const publicFiles = {
   '/decide.js': ['decide.js', 'text/javascript; charset=utf-8'],
   '/decide-data.mjs': ['decide-data.mjs', 'text/javascript; charset=utf-8'],
   '/decide.css': ['decide.css', 'text/css; charset=utf-8'],
+  '/journey': ['journey.html', 'text/html; charset=utf-8'],
+  '/journey.html': ['journey.html', 'text/html; charset=utf-8'],
+  '/journey.css': ['journey.css', 'text/css; charset=utf-8'],
+  '/journey/engine.mjs': ['journey/engine.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/packs.mjs': ['journey/packs.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/app.mjs': ['journey/app.mjs', 'text/javascript; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };

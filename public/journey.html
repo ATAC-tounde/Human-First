@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="HUMAN FIRST - un noyau pédagogique extensible pour des parcours choisis librement, tout au long de la vie.">
+  <meta name="theme-color" content="#f6f5ef">
+  <title>Mon parcours - HUMAN FIRST</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/journey.css">
+  <script type="module" src="/journey/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main" data-text="skip">Aller au contenu</a>
+  <div class="shell">
+    <header class="top">
+      <a class="brand" href="/" aria-label="HUMAN FIRST - Accueil"><span class="brand-icon">HF</span><span>HUMAN <strong>FIRST</strong><small>THINK FIRST. AI SECOND.</small></span></a>
+      <nav aria-label="Piliers HUMAN FIRST" class="links">
+        <a href="/" id="link-think">THINK</a><a href="/focus" id="link-focus">FOCUS</a><a href="/learn" id="link-learn">LEARN</a><a href="/decide" id="link-decide">DECIDE</a>
+        <span class="selected" aria-current="page" data-text="journeyNav">PARCOURS</span>
+        <button type="button" id="lang" aria-label="Switch to English">EN</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div><p class="eyebrow" data-text="eyebrow">LE NOYAU PÉDAGOGIQUE · V0.8</p>
+          <h1 id="hero-title"><span data-text="heroOne">Un parcours à ton image.</span><br><em data-text="heroTwo">Et toujours libre d’évoluer.</em></h1>
+          <p class="hero-lead" data-text="heroLead">Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.</p>
+          <div class="principles"><span data-text="noScore">✓ Sans notation automatisée</span><span data-text="noAccount">✓ Sans compte</span><span data-text="portable">✓ Exportable et modifiable</span></div>
+        </div>
+        <div class="hero-diagram" aria-hidden="true"><span class="ring ring-one"></span><span class="ring ring-two"></span><div class="hero-core">TOI<br><strong>AU CENTRE</strong></div><span class="orbit orbit-one">THINK</span><span class="orbit orbit-two">FOCUS</span><span class="orbit orbit-three">LEARN</span><span class="orbit orbit-four">DECIDE</span></div>
+      </section>
+      <section class="foundation" aria-labelledby="how-title">
+        <div><p class="eyebrow" data-text="foundationTitle">L’IDÉE CENTRALE</p><h2 id="how-title" data-text="foundationHeading">Des compétences, pas des cases.</h2></div>
+        <p data-text="foundationCopy">Aucun métier, diplôme, pays ou domaine n'est intégré en dur au moteur. De nouveaux référentiels peuvent être ajoutés comme des modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.</p>
+      </section>
+      <section class="builder" aria-labelledby="builder-title">
+        <header class="section-header"><div><p class="eyebrow" data-text="builderEyebrow">ATELIER DE PARCOURS</p><h2 id="builder-title" data-text="builderTitle">Construire mon programme</h2></div><p id="stats" class="stats" aria-live="polite"></p></header>
+        <form id="profile-form" novalidate>
+          <div class="fields">
+            <fieldset class="form-group adult"><legend data-text="adultTitle">Accès au prototype</legend><label class="check"><input type="checkbox" id="adult" required><span data-text="adultNotice">Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.</span></label></fieldset>
+            <label class="form-group"><span data-text="stageTitle">Ma situation actuelle</span><select id="stage" name="stage"><option value="personal" data-text="stagePersonal">Apprendre par intérêt personnel</option><option value="school-return" data-text="stageSchool">Reprise d’études à l’âge adulte</option><option value="higher-education" data-text="stageHigher">Études supérieures</option><option value="work" data-text="stageWork">Vie professionnelle</option><option value="transition" data-text="stageTransition">Reconversion / transition</option><option value="teaching" data-text="stageTeaching">Enseignement / formation</option></select></label>
+            <label class="form-group"><span data-text="ageTitle">Tranche d’âge (facultatif)</span><select id="age-band"><option value="unspecified" data-text="ageUnspecified">Je préfère ne pas préciser</option><option value="18-24">18 - 24</option><option value="25-39">25 - 39</option><option value="40-59">40 - 59</option><option value="60+">60+</option></select><small data-text="ageHelp">Jamais utilisée pour déduire tes capacités.</small></label>
+            <label class="form-group"><span data-text="qualificationTitle">Études / diplôme (facultatif)</span><input id="qualification" type="text" maxlength="70" autocomplete="off" placeholder="Licence, BTS, formation libre…"><small data-text="qualificationHelp">Description libre, non utilisée comme classement.</small></label>
+            <label class="form-group"><span data-text="occupationTitle">Métier / domaine (facultatif)</span><input id="occupation" type="text" maxlength="70" autocomplete="off" placeholder="Laboratoire, artisanat, informatique…"><small data-text="occupationHelp">Pour préciser ton contexte, sans limiter les choix.</small></label>
+            <label class="form-group"><span data-text="paceTitle">Temps souhaité par semaine</span><select id="pace"><option value="30" data-text="pace30">30 minutes environ</option><option value="60" selected data-text="pace60">1 heure environ</option><option value="120" data-text="pace120">2 heures environ</option><option value="180" data-text="pace180">3 heures environ</option></select><small data-text="paceHelp">Simple repère facultatif, pas un chronomètre.</small></label>
+            <label class="form-group full"><span data-text="pathTitle">Mon objectif d’apprentissage</span><select id="path" required></select><small id="path-help" aria-live="polite"></small></label>
+          </div>
+          <div class="pack-import" role="group" aria-labelledby="pack-title">
+            <div><strong id="pack-title" data-text="packTitle">Ajouter un référentiel pédagogique</strong>
+              <p data-text="packHelp">Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.</p></div>
+            <label class="file-label" for="pack-file" data-text="packImport">Importer un pack JSON</label>
+            <input type="file" id="pack-file" accept="application/json,.json" aria-describedby="pack-title">
+          </div>
+          <fieldset class="self-report" aria-labelledby="familiarity-heading"><legend id="familiarity-heading" data-text="familiarityTitle">Ce que je connais déjà (facultatif)</legend><p data-text="familiarityHelp">Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.</p><div id="familiarity-list" class="familiarity-list"></div></fieldset>
+          <div class="controls"><button type="submit" class="primary" id="build" data-text="create">Créer mon parcours ↗</button><button type="button" id="clear" class="secondary" data-text="clear">Effacer cette séance</button></div>
+          <p class="privacy" data-text="privacyNotice">Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.</p>
+          <p id="form-status" class="status" role="alert" aria-live="assertive"></p>
+        </form>
+      </section>
+      <section class="result" id="result" hidden aria-labelledby="result-title">
+        <div class="result-header"><div><p class="eyebrow" data-text="resultEyebrow">PROGRAMME INDIVIDUEL · DÉMONSTRATION</p><h2 id="result-title"></h2><p id="program-summary"></p></div><div class="result-actions"><button class="secondary" type="button" id="export" data-text="export">Exporter mon portfolio JSON</button><label for="import" class="file-label" data-text="import">Importer un portfolio JSON</label><input type="file" id="import" accept="application/json,.json"><button type="button" class="secondary" id="reset-progress" data-text="resetProgress">Effacer les étapes déclarées</button></div></div>
+        <p class="disclaimer" id="disclaimer" role="note"></p>
+        <div class="program-stats"><span id="program-count"></span><span id="program-estimate"></span></div>
+        <ol id="program-list" class="program-list"></ol>
+        <div class="exit-panel"><h3 data-text="exitTitle">La suite t’appartient.</h3><p data-text="exitDescription">Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.</p></div>
+      </section>
+      <section class="portability" aria-labelledby="portability-title"><div><p class="eyebrow" data-text="portabilityEyebrow">TU RESTES PROPRIÉTAIRE DU PARCOURS</p><h2 id="portability-title" data-text="portabilityTitle">Tu peux repartir avec tes données.</h2></div><p data-text="portabilityText">Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.</p><div class="portability-actions"><label for="import-home" class="file-label" data-text="importHome">Reprendre un portfolio exporté</label><input type="file" id="import-home" accept="application/json,.json"></div></section>
+    </main>
+    <footer><strong>HUMAN FIRST</strong><span data-text="footer">18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.</span><small>V0.8</small></footer>
+  </div>
+</body>
+</html>

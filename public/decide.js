@@ -112,9 +112,10 @@ const copy=()=>dict[locale];
 function set(id,value){const node=$(id);if(node)node.textContent=value;}
 function focusHeading(id){const node=$(id);node.focus();}
 function updateLinks(){
-  for(const id of ['nav-think','nav-focus','nav-learn']){
-    const base={"nav-think":"/","nav-focus":"/focus","nav-learn":"/learn"}[id];
+  for(const id of ['nav-think','nav-focus','nav-learn','nav-journey']){
+    const base={"nav-think":"/","nav-focus":"/focus","nav-learn":"/learn","nav-journey":"/journey"}[id];
     $(id).href=base+'?lang='+locale;
+    if(id==='nav-journey')$(id).textContent=locale==='en'?'JOURNEY':'PARCOURS';
   }
 }
 function applyCopy(){

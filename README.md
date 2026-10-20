@@ -145,3 +145,10 @@ Accès : `/learn` en français et anglais. Six leçons originales, avec lecture,
 ## DECIDE V0.7 Alpha - Choix autonome et critique des recommandations
 
 Nouveau quatrième espace `/decide` (FR/EN), avec six scénarios fictifs et un atelier libre. Cycle objectif et critères → alternatives et compromis → faits et incertitudes → remise en question d'une recommandation **IA fictive préécrite** → choix provisoire (ou décision différée). Aucun classement automatique, score, minuterie, IA active, traceur ou stockage des notes. Les champs restent en mémoire DOM, effacés en quittant, en terminant ou à l'actualisation. Impression d'une fiche vierge sans réponses. Aucun conseil médical, financier ou juridique. Voir [spécification DECIDE](docs/DECIDE_V0.7_SPEC_RECETTE.md). Les 20 défis THINK, six activités FOCUS et six leçons LEARN sont préservés.
+
+
+## V0.8 - Noyau universel d'apprentissage tout au long de la vie
+
+L'espace `/journey` propose un programme **déterministe, explicable et volontaire**. Le référentiel est organisé en packs versionnés de compétences avec prérequis acycliques, textes FR/EN et activités THINK / FOCUS / LEARN / DECIDE. Cette première démonstration comprend **4 packs, 12 compétences et 5 parcours** (fondamentaux, méthodes d'étude, compétences professionnelles, reconversion, autonomie au quotidien). Il ne prétend pas mesurer les capacités, certifier des diplômes, ni être adapté aux mineurs.
+
+Les profils déclarés (études, âge adulte facultatif, métier, objectifs, familiarité) restent dans l'onglet, **sans compte ni envoi au serveur**. Un portfolio JSON avec auto-déclarations, jamais les réponses libres, peut être exporté/importé volontairement. De nouveaux référentiels sont ajoutés en respectant le schéma des packs sans réécrire le moteur. Lire : [Architecture universelle V0.8](docs/ARCHITECTURE_UNIVERSELLE_V0.8.md).
