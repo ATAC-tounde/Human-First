@@ -2,5 +2,5 @@
 
 .adult-gate{display:block;margin-top:8px;font-weight:700}.adult-gate input{width:auto;margin-right:8px;accent-color:var(--deep)}
 /* Shared language preference: visible and accessible toggle in the Studio toolbar. */
-.studio-lang-switch{background:transparent;color:inherit;border:1px solid currentColor;border-radius:6px;min-width:45px;min-height:38px;padding:6px 11px;font:inherit;font-weight:750;cursor:pointer}
+.studio-lang-switch{background:transparent;color:inherit;border:1px solid currentColor;border-radius:6px;min-width:45px;min-height:38px;padding:6px 11px;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
 .studio-lang-switch:focus-visible{outline:3px solid #39774e;outline-offset:3px}
