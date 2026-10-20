@@ -30,7 +30,10 @@ function failure(res,status,code){send(res,status,{error:code});}
 export function secureRequest(req){
  // A Host header is attacker-controlled: it must NEVER grant a loopback-only
  // HTTP exemption without verifying the actual socket endpoints.
- const hostname=(req.headers.host??'').split(':')[0].toLowerCase();
+ const host=(req.headers.host??'').toLowerCase();
+ // IPv6 host literals carry colons inside brackets; parse the optional port
+ // only after the closing bracket. Never trust Host without socket checks.
+ const hostname=host.startsWith('[')?host.slice(0,host.indexOf(']')+1):host.split(':')[0];
  const loopback=value=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(value);
  const local=(hostname==='localhost'||hostname==='127.0.0.1'||hostname==='[::1]')&&
   loopback(req.socket.remoteAddress)&&loopback(req.socket.localAddress);
