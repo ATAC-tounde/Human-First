@@ -9,7 +9,7 @@ import {readFile as readSource} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {dirname} from 'node:path';
 import {createEncryptedSyncStore,vaultFileName,validateSyncKey} from '../server/sync-store.mjs';
-import {handleEncryptedSync,syncConfigured} from '../server/sync-routes.mjs';
+import {handleEncryptedSync,syncConfigured,secureRequest} from '../server/sync-routes.mjs';
 import {generateSyncKey,readRemoteBackup,writeRemoteBackup,deleteRemoteBackup,remoteSyncConfig} from '../public/journey/sync-client.mjs';
 import {encryptPortfolio,decryptPortfolio} from '../public/journey/vault.mjs';
 import {createRegistry,exportPortfolio} from '../public/journey/engine.mjs';
@@ -47,6 +47,14 @@ test('V1.2: filesystem store prevents overwrites, ensures immutable concurrent r
   await assert.rejects(store.put(key,b,'"'+('0'.repeat(64))+'"'),e=>e.httpCode===412);
   const updated=await store.put(key,b,created.revision);
   assert.equal(updated.created,false);
+  // A second writer racing on the same revision must lose cleanly.
+  const [left,right]=await Promise.allSettled([
+   store.put(key,a,updated.revision),
+   store.put(key,b,updated.revision)
+  ]);
+  assert.equal([left,right].filter(x=>x.status==='fulfilled').length,1);
+  assert.equal([left,right].filter(x=>x.status==='rejected'&&x.reason.httpCode===412).length,1);
+  const fresh=(await store.get(key)).revision;
   assert.notEqual(updated.revision,created.revision);
   await assert.rejects(store.delete(key,created.revision),e=>e.httpCode===412);
   assert.equal((await store.get(key)).content,b);
@@ -57,7 +65,7 @@ test('V1.2: filesystem store prevents overwrites, ensures immutable concurrent r
   assert.ok(!stored.includes(profile.qualification));
   assert.ok(!stored.includes(profile.occupation));
   assert.equal(await decryptPortfolio(stored,password,{crypto:webcrypto}),plain);
-  await store.delete(key,updated.revision);
+  await store.delete(key,fresh);
   assert.equal(await store.get(key),null);
  }finally{await rm(root,{recursive:true,force:true});}
 });
@@ -77,6 +85,17 @@ test('V1.2: sync disabled by default, and deliberately disabled on Vercel epheme
  assert.equal(syncConfigured({HF_SYNC_ENABLED:'1',HF_SYNC_STORAGE_DIR:'/tmp/hf-test',VERCEL:'1'}),false);
  assert.equal(syncConfigured({HF_SYNC_ENABLED:'1',HF_SYNC_STORAGE_DIR:'/tmp/hf-test'}),true);
 });
+
+test('V1.2: spoofing Host localhost from a public socket never bypasses TLS',()=>{
+ const req=(host,remote,local,encrypted=false)=>({
+  headers:{host},socket:{remoteAddress:remote,localAddress:local,encrypted}
+ });
+ assert.equal(secureRequest(req('localhost:4173','203.0.113.50','10.0.0.4')),false);
+ assert.equal(secureRequest(req('127.0.0.1:4173','203.0.113.50','127.0.0.1')),false);
+ assert.equal(secureRequest(req('127.0.0.1:4173','127.0.0.1','127.0.0.1')),true);
+ assert.equal(secureRequest(req('public.example','203.0.113.50','10.0.0.4',true)),true);
+});
+
 test('V1.2: end-to-end HTTP never receives portfolio plaintext, uses explicit preconditions and no cookies',async()=>{
  const root=await mkdtemp(join(tmpdir(),'hf-sync-http-'));
  const savedEnabled=process.env.HF_SYNC_ENABLED,savedRoot=process.env.HF_SYNC_STORAGE_DIR,savedVercel=process.env.VERCEL;
@@ -99,6 +118,10 @@ test('V1.2: end-to-end HTTP never receives portfolio plaintext, uses explicit pr
   const envelope=await encryptPortfolio(plain,password,{crypto:webcrypto});
   const noCondition=await transport('/api/sync/v1',{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:envelope});
   assert.equal(noCondition.status,428);
+  const missingHeader=await transport('/api/sync/v1',{method:'PUT',
+   headers:{'x-hf-sync-key':key,'Content-Type':'application/json','If-None-Match':'*'},
+   body:envelope});
+  assert.equal(missingHeader.status,403,'Browser mutations require explicit anti-CSRF header');
   const created=await writeRemoteBackup(key,envelope,null,transport);
   assert.match(created,/^"[a-f0-9]{64}"$/);
   const remote=await readRemoteBackup(key,transport);
