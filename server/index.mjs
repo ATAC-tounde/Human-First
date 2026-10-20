@@ -40,6 +40,11 @@ const publicFiles = {
   '/journey/engine.mjs': ['journey/engine.mjs', 'text/javascript; charset=utf-8'],
   '/journey/packs.mjs': ['journey/packs.mjs', 'text/javascript; charset=utf-8'],
   '/journey/app.mjs': ['journey/app.mjs', 'text/javascript; charset=utf-8'],
+  '/studio': ['studio.html', 'text/html; charset=utf-8'],
+  '/studio.html': ['studio.html', 'text/html; charset=utf-8'],
+  '/studio/studio.css': ['studio/studio.css', 'text/css; charset=utf-8'],
+  '/studio/app.mjs': ['studio/app.mjs', 'text/javascript; charset=utf-8'],
+  '/studio/model.mjs': ['studio/model.mjs', 'text/javascript; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml']
 };
