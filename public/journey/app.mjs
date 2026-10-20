@@ -5,6 +5,7 @@ import {normalizeAliasManifest} from './continuity.mjs';
 import {restorePortablePortfolio} from './restore.mjs';
 import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs';
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
+import {mountEncryptedRemoteSync} from './remote-ui.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -22,7 +23,7 @@ let familiarity={};
 const vaultWords={
  fr:{
  eyebrow:'CONTINUITÉ · SAUVEGARDE PRIVÉE',title:'Un coffre chiffré, sans compte.',
- intro:'Sauvegarde ton parcours dans un fichier chiffré ou, volontairement, sur cet appareil. Rien n’est synchronisé en ligne.',
+ intro:'Sauvegarde ton parcours dans un fichier chiffré ou sur cet appareil. L’envoi distant est une option distincte, désactivée par défaut.',
  warning:'Choisis une phrase secrète longue et unique (12 caractères minimum). Si tu l’oublies, nous ne pouvons pas récupérer ta sauvegarde. Conserve une copie du fichier ailleurs. Toute personne ayant accès à ce navigateur peut voir qu’une sauvegarde existe.',
  password:'Ma phrase secrète (jamais enregistrée)',placeholder:'Phrase secrète unique · 12 caractères minimum',
  confirm:'Confirmer la phrase secrète (uniquement pour créer une sauvegarde)',confirmPlaceholder:'Répéter la phrase secrète pour enregistrer',mismatch:'Les deux phrases secrètes ne correspondent pas.',overwrite:'Une sauvegarde existe déjà sur cet appareil. Voulez-vous la remplacer ? L’ancienne ne pourra pas être récupérée.',
@@ -43,7 +44,7 @@ const vaultWords={
  },
  en:{
  eyebrow:'CONTINUITY · PRIVATE BACKUP',title:'An encrypted vault, no account needed.',
- intro:'Back up your pathway to an encrypted file, or voluntarily on this device. Nothing is synced online.',
+ intro:'Back up your pathway to an encrypted file or on this device. Remote storage is a separate, disabled-by-default option.',
  warning:'Choose a long unique passphrase (at least 12 characters). We cannot recover a forgotten passphrase. Keep another copy of the file elsewhere. Anyone with access to this browser can see that a backup exists.',
  password:'My passphrase (never stored)',placeholder:'Unique passphrase · at least 12 characters',
  confirm:'Confirm passphrase (only when creating a backup)',confirmPlaceholder:'Repeat the passphrase to save',mismatch:'The two passphrases do not match.',overwrite:'An encrypted backup already exists on this device. Replace it? The old backup cannot be recovered.',
@@ -116,6 +117,7 @@ function renderLocale(){
  document.documentElement.lang=locale;
  syncLanguage(locale);
  translateVault();
+ remoteUi.render();
  document.title=(locale==='en'?'My journey':'Mon parcours')+' | HUMAN FIRST';
  for(const element of document.querySelectorAll('[data-text]')){
    const key=element.dataset.text;
@@ -333,7 +335,8 @@ function savePortfolio(){
 }
 function applyImportedPortfolio(portfolio){
  // Build and validate the new plan before replacing the current in-memory state.
- const p=portfolio.profile;
+ // Preserve the currently selected UI language across imported portfolios.
+ const p={...portfolio.profile,locale};
  const restoredProgram=buildJourney(registry,p);
  if(program&&!window.confirm(vaultWords[locale].replace))return false;
  closeFormative();
@@ -486,6 +489,17 @@ $('vault-import-label').addEventListener('keydown',event=>{
 $('formative-close').addEventListener('click',closeFormative);
 $('formative-reveal').addEventListener('click',revealFormative);
 $('formative-save').addEventListener('click',saveFormative);
+const remoteUi=mountEncryptedRemoteSync({
+ lang:()=>locale,
+ busy:()=>vaultBusy,
+ createPlaintext:()=>program?exportPortfolio(registry,program.generatedFor,events,{formative}):null,
+ restorePlaintext:plain=>applyImportedPortfolio(restorePortablePortfolio(plain,registry,aliasManifest)),
+ getPassphrase:encryptedPassphrase,
+ getConfirmation:()=>$('vault-confirm').value,
+ clearPassphrases:()=>{$('vault-passphrase').value='';$('vault-confirm').value='';},
+ downloadCipher:downloadEncrypted,
+ confirm:message=>window.confirm(message)
+});
 $('lang').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
@@ -494,3 +508,4 @@ $('lang').addEventListener('click',()=>{
   relocalizeActiveFormative();
 });
 renderLocale();
+void remoteUi.initialize();

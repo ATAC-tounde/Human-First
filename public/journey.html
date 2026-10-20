@@ -107,6 +107,28 @@
         <p id="vault-status" class="vault-status" role="status" aria-live="polite"></p>
         <p class="vault-note" id="vault-note">Cette sauvegarde n'est ni automatique ni certifiée. Le stockage du navigateur peut être effacé par le système : garde une copie externe.</p>
       </section>
+
+      <section id="remote-sync-panel" class="vault-panel remote-sync-panel" aria-labelledby="remote-sync-heading">
+        <div>
+          <p class="eyebrow" id="remote-sync-eyebrow">V1.2 · SYNCHRONISATION CHIFFRÉE FACULTATIVE</p>
+          <h2 id="remote-sync-heading">Une copie distante, sous ton contrôle.</h2>
+          <p id="remote-sync-intro">Pilote expérimental : seule une sauvegarde déjà chiffrée peut être envoyée sur un serveur configuré. Aucun compte ni synchronisation automatique.</p>
+          <p class="privacy" id="remote-sync-warning">Le code de jumelage donne accès à la sauvegarde chiffrée et permet de la remplacer ou de l’effacer. Ne le partage pas. La phrase secrète du chiffrement est différente. Si tu perds les deux, aucune récupération n’est possible. Pas de synchronisation si le serveur est désactivé.</p>
+          <p id="remote-sync-availability" role="status" aria-live="polite">Vérification du serveur de sauvegarde…</p>
+        </div>
+        <label for="remote-sync-key" id="remote-sync-key-label" class="vault-passphrase">Code de jumelage privé (32 octets aléatoires)</label>
+        <input type="password" id="remote-sync-key" autocomplete="off" spellcheck="false" maxlength="48" placeholder="hfs1_..." aria-describedby="remote-sync-warning">
+        <div class="vault-actions">
+          <button type="button" id="remote-sync-generate" class="secondary" disabled>Créer un nouveau code</button>
+          <button type="button" id="remote-sync-reveal" class="secondary" disabled>Afficher / masquer le code</button>
+          <button type="button" id="remote-sync-upload" class="primary" disabled>Envoyer une copie chiffrée</button>
+          <button type="button" id="remote-sync-download" class="secondary" disabled>Télécharger la copie distante</button>
+          <button type="button" id="remote-sync-restore" class="secondary" disabled>Restaurer ma copie distante</button>
+          <button type="button" id="remote-sync-delete" class="secondary" disabled>Effacer la copie distante</button>
+        </div>
+        <p id="remote-sync-status" role="status" aria-live="polite"></p>
+        <p class="vault-note" id="remote-sync-note">Aucun code de jumelage n’est enregistré sur l’appareil par HUMAN FIRST. Cette version pilote nécessite un serveur Node unique avec stockage durable, sous HTTPS. Elle est désactivée par défaut, y compris sur Vercel.</p>
+      </section>
     </main>
     <footer><strong>HUMAN FIRST</strong><span data-text="footer">18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.</span><small>V1.1 Alpha</small></footer>
   </div>
