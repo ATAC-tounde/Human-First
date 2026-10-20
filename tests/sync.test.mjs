@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {mkdtemp,readdir,readFile,rm} from 'node:fs/promises';
+import {mkdtemp,readdir,readFile,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {webcrypto} from 'node:crypto';
@@ -10,7 +10,8 @@ import {fileURLToPath} from 'node:url';
 import {dirname} from 'node:path';
 import {createEncryptedSyncStore,vaultFileName,validateSyncKey} from '../server/sync-store.mjs';
 import {handleEncryptedSync,syncConfigured,secureRequest} from '../server/sync-routes.mjs';
-import {generateSyncKey,readRemoteBackup,writeRemoteBackup,deleteRemoteBackup,remoteSyncConfig} from '../public/journey/sync-client.mjs';
+import {generateSyncKey,readRemoteBackup,writeRemoteBackup,deleteRemoteBackup,remoteSyncConfig,REMOTE_SYNC_KEY_PATTERN} from '../public/journey/sync-client.mjs';
+import {mountEncryptedRemoteSync} from '../public/journey/remote-ui.mjs';
 import {encryptPortfolio,decryptPortfolio} from '../public/journey/vault.mjs';
 import {createRegistry,exportPortfolio} from '../public/journey/engine.mjs';
 import {installedPacks} from '../public/journey/packs.mjs';
@@ -24,6 +25,9 @@ test('V1.2: capability tokens are 256-bit, canonical, and never used as storage 
  assert.match(key,/^hfs1_[A-Za-z0-9_-]{43}$/);
  assert.equal(validateSyncKey(key),key);
  assert.notEqual(key,key2);
+ const malformed=key.slice(0,-1)+'B';
+ assert.equal(REMOTE_SYNC_KEY_PATTERN.test(malformed),false,'Noncanonical base64url must be rejected locally');
+ assert.throws(()=>validateSyncKey(malformed));
  const path=vaultFileName(key);
  assert.match(path,/^[a-f0-9]{64}\.vault$/);
  assert.ok(!path.includes(key));
@@ -97,6 +101,7 @@ test('V1.2: spoofing Host localhost from a public socket never bypasses TLS',()=
  assert.equal(secureRequest(req('localhost:4173','203.0.113.50','10.0.0.4')),false);
  assert.equal(secureRequest(req('127.0.0.1:4173','203.0.113.50','127.0.0.1')),false);
  assert.equal(secureRequest(req('127.0.0.1:4173','127.0.0.1','127.0.0.1')),true);
+ assert.equal(secureRequest(req('[::1]:4173','::1','::1')),true,'Bracketed IPv6 loopback is allowed for local HTTP');
  assert.equal(secureRequest(req('public.example','203.0.113.50','10.0.0.4',true)),true);
  const before=process.env.TRUST_PROXY,oldPeer=process.env.HF_SYNC_TRUSTED_PROXY_ADDRESS;
  try{
@@ -167,6 +172,67 @@ test('V1.2: end-to-end HTTP never receives portfolio plaintext, uses explicit pr
   if(savedVercel===undefined)delete process.env.VERCEL;else process.env.VERCEL=savedVercel;
   await rm(root,{recursive:true,force:true});
  }
+});
+test('V1.2: abandoned lock files cannot block a single-process pilot after restart',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'hf-sync-lock-'));
+ try{
+  const store=createEncryptedSyncStore(root);
+  const key=generateSyncKey(webcrypto);
+  const previousLegacyLock=join(root,vaultFileName(key)+'.lock');
+  await writeFile(previousLegacyLock,'orphaned after process crash');
+  const cipher=await encryptPortfolio(plain,password,{crypto:webcrypto});
+  const created=await store.put(key,cipher,'*');
+  assert.match(created.revision,/^"[a-f0-9]{64}"$/);
+  assert.equal((await store.get(key)).content,cipher);
+  await store.delete(key,created.revision);
+  assert.equal(await store.get(key),null);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test('V1.2: remote UI initializes once, makes no backup request on load or locale change, and translates live status',async()=>{
+ const requests=[];
+ const oldFetch=globalThis.fetch;
+ globalThis.fetch=async(url,options={})=>{
+  requests.push({url,method:options.method});
+  if(url==='/api/sync/config')return {ok:true,json:async()=>({enabled:true,kind:'encrypted-capability-pilot'})};
+  if(url==='/api/sync/v1')return {ok:false,status:404};
+  throw new Error('Unexpected request '+url);
+ };
+ const nodes=new Map();
+ const root={
+  getElementById(id){
+   if(!nodes.has(id))nodes.set(id,{
+    textContent:'',value:'',type:'password',disabled:true,
+    handlers:{},
+    addEventListener(name,callback){this.handlers[name]=callback;},
+    click(){return this.handlers.click?.();},
+    focus(){},select(){}
+   });
+   return nodes.get(id);
+  }
+ };
+ let locale='fr';
+ try{
+  const remote=mountEncryptedRemoteSync({
+   root,lang:()=>locale,createPlaintext:()=>null,restorePlaintext:()=>true,
+   getPassphrase:()=>password,getConfirmation:()=>password,
+   clearPassphrases:()=>{},downloadCipher:()=>{},confirm:()=>true
+  });
+  assert.equal(requests.length,0,'Mount must not inspect or upload learner backups');
+  await remote.initialize();
+  assert.deepEqual(requests.map(r=>r.url),['/api/sync/config']);
+  remote.render();
+  locale='en';remote.render();
+  assert.equal(requests.length,1,'Locale render never performs remote backup transfers');
+  root.getElementById('remote-sync-key').value=generateSyncKey(webcrypto);
+  await root.getElementById('remote-sync-download').click();
+  assert.equal(requests.length,2,'Explicit click alone triggers a remote backup GET');
+  assert.deepEqual(requests[1],{url:'/api/sync/v1',method:'GET'});
+  assert.match(root.getElementById('remote-sync-status').textContent,/Operation refused/);
+  locale='fr';remote.render();
+  assert.match(root.getElementById('remote-sync-status').textContent,/Opération refusée/);
+  assert.equal(requests.length,2,'Changing language must not repeat remote requests');
+ }finally{globalThis.fetch=oldFetch;}
 });
 test('V1.2: UI keeps remote sync explicitly opt-in and 6 learning spaces unchanged',async()=>{
  const base=join(dirname(fileURLToPath(import.meta.url)),'..');
