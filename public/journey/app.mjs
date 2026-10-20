@@ -5,6 +5,7 @@ import {normalizeAliasManifest} from './continuity.mjs';
 import {restorePortablePortfolio} from './restore.mjs';
 import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs';
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
+import {mountEncryptedRemoteSync} from './remote-ui.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -116,6 +117,7 @@ function renderLocale(){
  document.documentElement.lang=locale;
  syncLanguage(locale);
  translateVault();
+ remoteUi.render();
  document.title=(locale==='en'?'My journey':'Mon parcours')+' | HUMAN FIRST';
  for(const element of document.querySelectorAll('[data-text]')){
    const key=element.dataset.text;
@@ -490,7 +492,19 @@ $('lang').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
   locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
-  renderLocale();
+  const remoteUi=mountEncryptedRemoteSync({
+ lang:()=>locale,
+ busy:()=>vaultBusy,
+ createPlaintext:()=>program?exportPortfolio(registry,program.generatedFor,events,{formative}):null,
+ restorePlaintext:plain=>applyImportedPortfolio(restorePortablePortfolio(plain,registry,aliasManifest)),
+ getPassphrase:encryptedPassphrase,
+ getConfirmation:()=>$('vault-confirm').value,
+ clearPassphrases:()=>{$('vault-passphrase').value='';$('vault-confirm').value='';},
+ downloadCipher:downloadEncrypted,
+ confirm:message=>window.confirm(message)
+});
+remoteUi.initialize();
+renderLocale();
   relocalizeActiveFormative();
 });
 renderLocale();

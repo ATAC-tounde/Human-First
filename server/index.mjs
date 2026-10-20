@@ -48,6 +48,7 @@ const publicFiles = {
   '/journey/vault.mjs': ['journey/vault.mjs', 'text/javascript; charset=utf-8'],
   '/journey/device-vault.mjs': ['journey/device-vault.mjs', 'text/javascript; charset=utf-8'],
   '/journey/sync-client.mjs': ['journey/sync-client.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/remote-ui.mjs': ['journey/remote-ui.mjs', 'text/javascript; charset=utf-8'],
   '/studio': ['studio.html', 'text/html; charset=utf-8'],
   '/studio.html': ['studio.html', 'text/html; charset=utf-8'],
   '/studio/studio.css': ['studio/studio.css', 'text/css; charset=utf-8'],
