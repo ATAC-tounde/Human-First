@@ -56,15 +56,19 @@ test('V1.2: filesystem store prevents overwrites, ensures immutable concurrent r
   assert.equal([left,right].filter(x=>x.status==='rejected'&&x.reason.httpCode===412).length,1);
   const fresh=(await store.get(key)).revision;
   assert.notEqual(updated.revision,created.revision);
+  assert.notEqual(fresh,created.revision,'Even replaying old identical ciphertext must never recycle ETag');
   await assert.rejects(store.delete(key,created.revision),e=>e.httpCode===412);
-  assert.equal((await store.get(key)).content,b);
+  assert.ok([a,b].includes((await store.get(key)).content));
   const names=await readdir(root);
   assert.equal(names.filter(n=>n.endsWith('.vault')).length,1);
   assert.ok(names.every(n=>!n.includes(key)));
   const stored=await readFile(join(root,names[0]),'utf8');
   assert.ok(!stored.includes(profile.qualification));
   assert.ok(!stored.includes(profile.occupation));
-  assert.equal(await decryptPortfolio(stored,password,{crypto:webcrypto}),plain);
+  const slot=JSON.parse(stored);
+  assert.equal(slot.schema,'hf.remote.slot.v1');
+  assert.equal(slot.revision,fresh);
+  assert.equal(await decryptPortfolio(slot.content,password,{crypto:webcrypto}),plain);
   await store.delete(key,fresh);
   assert.equal(await store.get(key),null);
  }finally{await rm(root,{recursive:true,force:true});}
