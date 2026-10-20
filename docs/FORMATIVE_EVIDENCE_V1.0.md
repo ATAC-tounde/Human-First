@@ -27,3 +27,22 @@ Les quatre démonstrateurs portent sur la vérification des affirmations, la cau
 Exécuter `npm run check`. Dans `/journey`, choisir « Fondamentaux du raisonnement », ouvrir un atelier, rédiger une réponse, révéler les critères, noter une auto-réflexion, exporter : **aucune trace de la réponse rédigée dans le JSON**. Importer l'export et vérifier que le nombre d'observations est repris, changer de langue puis recommencer. Dans `/studio`, concevoir une compétence à activité formative, valider, faire une revue et exporter un pack JSON. Réimporter ce pack dans JOURNEY.
 
 Les tests Node sont nécessaires mais non suffisants : vérifier clavier, zoom 200 %, lecteur d'écran, Firefox/Chromium et responsive en conditions réelles. Le blocage précédent du Container Registry Vercel doit être résolu pour permettre la recette Preview. **Aucune migration de base de données** n'est effectuée par cette PR.
+
+
+## Continuité des acquis entre versions de référentiels
+
+La V1.0 inclut `public/journey/continuity.mjs` avec un **plan de migration explicite** : une table JSON associe, sans approximation, les anciens IDs de parcours/compétences aux nouveaux IDs validés par le référentiel actuellement chargé. Un format d'exemple :
+
+```json
+{
+  "schema":"hf.portfolio.aliases.v1",
+  "fromCatalogVersion":"core@0.7.0|study@1.0.0|work@1.0.0|life@1.0.0",
+  "toCatalogVersion":"core@1.0.0|study@1.0.0|work@1.0.0|life@1.0.0",
+  "competencies":[{"from":"core.old-evidence","to":"core.evidence"}],
+  "pathways":[{"from":"core.old-foundations","to":"core.foundations"}]
+}
+```
+
+Un auteur ou éditeur doit **justifier sémantiquement** chaque équivalence avant de diffuser sa table. La V1.0 ne cherche jamais un équivalent automatiquement et refuse les chaînes, collisions, destinations inconnues et versions non concordantes. Si une observation ne peut pas être réconciliée, **tout l'import est refusé**, sans supprimer silencieusement les données ni changer le fichier original. Les versions de tâches formatives restent contrôlées, et une nouvelle tâche exige une nouvelle auto-réflexion.
+
+Dans JOURNEY, l'apprenant peut charger facultativement ce JSON dans « Table d’équivalences » puis importer son ancien portfolio. Tout fonctionne localement, sans requête et sans conservation en dehors de l'onglet. Recharger d'abord le pack externe correspondant si les référentiels ont changé. L'ancienne importation sans table fonctionne comme auparavant.
