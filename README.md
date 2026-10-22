@@ -1,4 +1,4 @@
-# HUMAN FIRST — THINK FIRST 0.3
+# HUMAN FIRST - THINK FIRST 0.3
 
 > **Avant la réponse, ta réflexion.** Prototype web pédagogique indépendant — aucun compte, aucune publicité, aucune API d'IA et aucune collecte scientifique.
 
