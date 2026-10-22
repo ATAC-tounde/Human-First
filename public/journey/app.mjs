@@ -82,7 +82,7 @@ function vaultStatus(message){$('vault-status').textContent=message;}
 const words={
 fr:{
  compassEyebrow:'V1.3 · BOUSSOLE PÉDAGOGIQUE',compassHeading:'Choisir ma prochaine pratique',
- compassLead:'Trois idées fondées sur ton objectif et tes propres étapes déclarées, sans classement de tes capacités. Tu peux suivre une autre piste à tout moment.',
+ compassLead:'Jusqu’à trois idées fondées sur ton objectif et tes propres étapes déclarées, sans classement de tes capacités. Tu peux suivre une autre piste à tout moment.',
  compassReminder:'Un lien de pilier ouvre son espace général, pas un exercice automatiquement attribué. Les propositions sont facultatives et restent dans cet onglet.',
  compassReview:'Tu as indiqué vouloir revoir cette compétence : essaie de la restituer sans aide.',
  compassDiscover:'Aucune étape déclarée ici : commence par questionner la situation.',
@@ -105,7 +105,7 @@ fr:{
 },
 en:{
  compassEyebrow:'V1.3 · LEARNING COMPASS',compassHeading:'Choose my next practice',
- compassLead:'Three ideas based on your chosen goal and your own declared steps, never a ranking of ability. You can take another route at any time.',
+ compassLead:'Up to three ideas based on your chosen goal and your own declared steps, never a ranking of ability. You can take another route at any time.',
  compassReminder:'Pillar links open the general learning space, not an automatically assigned exercise. All suggestions are optional and stay in this tab.',
  compassReview:'You chose “review later”: try recalling this skill without help.',
  compassDiscover:'No step declared yet: begin by questioning the situation.',
@@ -312,8 +312,10 @@ function renderCompass(){
   const actions=element('div','compass-actions');
   const skillLink=element('a',null,w('compassSkill'));
   skillLink.href='#skill-'+next.skillId;
+  skillLink.setAttribute('aria-label',w('compassSkill')+': '+next.title);
   const pillarLink=element('a',null,w('compassPillar')+' '+w('titles')[next.pillar]+' ↗');
   pillarLink.href=tags[next.pillar]+'?lang='+locale;
+  pillarLink.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[next.pillar]+': '+next.title);
   actions.append(skillLink,pillarLink);
   li.append(actions);
   list.append(li);
