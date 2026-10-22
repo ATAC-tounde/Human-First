@@ -31,7 +31,9 @@ test('V1.3: voluntary statuses guide modalities without grades or automatic lock
  const changed=[...history,event(ids[0],'review-later')];
  assert.equal(suggestPractice(plan,changed)[0].skillId,ids[0],
   'The latest explicitly chosen event wins in a deterministic tie');
- assert.equal(history.length,3,'Do not mutate self-reports');
+ assert.deepEqual(history,[
+  event(ids[0],'practiced'),event(ids[1],'explored'),event(ids[2],'review-later')
+ ],'Do not mutate self-reports, including their type, skillId and timestamp');
 });
 
 test('V1.3: age, degree and occupation do not influence the guidance; locale does',()=>{
@@ -51,6 +53,15 @@ test('V1.3: malformed inputs, caps and old unrelated evidence are handled withou
  const before=JSON.stringify(unrelated);
  assert.deepEqual(suggestPractice(plan,unrelated),suggestPractice(plan,[]));
  assert.equal(JSON.stringify(unrelated),before);
+ const extended={...plan,plan:Array.from({length:10},(_,index)=>({
+  ...plan.plan[index%plan.plan.length],
+  skillId:'extra.practice-'+index,
+  order:index+1
+ }))};
+ assert.equal(suggestPractice(extended,[],{limit:999}).length,5,
+  'A larger pathway must still enforce the five-item upper bound');
+ assert.equal(suggestPractice(extended,[]).length,3,
+  'Default suggestions stay capped at three');
  assert.equal(suggestPractice(plan,[],{limit:999}).length,Math.min(5,plan.plan.length));
  assert.equal(suggestPractice(plan,[],{limit:0}).length,1);
 });
