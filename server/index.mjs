@@ -42,6 +42,7 @@ const publicFiles = {
   '/journey/engine.mjs': ['journey/engine.mjs', 'text/javascript; charset=utf-8'],
   '/journey/packs.mjs': ['journey/packs.mjs', 'text/javascript; charset=utf-8'],
   '/journey/app.mjs': ['journey/app.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/compass.mjs': ['journey/compass.mjs', 'text/javascript; charset=utf-8'],
   '/journey/assessment.mjs': ['journey/assessment.mjs', 'text/javascript; charset=utf-8'],
   '/journey/continuity.mjs': ['journey/continuity.mjs', 'text/javascript; charset=utf-8'],
   '/journey/restore.mjs': ['journey/restore.mjs', 'text/javascript; charset=utf-8'],

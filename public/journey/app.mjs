@@ -6,6 +6,7 @@ import {restorePortablePortfolio} from './restore.mjs';
 import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs';
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
 import {mountEncryptedRemoteSync} from './remote-ui.mjs';
+import {suggestPractice} from './compass.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -80,6 +81,14 @@ function vaultStatus(message){$('vault-status').textContent=message;}
 
 const words={
 fr:{
+ compassEyebrow:'V1.3 · BOUSSOLE PÉDAGOGIQUE',compassHeading:'Choisir ma prochaine pratique',
+ compassLead:'Jusqu’à trois idées fondées sur ton objectif et tes propres étapes déclarées, sans classement de tes capacités. Tu peux suivre une autre piste à tout moment.',
+ compassReminder:'Un lien de pilier ouvre son espace général, pas un exercice automatiquement attribué. Les propositions sont facultatives et restent dans cet onglet.',
+ compassReview:'Tu as indiqué vouloir revoir cette compétence : essaie de la restituer sans aide.',
+ compassDiscover:'Aucune étape déclarée ici : commence par questionner la situation.',
+ compassPractice:'Tu l’as explorée : essaie une mise en pratique attentive.',
+ compassTransfer:'Tu as déclaré une pratique : essaie de décider dans un autre contexte.',
+ compassSkill:'Voir les quatre activités de cette compétence',compassPillar:'Explorer',
  skip:'Aller au contenu',journeyNav:'PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V0.8',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
  noScore:'✓ Sans notation automatisée',noAccount:'✓ Sans compte',portable:'✓ Exportable et modifiable',foundationTitle:'L’IDÉE CENTRALE',foundationHeading:'Des compétences, pas des cases.',foundationCopy:'Aucun métier, diplôme, pays ou domaine n’est intégré en dur au moteur. De nouveaux référentiels s’ajoutent comme modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.',
  packTitle:'Ajouter un référentiel pédagogique',packHelp:'Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.',packImport:'Importer un pack JSON',packAdded:'Référentiel importé dans cet onglet. Contenu non certifié : contrôle pédagogique nécessaire.',packFailed:'Référentiel refusé : ',
@@ -95,6 +104,14 @@ fr:{
  suggestion:'Suggestion pédagogique : pas une obligation.',selfReport:'Auto-déclaration uniquement, aucune certification.'
 },
 en:{
+ compassEyebrow:'V1.3 · LEARNING COMPASS',compassHeading:'Choose my next practice',
+ compassLead:'Up to three ideas based on your chosen goal and your own declared steps, never a ranking of ability. You can take another route at any time.',
+ compassReminder:'Pillar links open the general learning space, not an automatically assigned exercise. All suggestions are optional and stay in this tab.',
+ compassReview:'You chose “review later”: try recalling this skill without help.',
+ compassDiscover:'No step declared yet: begin by questioning the situation.',
+ compassPractice:'You explored this skill: try focused practice.',
+ compassTransfer:'You declared practice: try making a choice in a different context.',
+ compassSkill:'See all four activities for this skill',compassPillar:'Explore',
  skip:'Skip to content',journeyNav:'JOURNEY',eyebrow:'THE LEARNING KERNEL · V0.8',heroOne:'A pathway shaped by you.',heroTwo:'Free to change as you grow.',heroLead:'Your goals change throughout life. Skills and four pillars can evolve with you, without reducing your potential to an age or a degree.',
  noScore:'✓ No automatic grading',noAccount:'✓ No account',portable:'✓ Portable and editable',foundationTitle:'THE CORE IDEA',foundationHeading:'Competencies, not labels.',foundationCopy:'No occupation, degree, country or field is hard-coded into the engine. New versioned content packs can add explicit prerequisites and activities across the four pillars.',
  packTitle:'Add a learning content pack',packHelp:'Import a declarative JSON pack from your device: it will be validated, used in this tab only, and never automatically published.',packImport:'Import a JSON pack',packAdded:'Pack available in this tab. Not certified: educational review required.',packFailed:'Pack rejected: ',
@@ -276,6 +293,35 @@ function saveFormative(){
  }catch(e){message(String(e.message||e));}
 }
 
+function renderCompass(){
+ const list=$('compass-list');
+ list.replaceChildren();
+ const reasonTexts={
+  review:'compassReview',discover:'compassDiscover',
+  practice:'compassPractice',transfer:'compassTransfer'
+ };
+ for(const next of suggestPractice(program,events)){
+  const li=element('li','compass-card');
+  const heading=element('div','compass-card-heading');
+  heading.append(element('strong',null,next.title),
+   element('span','badge',w('titles')[next.pillar]));
+  li.append(heading);
+  li.append(element('p','compass-reason',w(reasonTexts[next.reason])));
+  li.append(element('p','compass-activity',next.activity));
+  if(next.context)li.append(element('p','context',w('context')+' '+next.context));
+  const actions=element('div','compass-actions');
+  const skillLink=element('a',null,w('compassSkill'));
+  skillLink.href='#skill-'+next.skillId;
+  skillLink.setAttribute('aria-label',w('compassSkill')+': '+next.title);
+  const pillarLink=element('a',null,w('compassPillar')+' '+w('titles')[next.pillar]+' ↗');
+  pillarLink.href=tags[next.pillar]+'?lang='+locale;
+  pillarLink.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[next.pillar]+': '+next.title);
+  actions.append(skillLink,pillarLink);
+  li.append(actions);
+  list.append(li);
+ }
+}
+
 function renderProgram(){
  if(!program)return;
  // Recompute on locale toggle, keeping the learner-selected profile and events intact.
@@ -288,7 +334,7 @@ function renderProgram(){
  $('program-estimate').textContent=w('estimate')(program.workload.totalMinutesIndicative,program.workload.minutesPerWeek);
  const list=$('program-list');list.replaceChildren();
  program.plan.forEach(item=>{
-  const li=element('li','program-card');
+  const li=element('li','program-card');li.id='skill-'+item.skillId;li.tabIndex=-1;
   const top=element('div','card-top');const n=element('span','card-index',String(item.order).padStart(2,'0'));
   const title=element('div');title.append(element('h3',null,item.title),element('p',null,item.outcome));top.append(n,title);li.append(top);
   const badges=element('div','badges');
@@ -321,6 +367,7 @@ function renderProgram(){
   }
   list.append(li);
  });
+ renderCompass();
 }
 function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
 function savePortfolio(){
