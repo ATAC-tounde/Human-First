@@ -7,10 +7,10 @@ Faire passer le parcours universel de la simple liste de compétences à une pro
 Module : `public/journey/compass.mjs`, fonction pure `suggestPractice(journey,evidence,{limit})`.
 
 - Entrées : plan déjà construit par `buildJourney` et événements existants `explored`, `practiced`, `review-later` (la dernière déclaration pour une compétence prévaut).
-- Sortie : jusqu'à trois idées par défaut (maximum cinq sur appel explicite) : compétence, modalité parmi THINK/FOCUS/LEARN/DECIDE, activité issue du pack, contexte existant, raison explicable et lien vers la compétence entière.
+- Sortie : jusqu'à trois idées par défaut (maximum cinq sur appel explicite) : compétence, modalité parmi THINK/FOCUS/LEARN/DECIDE, activité issue du pack, contexte existant, raison explicable. L'interface construit séparément le lien vers la compétence entière à partir de son identifiant.
 - Règles : `review-later` -> **LEARN** (se rappeler / réviser), aucune étape -> **THINK** (questionner), `explored` -> **FOCUS** (appliquer), `practiced` -> **DECIDE** (transférer). Si plusieurs compétences ont la même priorité, l'ordre topologique du parcours prévaut.
 - Ces états indiquent ce que l'apprenant **a déclaré**, pas ce qu'il sait réellement faire. Une compétence déjà pratiquée n'est jamais retirée du programme, ni certifiée ou verrouillée.
-- La préférence linguistique s'applique aux textes, aux activités et aux liens FR/EN. Diplôme, âge, métier, identité et texte libre ne servent pas à classer ou discriminer les personnes.
+- La préférence linguistique s'applique aux textes, aux activités et aux liens FR/EN. La situation sélectionnée peut contextualiser le texte affiché sans influencer l'ordre des suggestions. Diplôme, âge, métier, identité et texte libre ne servent pas à classer ou discriminer les personnes.
 
 ## Vérité de l'interface
 Une activité de la boussole est l'instruction pédagogique du **pack**, pas un exercice déjà sélectionné dans les catalogues des piliers. Les liens THINK, FOCUS, LEARN et DECIDE ouvrent volontairement les **espaces généraux**. Un lien distinct mène à la fiche détaillée de la compétence et de ses quatre pistes. La boussole n'annonce ni validation ni transfert d'étape automatique.
@@ -20,7 +20,7 @@ Aucune nouvelle API, base de données, analyse comportementale, session, cookie,
 
 ## Recette
 1. Faire `npm run check`. Les tests `tests/compass.test.mjs` vérifient la sélection stable, le rôle des quatre modalités, la langue, la non-discrimination par âge/diplôme/métier et les états de retour.
-2. Dans `/journey`, confirmer l'accès majeur, choisir un parcours et générer. La boussole présente trois suggestions; toutes les compétences restent visibles plus bas.
+2. Dans `/journey`, confirmer l'accès majeur, choisir un parcours et générer. La boussole présente jusqu'à trois suggestions; toutes les compétences restent visibles plus bas.
 3. Marquer volontairement une compétence « À revoir », une autre « Exploré », une troisième « Exercé ». Vérifier que les raisons et modalités se mettent à jour sans perdre les déclarations.
 4. Basculer EN puis FR. Vérifier les liens, consignes et explications, sans réinitialiser l'historique.
 5. Exporter puis importer un portfolio, répéter les observations; vérifier qu'aucun texte libre n'est transmis ou conservé.
