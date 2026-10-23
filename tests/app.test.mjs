@@ -215,7 +215,7 @@ test('accueil bilingue avec paramètres d’URL et fichiers statiques disponible
 
 test('aucune session chiffrée n’est activée sur Vercel sans secret',async()=>{
   const port=await freePort();const host=`http://127.0.0.1:${port}`;
-  const environment={...process.env,HOST:'127.0.0.1',PORT:String(port),VERCEL:'1',NODE_ENV:'production'};
+  const environment={...process.env,HOST:'127.0.0.1',PORT:String(port),VERCEL:'1',NODE_ENV:'production',THINK_FIRST_RUN_TEST_SERVER:'1'};
   delete environment.HF_SESSION_SECRET;
   const isolated=spawn(process.execPath,['server/index.mjs'],{env:environment,stdio:'ignore'});
   try {

@@ -124,7 +124,7 @@ function response(session,{attempt='',transferAnswer=''}={}) {
       hintsUsed:session.hintsUsed,attempted:session.attempted,skipped:session.skipped,transferAnswered:session.transferAnswered}};
   return common;
 }
-const app=createServer(async(req,res)=>{
+export async function handleRequest(req,res){
   try {
     const url=new URL(req.url||'/','http://localhost');
     if(await handleEncryptedSync(req,res,url))return;
@@ -233,8 +233,11 @@ const app=createServer(async(req,res)=>{
   }catch(error) {
     if(!res.headersSent)reject(res,error.httpCode||500,error.httpCode?error.message:'Erreur interne.');
   }
-});
-if(process.env.NODE_ENV!=='test'||process.env.THINK_FIRST_RUN_TEST_SERVER==='1') {
+}
+// Keep the standalone HTTP server for npm start and Docker. Vercel imports only
+// handleRequest from api/index.mjs and must never open a listening socket.
+const app=createServer(handleRequest);
+if(process.env.THINK_FIRST_RUN_TEST_SERVER==='1'||(!process.env.VERCEL && process.env.NODE_ENV!=='test')) {
   app.listen(PORT,HOST,()=>console.log(`THINK FIRST : http://${HOST}:${PORT}`));
 }
 export {app};

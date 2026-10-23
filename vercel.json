@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.mjs": {
+      "includeFiles": "server/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index?__hf_route=:path*"
+    },
+    {
+      "source": "/focus",
+      "destination": "/focus.html"
+    },
+    {
+      "source": "/learn",
+      "destination": "/learn.html"
+    },
+    {
+      "source": "/decide",
+      "destination": "/decide.html"
+    },
+    {
+      "source": "/journey",
+      "destination": "/journey.html"
+    },
+    {
+      "source": "/studio",
+      "destination": "/studio.html"
+    }
+  ]
+}
