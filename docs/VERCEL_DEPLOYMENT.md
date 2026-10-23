@@ -21,8 +21,25 @@ Le projet Vercel **human-first** avait le préréglage **container**. Les déplo
 5. Après revue et tests de Preview, fusionner la PR vers `main` pour déclencher une nouvelle construction **Production**. Vérifier un déploiement `READY`, le commit exact, l'assignation de domaine, puis tester les URL publiques et les erreurs d'exécution.
 6. Éviter de déclencher un déploiement à chaque fichier : la fréquence excessive peut provoquer des limites de construction sur les comptes Hobby.
 
-## Point de vigilance sur les domaines
-Au diagnostic, Vercel associait `human-first-alpha.vercel.app` **et** `atac-academy.site` / `www.atac-academy.site` au même projet `human-first`. Comme ATAC Academy est aussi un produit autonome, **vérifier explicitement l'attribution de ces domaines avant toute promotion publique**. Une promotion Production met à jour **tous les domaines de ce projet** : il faut éviter d'écraser le site ATAC Academy par erreur.
+## Séparation des domaines et mise en production automatique
+
+**État vérifié le 23 octobre 2026** : les deux domaines `atac-academy.site` et `www.atac-academy.site` ont été retirés de la configuration de domaines du projet Vercel `human-first`. Le **seul domaine de projet personnalisé restant** est `human-first-alpha.vercel.app`. L'attribution automatique des domaines aux nouveaux déploiements de production a été réactivée **après cette vérification**.
+
+| Produit | Dépôt source | Plateforme de production | Domaine |
+| --- | --- | --- | --- |
+| HUMAN FIRST | `ATAC-tounde/Human-First` | Vercel `human-first` | `human-first-alpha.vercel.app` |
+| ATAC Academy | `ATAC-tounde/istqb-certification-academy` | Cloudflare Workers + D1 | `atac-academy.site` |
+
+Les futures fusions de la branche `main` de HUMAN FIRST déclenchent la construction Vercel native. Le domaine HUMAN FIRST doit être automatiquement associé au nouveau déploiement `READY`; une PR doit d'abord passer ses contrôles GitHub Actions et la recette nécessaire. Le CI/CD ATAC Academy est **indépendant** et utilise Cloudflare Workers Builds.
+
+**Invariants de sécurité à contrôler avant chaque mise en production** :
+- Les domaines ATAC Academy ne doivent **jamais** réapparaître dans `Settings > Domains` du projet Vercel `human-first`.
+- Ne pas créer d'alias Vercel `atac-academy.site` ni rediriger le DNS Cloudflare d'ATAC Academy vers HUMAN FIRST.
+- Vérifier le commit de la nouvelle production sur `human-first-alpha.vercel.app` après chaque fusion.
+- Le statut `READY` signifie déploiement construit, **pas** recette HTTP/applicative complète.
+- Ne pas activer le service expérimental de synchronisation distante sur un stockage éphémère.
+
+**Historique** : avant la séparation, les anciennes associations Vercel ATAC Academy pointaient vers le déploiement HUMAN FIRST historique `ccd106e5b671`. Ce lien ne doit pas servir de base à une restauration d'ATAC Academy. Sa source de vérité est Cloudflare Workers, pas Vercel.
 
 ## Retour arrière
 Si le déploiement natif pose problème, utiliser l'historique de Vercel pour revenir au dernier déploiement fonctionnel. Une rétrogradation Git sans déploiement fonctionnel n'est pas suffisante. Ne pas déclencher de promotion d'une Preview non recettée.
