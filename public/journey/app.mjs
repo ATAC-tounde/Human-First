@@ -107,11 +107,13 @@ fr:{
  filterLabel:'Étape déclarée',filterAll:'Toutes les compétences',filterNew:'Sans étape déclarée',
  filterExplored:'Explorées',filterPracticed:'Pratiquées',filterReview:'À revoir',
  searchEmpty:'Aucune compétence ne correspond. Modifie ta recherche ou ton filtre.',
+ dashboardMetricsAria:'Récapitulatif des étapes déclarées',practicePillarsAria:'Choisir une modalité de pratique',
+ practiceProgressAria:'Étapes personnelles facultatives',searchGroupAria:'Retrouver mes compétences',
  libraryResume:'Ouvrir le parcours',
  libraryHeading:'Bibliothèques prêtes à charger',
  libraryIntro:"Choisis une bibliothèque : un clic l'ajoute à tes objectifs. Ces exemples pédagogiques FR/EN ne sont ni certifiés ni évalués par des experts. Ils restent dans cet onglet.",
  libraryDownload:'Télécharger un exemple JSON',libraryStudio:'Créer ma bibliothèque dans Studio ↗',
- libraryNote:"Les bibliothèques ajoutées disparaissent à la fermeture ou au rechargement de cet onglet. Pour les retrouver, recharge un pack JSON sauvegardé. Aucun fichier externe n'est téléchargé automatiquement.",
+ libraryNote:"Les bibliothèques ajoutées disparaissent en actualisant cet onglet. Avant de reprendre un portfolio exporté, recharge les mêmes bibliothèques (ou packs JSON) dans le même ordre. Aucun fichier externe n'est téléchargé automatiquement.",
  libraryReady:'Bibliothèque chargée. Tu peux choisir son parcours ci-dessus.',libraryError:'Impossible de charger cette bibliothèque : ',
  packTitle:'Ajouter un référentiel pédagogique',packHelp:'Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.',packImport:'Importer un pack JSON',packAdded:'Référentiel importé dans cet onglet. Contenu non certifié : contrôle pédagogique nécessaire.',packFailed:'Référentiel refusé : ',
  builderEyebrow:'ATELIER DE PARCOURS',builderTitle:'Construire mon programme',adultTitle:'Accès au prototype',adultNotice:'Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.',stageTitle:'Ma situation actuelle',stagePersonal:'Apprendre par intérêt personnel',stageSchool:'Reprise d’études à l’âge adulte',stageHigher:'Études supérieures',stageWork:'Vie professionnelle',stageTransition:'Reconversion / transition',stageTeaching:'Enseignement / formation',ageTitle:'Tranche d’âge (facultatif)',ageUnspecified:'Je préfère ne pas préciser',ageHelp:'Jamais utilisée pour déduire tes capacités.',qualificationTitle:'Études / diplôme (facultatif)',qualificationHelp:'Description libre, non utilisée comme classement.',occupationTitle:'Métier / domaine (facultatif)',occupationHelp:'Pour préciser ton contexte, sans limiter les choix.',paceTitle:'Temps souhaité par semaine',pace30:'30 minutes environ',pace60:'1 heure environ',pace120:'2 heures environ',pace180:'3 heures environ',paceHelp:'Simple repère facultatif, pas un chronomètre.',pathTitle:'Mon objectif d’apprentissage',familiarityTitle:'Ce que je connais déjà (facultatif)',familiarityHelp:'Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.',create:'Créer mon parcours ↗',clear:'Effacer cette séance',privacyNotice:'Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.',
@@ -148,11 +150,13 @@ en:{
  filterLabel:'Declared step',filterAll:'All skills',filterNew:'No step declared',
  filterExplored:'Explored',filterPracticed:'Practiced',filterReview:'Review later',
  searchEmpty:'No skills match. Change your search or filter.',
+ dashboardMetricsAria:'Self-declared steps summary',practicePillarsAria:'Choose a learning mode',
+ practiceProgressAria:'Optional personal progress markers',searchGroupAria:'Find my skills',
  libraryResume:'Open this pathway',
  libraryHeading:'Ready-to-use knowledge libraries',
  libraryIntro:'Choose a library: one click adds its learning goals. These bilingual demonstrations are not certified or independently reviewed. They stay in this tab.',
  libraryDownload:'Download a JSON example',libraryStudio:'Create my own library in Studio ↗',
- libraryNote:'Added libraries disappear when you reload or close this tab. Load a saved JSON pack to use it again. No external file is downloaded automatically.',
+ libraryNote:'Added libraries disappear when you reload this tab. Before restoring an exported portfolio, load the same libraries (or JSON packs) in the same order. No external files are downloaded automatically.',
  libraryReady:'Library loaded. You can select its pathway above.',libraryError:'Cannot load this library: ',
  packTitle:'Add a learning content pack',packHelp:'Import a declarative JSON pack from your device: it will be validated, used in this tab only, and never automatically published.',packImport:'Import a JSON pack',packAdded:'Pack available in this tab. Not certified: educational review required.',packFailed:'Pack rejected: ',
  builderEyebrow:'JOURNEY WORKSHOP',builderTitle:'Build my learning program',adultTitle:'Demo access',adultNotice:'I confirm that I am 18 or older. Learning paths for minors need additional safeguards.',stageTitle:'My current situation',stagePersonal:'Personal learning',stageSchool:'Returning to education as an adult',stageHigher:'Higher education',stageWork:'Professional life',stageTransition:'Career change / transition',stageTeaching:'Teaching / training',ageTitle:'Age band (optional)',ageUnspecified:'Prefer not to say',ageHelp:'Never used to infer your ability.',qualificationTitle:'Education / qualification (optional)',qualificationHelp:'Free description, not used as a ranking.',occupationTitle:'Occupation / field (optional)',occupationHelp:'Adds context without limiting your choices.',paceTitle:'Preferred time per week',pace30:'About 30 minutes',pace60:'About 1 hour',pace120:'About 2 hours',pace180:'About 3 hours',paceHelp:'Only a guide; never an enforced timer.',pathTitle:'My learning goal',familiarityTitle:'What I already know (optional)',familiarityHelp:'Self-description only, not a diagnostic or certificate. Every competency remains open.',create:'Create my pathway ↗',clear:'Erase this session',privacyNotice:'Your entries remain in this tab only. No profile is sent to a server. You can explicitly export a JSON file to return later.',
@@ -184,6 +188,10 @@ function renderLocale(){
  $('lang').textContent=locale==='en'?'FR':'EN';$('lang').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
  for(const pillar of PILLARS)$('link-'+pillar).href=tags[pillar]+'?lang='+locale;
  $('program-search').placeholder=w('searchPlaceholder');
+ $('dashboard-metrics').setAttribute('aria-label',w('dashboardMetricsAria'));
+ $('practice-pillar-choices').setAttribute('aria-label',w('practicePillarsAria'));
+ document.querySelector('.practice-declarations').setAttribute('aria-label',w('practiceProgressAria'));
+ document.querySelector('.program-tools').setAttribute('aria-label',w('searchGroupAria'));
  const qual=$('qualification'),occupation=$('occupation');
  qual.placeholder=locale==='en'?'Bachelor, vocational training, self-directed learning…':'Licence, BTS, formation libre…';
  occupation.placeholder=locale==='en'?'Laboratory, design, computing…':'Laboratoire, artisanat, informatique…';
@@ -219,7 +227,7 @@ function renderLibraryCards(){
 function openLibraryPath(library){
  const pathId=library.pack.pathways[0]?.id;
  if(!pathId||!registry.paths.has(pathId))return;
- $('path').value=pathId;renderFamiliarity();
+ $('path').value=pathId;renderPathways();
  if($('adult').checked)generate();
  else{$('adult').focus();message(w('noAge'));}
 }
@@ -230,7 +238,7 @@ function activatePack(pack,nextRegistry,targetPath){
  aliasManifest=null;$('alias-state').textContent='';
  renderLocale();
  if(targetPath&&registry.paths.has(targetPath)){
-  $('path').value=targetPath;renderFamiliarity();
+  $('path').value=targetPath;renderPathways();
   if($('adult').checked)generate();
  }else if(hadProgram)renderProgram();
 }
