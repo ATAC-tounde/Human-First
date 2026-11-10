@@ -1,3 +1,4 @@
+import {mountHeader} from './ui/header.mjs';
 import {focusCards,getFocusCard} from './focus-library.mjs';
 import {initialLanguage,syncLanguage} from './language.mjs';
 
@@ -5,6 +6,7 @@ import {initialLanguage,syncLanguage} from './language.mjs';
 // The shared module may save the non-personal FR/EN UI preference only.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
+mountHeader('focus',locale);
 let activeId=null;
 let phase='choose';
 const phrases={
@@ -100,7 +102,7 @@ function render(){
  txt('away-description',p.awayLead);txt('away-no-timer',p.awayNoTimer);txt('focus-return',p.comeBack);
  txt('reflect-label',p.reflect);txt('reflect-title',p.reflectTitle);txt('reflect-lead',p.reflectLead);
  txt('focus-reflection-label',p.notes);$('focus-reflection').placeholder=p.noteExample;txt('focus-end',p.finish);txt('focus-print',p.print);
- txt('focus-privacy',p.privacy);txt('focus-footer-text',p.footer);txt('nav-back-label',p.home);
+ txt('focus-privacy',p.privacy);txt('focus-footer-text',p.footer);txt('nav-back-label','THINK');
  txt('focus-language-switch',locale==='fr'?'EN':'FR');$('focus-language-switch').setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
  $('back-home').href=`/?lang=${locale}`;
  document.querySelector('.focus-learn-link').href=`/learn?lang=${locale}`;
