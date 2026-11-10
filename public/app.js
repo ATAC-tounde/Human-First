@@ -1,8 +1,10 @@
+import {mountHeader} from './ui/header.mjs';
 import {applyLocale,word} from './i18n.js';
 import {initialLanguage,syncLanguage} from './language.mjs';
 // Sans télémétrie : seuls les rappels facultatifs et la préférence UI FR/EN sont enregistrés.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
+mountHeader('think',locale);
 const w = (key) => word(locale,key);
 let state = {stage:'idle'};
 let catalog = [];
