@@ -116,14 +116,14 @@ test('V1.4: static action-label contract and scoped stylesheet on the two librar
   assert.ok(handler.includes("'"+asset+"'"),asset);
 });
 
-test('V1.4: static French and English My Journey navigation strings exist on all six spaces',async()=>{
- for(const page of ['index','focus','learn','decide','journey','studio']){
-  const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
-  assert.ok(markup.includes('MON PARCOURS'),page+' French navigation label');
- }
- for(const script of ['app.js','focus.js','learn.js','decide.js','journey/app.mjs']){
-  const code=await readFile(new URL('../public/'+script,import.meta.url),'utf8');
-  assert.ok(code.includes('MY JOURNEY'),script+' English navigation label');
+test('V1.4: one shared bilingual navigation model defines the same label in every space',async()=>{
+ const {headerModel}=await import('../public/ui/header.mjs');
+ for(const page of ['think','focus','learn','decide','journey','studio']){
+  const fr=headerModel(page,'fr'),en=headerModel(page,'en');
+  assert.equal(fr.links.find(x=>x.key==='journey').text,'MON PARCOURS');
+  assert.equal(en.links.find(x=>x.key==='journey').text,'MY JOURNEY');
+  assert.equal(fr.links.find(x=>x.key==='journey').href,'/journey?lang=fr');
+  assert.equal(en.links.find(x=>x.key==='journey').href,'/journey?lang=en');
  }
 });
 
