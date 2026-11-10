@@ -322,7 +322,8 @@ function record(skillId,type){
  if(fromCard){
   const next=[...document.querySelectorAll('#program-list button[data-progress-skill]')]
    .find(button=>button.dataset.progressSkill===skillId&&button.dataset.progressType===type);
-  next?.focus({preventScroll:true});
+  if(next)next.focus({preventScroll:true});
+  else $('program-visible-count').focus({preventScroll:true});
  }
 }
 // Formative work is deliberately not graded. The learner's writing only exists in
