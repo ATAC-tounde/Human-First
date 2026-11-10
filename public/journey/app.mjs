@@ -287,7 +287,13 @@ function readProfile(){
 function generate(){
  if(!$('adult').checked){message(w('noAge'));$('adult').focus();return;}
  try{
-  const profile=readProfile();program=buildJourney(registry,profile);message(w('success'));
+  const profile=readProfile();
+  const nextProgram=buildJourney(registry,profile);
+  if(program?.pathway.id!==nextProgram.pathway.id){
+   closePractice();
+   $('program-search').value='';$('program-filter').value='all';
+  }
+  program=nextProgram;message(w('success'));
   renderProgram();$('result').hidden=false;
   $('result-title').focus({preventScroll:true});$('result').scrollIntoView({behavior:'auto',block:'start'});
  }catch(error){message(w('invalid')+error.message);}
@@ -546,7 +552,14 @@ function renderProgram(){
  renderCompass();
  renderPractice();
 }
-function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderLibraryCards();renderPathways();message(w('cleared'));}
+function resetAll(){
+ closeFormative();closePractice();aliasManifest=null;$('alias-state').textContent='';
+ registry=createRegistry(installedPacks);importedPacks.length=0;
+ program=null;events=[];formative=[];familiarity={};
+ $('program-search').value='';$('program-filter').value='all';
+ $('profile-form').reset();$('result').hidden=true;
+ renderLibraryCards();renderPathways();message(w('cleared'));
+}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
@@ -563,7 +576,8 @@ function applyImportedPortfolio(portfolio){
  const p={...portfolio.profile,locale};
  const restoredProgram=buildJourney(registry,p);
  if(program&&!window.confirm(vaultWords[locale].replace))return false;
- closeFormative();
+ closeFormative();closePractice();
+ $('program-search').value='';$('program-filter').value='all';
  program=restoredProgram;
  events=portfolio.evidence;
  formative=portfolio.formative;
@@ -685,6 +699,23 @@ async function loadAliasFile(input){
 }
 
 $('profile-form').addEventListener('submit',e=>{e.preventDefault();generate();});
+$('dashboard-continue').addEventListener('click',()=>{
+ if(!program)return;
+ const next=suggestPractice(program,events,{limit:1})[0];
+ if(next)openPractice(next.skillId,next.pillar);
+});
+$('program-search').addEventListener('input',()=>{if(program)renderProgram();});
+$('program-filter').addEventListener('change',()=>{if(program)renderProgram();});
+$('practice-close').addEventListener('click',()=>{closePractice();$('dashboard-continue').focus({preventScroll:true});});
+for(const [id,type] of [['practice-mark-explored','explored'],['practice-mark-practiced','practiced'],['practice-mark-review','review-later']]){
+ $(id).addEventListener('click',()=>{if(activePractice)record(activePractice.skillId,type);});
+}
+$('practice-next').addEventListener('click',()=>{
+ if(!activePractice||!program)return;
+ const index=program.plan.findIndex(x=>x.skillId===activePractice.skillId);
+ const next=program.plan[index+1];
+ if(next)openPractice(next.skillId,choosePillar(next.skillId));
+});
 $('pack-file').addEventListener('change',e=>loadPack(e.target));
 $('path').addEventListener('change',()=>{$('path-help').textContent=local(registry.paths.get($('path').value).summary);renderFamiliarity();});
 $('stage').addEventListener('change',renderPathways);
