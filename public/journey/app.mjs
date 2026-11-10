@@ -11,7 +11,7 @@ import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './de
 import {mountEncryptedRemoteSync} from './remote-ui.mjs';
 import {suggestPractice} from './compass.mjs';
 import {selfReportedSummary,latestDeclarations,visibleSkills,practicePrompt} from './workspace.mjs';
-import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
+import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
 // No fetch(), analytics, AI call, cookie, localStorage or sessionStorage for these fields.
