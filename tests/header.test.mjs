@@ -21,6 +21,7 @@ test('Design: each page has identical navigation order, brand and logo',()=>{
    const model=headerModel(page,language);
    assert.deepEqual(model.links.map(x=>x.key),NAV);
    assert.equal(model.logo,'HF');
+   assert.equal(model.brand,language==='fr'?'INITIATIVE INDÉPENDANTE':'INDEPENDENT INITIATIVE');
    assert.equal(model.links.filter(x=>x.active).length,1);
    assert.equal(model.links.find(x=>x.key===page).active,true);
    assert.equal(model.links.find(x=>x.key==='method').href,page==='think'?'#method':'/?lang='+language+'#method');
@@ -112,6 +113,18 @@ test('Design: mounting a real DOM-like fixture preserves every page-specific nav
   const logo=nodes.find(x=>x.tag==='span'&&x.textContent==='HF');
   assert.ok(logo,'Same HF logo on '+page);
  }
+});
+
+test('Design: menu focuses first link and Escape returns focus to toggle',async()=>{
+ const {renderHeaderFixture}=await import('./helpers/header-fixture.mjs');
+ const view=renderHeaderFixture('think','fr');
+ const toggle=view.menu();
+ toggle.fire('click');
+ assert.equal(toggle.getAttribute('aria-expanded'),'true');
+ assert.equal(view.link('think').focused,true,'First link is keyboard-reachable');
+ view.header.fire('keydown',{key:'Escape'});
+ assert.equal(toggle.getAttribute('aria-expanded'),'false');
+ assert.equal(toggle.focused,true);
 });
 
 test('Design: decorative arrows are gone from all visible FR/EN screen copy and scripts',async()=>{
