@@ -135,13 +135,14 @@ test('V0.8: client has no learner-profile network transmission, analytics, or au
    assert.ok(!pattern.test(clean),`Forbidden profile transport/storage: ${pattern}`);
  assert.ok(js.includes("$('adult').checked"));
  assert.ok(js.includes('exportPortfolio('));
- assert.ok(js.includes('importPortfolio('));
+ assert.ok(js.includes('restorePortablePortfolio('),'Restores must use strict catalog compatibility checks');
 });
 
 test('V0.8: all four pillar apps link to the voluntary journey',async()=>{
  for(const path of ['/','/focus','/learn','/decide']){
    const r=await fetch(origin+path);assert.equal(r.status,200,path);
-   const page=await r.text();assert.ok(page.includes('/journey?lang='),path);
+   const page=await r.text();
+   assert.match(page,/<a\b[^>]*id="journey-nav-link"[^>]*href="\/journey(?:\?lang=(?:en|fr))?"[^>]*>/,path);
  }
 });
 

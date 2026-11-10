@@ -1,5 +1,7 @@
 /** HUMAN FIRST Studio. No fetch, external API, analytics or storage of authored content.\n * Only the two-letter interface language may be persisted locally. */
 import {installedPacks} from '../journey/packs.mjs';
+import '../ui/header.mjs';
+import {starterLibraries,libraryActions} from '../journey/libraries.mjs';
 import {initialLanguage} from '../language.mjs';
 import {studioText,renderStudioLanguage,refreshStudioPanels} from './translations.mjs';
 import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approveDocument,
@@ -14,6 +16,7 @@ const create=(tag,className,content)=>{const n=document.createElement(tag);if(cl
 const list=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
 const deep=x=>JSON.parse(JSON.stringify(x));
 let doc=makeDocument(),selection={kind:'pack',id:null},dirty=false;
+let activeTemplateId=null,activeTemplateAuditLength=null;
 const confirmAction=message=>window.confirm(tr(message));
 const promptAction=(message,defaultValue)=>window.prompt(tr(message),defaultValue);
 function refreshStudioLanguage(){
@@ -173,19 +176,55 @@ function showValidation(){const r=validateDocument(doc,installedPacks);
  text('validation-summary',r.ok?`Structure valide : ${r.stats.competencies} compétence(s), ${r.stats.pathways} parcours. Revue éditoriale toujours nécessaire.`:`${r.errors.length} erreur(s) structurelle(s) détectée(s).`);
  const e=$('validation-errors');e.replaceChildren();for(const item of [...r.errors.map(x=>'✖ '+x),...r.warnings.map(x=>'⚠ '+x)])e.append(create('p',null,item));return r;
 }
-function draw(){drawTree();editorFields();showValidation();text('quality-title','Vérification humaine');refreshStudioLanguage();}
+function drawLibraryTemplates(){
+ const list=$('studio-library-list');list.replaceChildren();
+ const action=libraryActions[locale];
+ for(const library of starterLibraries){
+  const selected=activeTemplateId===library.id&&doc.pack.id===library.id&&
+    doc.status==='draft'&&!dirty&&doc.audit.length===activeTemplateAuditLength&&
+    JSON.stringify(doc.pack)===JSON.stringify(library.pack);
+  const title=library.pack.title[locale]||library.pack.title.fr;
+  const item=create('article','hf-library-card');
+  item.append(create('h3',null,title),create('p',null,library.summary[locale]||library.summary.fr));
+  item.append(create('span','hf-library-meta',
+   library.pack.competencies.length+' '+(library.pack.competencies.length===1?action.skill:action.skills)+' · '+
+   library.pack.pathways.length+' '+(library.pack.pathways.length===1?action.path:action.paths)+' · 18+'));
+  const button=create('button','hf-action '+(selected?'hf-action--secondary':'hf-action--primary'),
+   selected?action.current:action.use);
+  button.type='button';button.dataset.libraryId=library.id;
+  button.setAttribute('aria-label',(selected?action.current:action.use)+': '+title);
+  if(selected)button.setAttribute('aria-disabled','true');
+  button.addEventListener('click',()=>{if(!selected)tryDo(()=>useLibraryTemplate(library));});
+  item.append(button);list.append(item);
+ }
+}
+function useLibraryTemplate(library){
+ const untouched=doc.pack.id==='practice'&&doc.audit.length===1&&!dirty;
+ if(!untouched&&!confirmAction(libraryActions[locale].replace))return;
+ const candidate=importForEditing(JSON.stringify(library.pack),{author:author()});
+ const report=validateDocument(candidate,installedPacks);
+ if(!report.ok)throw new Error(report.errors.join(' | '));
+ doc=candidate;dirty=false;activeTemplateId=library.id;activeTemplateAuditLength=doc.audit.length;
+ selection={kind:'pack',id:null};draw();
+ notice(libraryActions[locale].studioNotice+(library.pack.title[locale]||library.pack.title.fr)+'.');
+ const button=[...document.querySelectorAll('#studio-library-list button')]
+  .find(x=>x.dataset.libraryId===library.id);
+ button?.focus({preventScroll:true});
+}
+function draw(){drawTree();editorFields();showValidation();text('quality-title','Vérification humaine');refreshStudioLanguage();drawLibraryTemplates();}
 function checkUnsaved(){if(dirty)applyForm();}
 function renderReviewChecks(){const c=$('review-checks');const labels={accuracy:'Exactitude des contenus',pedagogy:'Pertinence pédagogique',accessibility:'Accessibilité et clarté',licensing:'Droits / provenance',privacy:'Confidentialité',translation:'Traductions FR / EN'};
  for(const key of REVIEW_CHECKS){const label=create('label');const ch=create('input');ch.type='checkbox';ch.value=key;ch.name='review-check';label.append(ch,document.createTextNode(' '+labels[key]));c.append(label);}}
 function renderPreview(focus=true){const result=previewDocument(doc,installedPacks,locale);const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
  for(const x of result.plan){const card=create('article','preview-item');card.append(create('h3',null,`${x.order}. ${x.title}`),create('p',null,x.outcome),create('p',null,`${x.explanation} / ${x.pillars.think}`));box.append(card);} $('preview-panel').hidden=false;if(focus){$('preview-title').focus();$('preview-panel').scrollIntoView({behavior:'smooth',block:'start'});}}
 function events(){
- $('studio-language-switch').addEventListener('click',()=>{
+ $('language-switch').addEventListener('click',()=>{
   locale=locale==='en'?'fr':'en';
   const newUrl=new URL(location.href);newUrl.searchParams.set('lang',locale);
   history.replaceState(null,'',newUrl);
   // Refresh localized tree, audit and existing preview without rebuilding editor fields.
   refreshStudioPanels(locale,{drawTree,showValidation,renderPreview});
+   drawLibraryTemplates();
  });
  $('editor-form').addEventListener('submit',e=>{e.preventDefault();tryDo(applyForm)});
  $('select-pack').addEventListener('click',()=>choose('pack'));
@@ -196,12 +235,12 @@ function events(){
  $('close-preview').addEventListener('click',()=>{$('preview-panel').hidden=true;});
  $('save-draft').addEventListener('click',()=>tryDo(()=>{checkUnsaved();download(`${doc.pack.id}-studio-${doc.pack.version}.json`,exportStudioDocument(doc));notice('Document Studio exporté localement. Conserve-le en lieu sûr.');}));
  $('new').addEventListener('click',()=>tryDo(()=>{if(!confirmAction('Créer un nouveau référentiel ? Sauvegarde d’abord tout travail non exporté.'))return;
-  const id=promptAction('Identifiant court du nouveau pack (lettres minuscules et tirets)','mon-referentiel');if(id===null)return;doc=makeDocument({id:id.trim(),author:author()});selection={kind:'pack',id:null};draw();notice('Nouveau référentiel créé, dans cet onglet uniquement.');}));
- $('import').addEventListener('change',()=>tryDo(async()=>{const file=$('import').files?.[0];if(!file)return;if(file.size>500_000)throw new Error('Limite : 500 ko.');
+  const id=promptAction('Identifiant court du nouveau pack (lettres minuscules et tirets)','mon-referentiel');if(id===null)return;doc=makeDocument({id:id.trim(),author:author()});activeTemplateId=null;activeTemplateAuditLength=null;selection={kind:'pack',id:null};draw();notice('Nouveau référentiel créé, dans cet onglet uniquement.');}));
+ $('import').addEventListener('change',()=>tryDo(async()=>{const file=$('import').files?.[0];$('import').value='';if(!file)return;if(file.size>500_000)throw new Error('Limite : 500 ko.');
   if(!confirmAction('Importer un document comme brouillon ? Le travail courant non exporté sera remplacé.'))return;
   const candidate=importForEditing(await file.text(),{author:author()});const report=validateDocument(candidate,installedPacks);
-  doc=candidate;selection={kind:'pack',id:null};draw();notice(report.ok?'Import réussi. Contenu non approuvé : vérifier les sources et licences.':'Brouillon importé avec erreurs à corriger : '+report.errors.join(' | '),!report.ok);
-  $('import').value='';}));
+  doc=candidate;activeTemplateId=null;activeTemplateAuditLength=null;selection={kind:'pack',id:null};draw();notice(report.ok?'Import réussi. Contenu non approuvé : vérifier les sources et licences.':'Brouillon importé avec erreurs à corriger : '+report.errors.join(' | '),!report.ok);
+ }));
  $('request-review').addEventListener('click',()=>tryDo(()=>{checkUnsaved();doc=requestReview(doc,installedPacks,author());draw();for(const checkbox of document.querySelectorAll('input[name="review-check"]'))checkbox.checked=false;notice('Statut « en revue ».  Confirme les contrôles et désigne un relecteur distinct.');}));
  $('approve').addEventListener('click',()=>tryDo(()=>{const checks=Array.from(document.querySelectorAll('input[name="review-check"]:checked'),x=>x.value);
   doc=approveDocument(doc,{reviewer:$('reviewer').value,checks},author());draw();notice('Approbation éditoriale déclarée localement. Il ne s’agit pas d’une signature vérifiée.');}));

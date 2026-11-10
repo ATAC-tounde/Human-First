@@ -1,0 +1,29 @@
+/* Shared controls for new knowledge-library actions across all HUMAN FIRST spaces.
+   Scoped classes avoid changing the established navigation and learning controls. */
+.hf-action{display:inline-flex;justify-content:center;align-items:center;min-height:44px;
+ padding:11px 16px;border:1px solid #9ab69d;border-radius:7px;
+ font:700 13px/1.35 'Segoe UI',Inter,Arial,sans-serif;
+ text-align:center;text-decoration:none;cursor:pointer;max-width:100%;
+ overflow-wrap:anywhere;transition:background-color .15s ease}
+.hf-action--primary{background:#244638;color:white;border-color:#244638}
+.hf-action--primary:hover:not(:disabled):not([aria-disabled="true"]){background:#35684e}
+.hf-action--secondary{background:white;color:#244638}
+.hf-action--secondary:hover:not(:disabled):not([aria-disabled="true"]){background:#e7eee6}
+.hf-action:focus-visible{outline:3px solid #c77b43;outline-offset:3px}
+.hf-action:disabled,.hf-action[aria-disabled="true"]{opacity:.65;cursor:default}
+.hf-library-panel{border:1px solid #cbdcc9;background:#f3f7ef;border-radius:14px;
+ padding:clamp(18px,3vw,28px);margin:22px 0 27px;color:#244638}
+.hf-library-panel h2,.hf-library-panel h3{margin:0 0 9px;font:400 clamp(20px,3vw,27px)/1.2 Georgia,serif;color:#244638}
+.hf-library-intro{font-size:13px;line-height:1.7;max-width:920px;margin:6px 0 18px;color:#506454}
+.hf-library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:12px}
+.hf-library-card{display:flex;flex-direction:column;gap:10px;padding:17px;
+ border:1px solid #d7e2d4;border-radius:10px;background:#fffefa;min-width:0}
+.hf-library-card h3,.hf-library-card h4{font:700 16px/1.4 'Segoe UI',Inter,Arial,sans-serif;margin:0;color:#244638}
+.hf-library-card p{font-size:12px;line-height:1.65;color:#536b59;margin:0;flex:1}
+.hf-library-meta{font-size:11px;color:#607b64;font-weight:700}
+.hf-library-card .hf-action{width:100%;margin-top:auto}
+.hf-library-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:15px}
+.hf-library-note{font-size:12px;color:#5a6f5c;line-height:1.6;margin:13px 0 0}
+@media(max-width:600px){.hf-library-tools .hf-action{width:100%}}
+@media(prefers-reduced-motion:reduce){.hf-action{transition:none}}
+@media print{.hf-library-panel{display:none!important}}
