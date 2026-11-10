@@ -135,7 +135,7 @@ test('V0.8: client has no learner-profile network transmission, analytics, or au
    assert.ok(!pattern.test(clean),`Forbidden profile transport/storage: ${pattern}`);
  assert.ok(js.includes("$('adult').checked"));
  assert.ok(js.includes('exportPortfolio('));
- assert.ok(js.includes('importPortfolio('));
+ assert.ok(js.includes('restorePortablePortfolio('),'Restores must use strict catalog compatibility checks');
 });
 
 test('V0.8: all four pillar apps link to the voluntary journey',async()=>{
