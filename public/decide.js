@@ -147,7 +147,7 @@ function renderCards(){
     const n=document.createElement('span');n.className='card-index';n.textContent='DECIDE '+String(index+1).padStart(2,'0');
     const heading=document.createElement('strong');heading.textContent=scenario.title;
     const description=document.createElement('span');description.textContent=scenario.short;
-    const action=document.createElement('span');action.className='card-action';action.textContent=copy().choose+' ';
+    const action=document.createElement('span');action.className='card-action';action.textContent=copy().choose;
     button.append(n,heading,description,action);
     button.setAttribute('aria-label',`${copy().choose}: ${scenario.title}`);
     button.addEventListener('click',()=>start(scenario.id));root.append(button);
