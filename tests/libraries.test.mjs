@@ -119,11 +119,11 @@ test('V1.4: static action-label contract and scoped stylesheet on the two librar
 test('V1.4: the same canonical header and bilingual My Journey label on all six pages',async()=>{
  const pages=['index','focus','learn','decide','journey','studio'];
  const html=await Promise.all(pages.map(page=>readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8')));
- const canonical=html[0].match(/<header class="hf-site-header"[\\s\\S]*?<\\/header>/)?.[0];
+ const canonical=html[0].match(/<header class="hf-site-header"[\s\S]*?<\/header>/)?.[0];
  assert.ok(canonical,'Canonical header exists');
  for(let i=0;i<pages.length;i++){
   assert.ok(html[i].includes('MON PARCOURS'),pages[i]);
-  assert.equal(html[i].match(/<header class="hf-site-header"[\\s\\S]*?<\\/header>/)?.[0],canonical,pages[i]);
+  assert.equal(html[i].match(/<header class="hf-site-header"[\s\S]*?<\/header>/)?.[0],canonical,pages[i]);
  }
  const shared=await readFile(new URL('../public/ui/header.mjs',import.meta.url),'utf8');
  assert.ok(shared.includes("journey:'MY JOURNEY'"));
