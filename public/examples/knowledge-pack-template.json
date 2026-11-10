@@ -1,0 +1,72 @@
+{
+  "id": "mon-exemple",
+  "version": "1.0.0",
+  "title": {
+    "fr": "Mon exemple de connaissances",
+    "en": "My example knowledge pack"
+  },
+  "competencies": [
+    {
+      "id": "mon-exemple.observer",
+      "title": {
+        "fr": "Observer avant de conclure",
+        "en": "Observe before concluding"
+      },
+      "outcome": {
+        "fr": "Distinguer une observation d'une interprétation.",
+        "en": "Distinguish an observation from an interpretation."
+      },
+      "tags": [
+        "observation",
+        "raisonnement"
+      ],
+      "requires": [
+        "core.evidence"
+      ],
+      "activities": {
+        "think": {
+          "fr": "Formuler deux explications possibles.",
+          "en": "Suggest two possible explanations."
+        },
+        "focus": {
+          "fr": "Noter les faits vérifiables d'un exemple fictif.",
+          "en": "Write down verifiable facts in a fictional example."
+        },
+        "learn": {
+          "fr": "Restituer les faits sans consulter ses notes.",
+          "en": "Recall facts without notes."
+        },
+        "decide": {
+          "fr": "Choisir quelle information vérifier ensuite.",
+          "en": "Choose which information to verify next."
+        }
+      },
+      "contexts": {
+        "work": {
+          "fr": "Examiner une situation professionnelle fictive.",
+          "en": "Review a fictional workplace situation."
+        }
+      }
+    }
+  ],
+  "pathways": [
+    {
+      "id": "mon-exemple.premier-parcours",
+      "title": {
+        "fr": "Apprendre à observer",
+        "en": "Learn to observe"
+      },
+      "summary": {
+        "fr": "Une introduction au raisonnement autonome.",
+        "en": "An introduction to independent reasoning."
+      },
+      "competencyIds": [
+        "mon-exemple.observer"
+      ],
+      "audiences": [
+        "personal",
+        "work"
+      ]
+    }
+  ]
+}
