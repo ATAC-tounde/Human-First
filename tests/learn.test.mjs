@@ -126,7 +126,7 @@ test('LEARN integration preserves twenty THINK challenges and FOCUS navigation',
  const focus=await fetch(base+'/focus');
  assert.equal(focus.status,200);
  const focusHtml=await focus.text();
- assert.ok(focusHtml.includes('class="focus-learn-link"'));
+ assert.ok(focusHtml.includes('id="learn-nav-link"'));
  const library=await fetch(base+'/focus-library.mjs');
  assert.equal(library.status,200);
  const home=await fetch(base+'/');
