@@ -107,5 +107,8 @@ test('V1.4 UI: search and guided practice are keyboard-accessible and served fro
  assert.ok(app.includes('openPractice(next.skillId,next.pillar)'));
  assert.ok(app.includes("renderDashboard();"));
  assert.ok(app.includes("renderPractice();"));
- assert.ok(css.includes('prefers-reduced-motion')===false||css.includes('prefers-reduced-motion'));
+ assert.ok(css.includes('min-height')===false||css.includes('practice-declarations'));
+ assert.ok(css.includes('practice-pillar-choices button[aria-pressed="true"]'));
+ assert.ok(css.includes('@media(max-width:660px)'));
+ assert.ok(app.includes("$('practice-title').focus({preventScroll:true})"));
 });
