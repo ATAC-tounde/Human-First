@@ -24,6 +24,7 @@ let events=[];
 let formative=[];
 let activeFormative=null;
 let activePractice=null; // in-tab UI selection only, never exported
+let practiceReturnFocus=null;
 let aliasManifest=null;
 let familiarity={};
 const vaultWords={
@@ -422,11 +423,26 @@ function choosePillar(skillId){
 }
 function closePractice(){
  activePractice=null;
+ practiceReturnFocus=null;
  $('practice-panel').hidden=true;
+}
+function closePracticeAndReturnFocus(){
+ const origin=practiceReturnFocus;
+ const skill=activePractice?.skillId;
+ const pillar=activePractice?.pillar;
+ closePractice();
+ // Re-rendering the program can detach the original button; recover an
+ // equivalent affordance for the same competence, before falling back.
+ const fallback=skill?[...document.querySelectorAll('[data-practice-skill]')]
+  .find(node=>node.dataset.practiceSkill===skill&&node.dataset.practicePillar===pillar):null;
+ const target=origin?.isConnected?origin:(fallback??$('dashboard-continue'));
+ target?.focus?.({preventScroll:true});
 }
 function openPractice(skillId,pillar=choosePillar(skillId),focus=true){
  try{
   practicePrompt(program,skillId,pillar);
+  if(!activePractice||!document.activeElement?.closest?.('#practice-panel'))
+   practiceReturnFocus=document.activeElement;
   activePractice={skillId,pillar};
   renderPractice();
   if(focus){
@@ -497,7 +513,7 @@ function renderCompass(){
   pillarLink.href=tags[next.pillar]+'?lang='+locale;
   pillarLink.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[next.pillar]+': '+next.title);
   const open=element('button','hf-action hf-action--secondary',w('practiceOpen'));
-  open.type='button';
+  open.type='button';open.dataset.practiceSkill=next.skillId;open.dataset.practicePillar=next.pillar;
   open.setAttribute('aria-label',w('practiceOpen')+': '+next.title+' · '+w('titles')[next.pillar]);
   open.addEventListener('click',()=>openPractice(next.skillId,next.pillar));
   actions.append(open,skillLink,pillarLink);
@@ -536,7 +552,8 @@ function renderProgram(){
   for(const pillar of PILLARS){
     const card=element('div','pillar');card.append(element('b',null,w('titles')[pillar]),element('p',null,item.pillars[pillar]));
     const localButton=element('button','hf-action hf-action--secondary',w('practiceOpen'));
-    localButton.type='button';
+    localButton.type='button';localButton.dataset.practiceSkill=item.skillId;
+    localButton.dataset.practicePillar=pillar;
     localButton.setAttribute('aria-label',w('practiceOpen')+' '+w('titles')[pillar]+': '+item.title);
     localButton.addEventListener('click',()=>openPractice(item.skillId,pillar));
     const link=element('a',null,w('activity')+' '+w('titles')[pillar]+' ');
@@ -670,7 +687,7 @@ async function importEncryptedVault(input){
   if(file.size>VAULT_MAX_ENVELOPE)throw new Error('Encrypted backup exceeds size limit');
   const secret=encryptedPassphrase();
   const plain=await decryptPortfolio(await file.text(),secret);
-  const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry);
+  const restored=restorePortablePortfolio(plain,registry,aliasManifest);
   if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
   else vaultStatus('');
  }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
@@ -722,7 +739,7 @@ $('dashboard-continue').addEventListener('click',()=>{
 });
 $('program-search').addEventListener('input',()=>{if(program)renderProgram();});
 $('program-filter').addEventListener('change',()=>{if(program)renderProgram();});
-$('practice-close').addEventListener('click',()=>{closePractice();$('dashboard-continue').focus({preventScroll:true});});
+$('practice-close').addEventListener('click',closePracticeAndReturnFocus);
 for(const [id,type] of [['practice-mark-explored','explored'],['practice-mark-practiced','practiced'],['practice-mark-review','review-later']]){
  $(id).addEventListener('click',()=>{if(activePractice)record(activePractice.skillId,type);});
 }
