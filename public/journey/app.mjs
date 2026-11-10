@@ -300,8 +300,16 @@ function latestStatus(skillId){
  return w('progressNames')[PROGRESS_EVENTS.indexOf(last.type)];
 }
 function record(skillId,type){
+ if(events.length>=1500){message(locale==='en'?'Export your portfolio before adding more steps.':'Exporte ton portfolio avant d’ajouter d’autres étapes.');return;}
+ const oldFocus=document.activeElement;
+ const fromCard=oldFocus?.dataset?.progressSkill===skillId;
  events.push({skillId,type,at:new Date().toISOString(),source:'self-declared'});
  renderProgram();
+ if(fromCard){
+  const next=[...document.querySelectorAll('#program-list button[data-progress-skill]')]
+   .find(button=>button.dataset.progressSkill===skillId&&button.dataset.progressType===type);
+  next?.focus({preventScroll:true});
+ }
 }
 // Formative work is deliberately not graded. The learner's writing only exists in
 // this textarea, not in the portfolio, analytics or any HTTP request.
@@ -386,6 +394,63 @@ function saveFormative(){
  }catch(e){message(String(e.message||e));}
 }
 
+function choosePillar(skillId){
+ const state=latestDeclarations(program,events).get(skillId);
+ return state==='review-later'?'learn':state==='explored'?'focus':state==='practiced'?'decide':'think';
+}
+function closePractice(){
+ activePractice=null;
+ $('practice-panel').hidden=true;
+}
+function openPractice(skillId,pillar=choosePillar(skillId),focus=true){
+ try{
+  practicePrompt(program,skillId,pillar);
+  activePractice={skillId,pillar};
+  renderPractice();
+  if(focus){
+   $('practice-panel').scrollIntoView({behavior:'auto',block:'start'});
+   $('practice-title').focus({preventScroll:true});
+  }
+ }catch(error){message(w('invalid')+String(error.message||error));}
+}
+function renderPractice(){
+ if(!activePractice)return;
+ let current;
+ try{current=practicePrompt(program,activePractice.skillId,activePractice.pillar);}
+ catch{closePractice();return;}
+ $('practice-panel').hidden=false;
+ $('practice-title').textContent=current.title+' · '+w('titles')[current.pillar];
+ $('practice-outcome').textContent=current.outcome;
+ $('practice-instruction').textContent=current.activity;
+ const context=$('practice-context');context.hidden=!current.context;
+ context.textContent=current.context?w('context')+' '+current.context:'';
+ $('practice-status').textContent=w('practiceCurrent')+': '+latestStatus(current.skillId);
+ const choices=$('practice-pillar-choices');choices.replaceChildren();
+ for(const pillar of PILLARS){
+  const button=element('button','hf-action hf-action--secondary',w('titles')[pillar]);
+  button.type='button';button.dataset.pillar=pillar;
+  button.setAttribute('aria-pressed',String(pillar===current.pillar));
+  button.setAttribute('aria-label',w('practiceOpen')+' '+w('titles')[pillar]+': '+current.title);
+  button.addEventListener('click',()=>{
+   activePractice={skillId:current.skillId,pillar};
+   renderPractice();
+   [...choices.querySelectorAll('button')].find(x=>x.dataset.pillar===pillar)?.focus({preventScroll:true});
+  });
+  choices.append(button);
+ }
+ $('practice-open-space').href=tags[current.pillar]+'?lang='+locale;
+ $('practice-open-space').textContent=w('practiceSpace')+' '+w('titles')[current.pillar];
+ $('practice-open-space').setAttribute('aria-label',w('practiceSpace')+' '+w('titles')[current.pillar]);
+ const position=program.plan.findIndex(item=>item.skillId===current.skillId);
+ $('practice-next').disabled=position<0||position>=program.plan.length-1;
+}
+function renderDashboard(){
+ const counts=selfReportedSummary(program,events);
+ $('dashboard-total').textContent=String(counts.total);
+ $('dashboard-new').textContent=String(counts['not-started']);
+ $('dashboard-reviewed').textContent=String(counts.total-counts['not-started']);
+ $('dashboard-continue').disabled=!program.plan.length;
+}
 function renderCompass(){
  const list=$('compass-list');
  list.replaceChildren();
@@ -409,7 +474,11 @@ function renderCompass(){
   const pillarLink=element('a',null,w('compassPillar')+' '+w('titles')[next.pillar]+' ↗');
   pillarLink.href=tags[next.pillar]+'?lang='+locale;
   pillarLink.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[next.pillar]+': '+next.title);
-  actions.append(skillLink,pillarLink);
+  const open=element('button','hf-action hf-action--secondary',w('practiceOpen'));
+  open.type='button';
+  open.setAttribute('aria-label',w('practiceOpen')+': '+next.title+' · '+w('titles')[next.pillar]);
+  open.addEventListener('click',()=>openPractice(next.skillId,next.pillar));
+  actions.append(open,skillLink,pillarLink);
   li.append(actions);
   list.append(li);
  }
