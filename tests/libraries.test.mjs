@@ -137,4 +137,5 @@ test('V1.4: Studio and Journey reject the same malformed semantic version and cr
  const collision=structuredClone(starterLibraries[0].pack);
  collision.pathways[0].id=collision.competencies[0].id;
  assert.throws(()=>createRegistry([...installedPacks,collision]),/conflicts with competency/);
+ assert.equal(validateDocument(importForEditing(JSON.stringify(collision),{author:'Équipe pédagogique'}),installedPacks).ok,false);
 });
