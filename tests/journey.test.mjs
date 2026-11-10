@@ -149,6 +149,17 @@ test('V0.8: all four pillar apps link to the voluntary journey',async()=>{
  }
 });
 
+test('Shared header assets serve HTTP 200 with the correct safe content types',async()=>{
+ for(const [path,type,sentinel] of [
+  ['/ui/header.mjs','text/javascript','mountHeader'],
+  ['/ui/header.css','text/css','header.hf-header']]){
+  const response=await fetch(origin+path);
+  assert.equal(response.status,200,path);
+  assert.ok(response.headers.get('content-type')?.startsWith(type),path);
+  assert.ok((await response.text()).includes(sentinel),path);
+ }
+});
+
 test('V0.8: a content author can load a declarative JSON pack without executable plug-ins',async()=>{
  const page=await (await fetch(origin+'/journey')).text();
  const sourceText=await readFile(source,'utf8');
