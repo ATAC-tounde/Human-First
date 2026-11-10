@@ -1,3 +1,4 @@
+import {mountHeader} from './ui/header.mjs';
 import {decisionStages,decideScenarios,decideScenario,reflectionPrompts} from './decide-data.mjs';
 import {initialLanguage,syncLanguage} from './language.mjs';
 
@@ -6,6 +7,7 @@ import {initialLanguage,syncLanguage} from './language.mjs';
 // User notes live only in DOM inputs. No auto-ranking, automated decision or external AI.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
+mountHeader('decide',locale);
 let activeId = null;
 let step = 0;
 const dict = {
