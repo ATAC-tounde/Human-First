@@ -10,23 +10,14 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/focus.css">
   <script type="module" src="/focus.js"></script>
+  <link rel="stylesheet" href="/ui/header.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
   <div class="grain" aria-hidden="true"></div>
   <div class="shell">
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="HUMAN FIRST, accueil">
-        <span class="brand-mark" aria-hidden="true"><span>H</span><span>F</span></span>
-        <span class="brand-text">HUMAN <b>FIRST</b><small>INITIATIVE INDÉPENDANTE</small></span>
-      </a>
-      <nav class="focus-nav" aria-label="Navigation">
-        <a href="/" id="back-home">← <span id="nav-back-label">THINK FIRST</span></a>
-        <a href="/learn?lang=fr" class="focus-learn-link">LEARN ↗</a>
-        <a href="/decide?lang=fr" class="focus-decide-link">DECIDE ↗</a>
-        <a href="/journey?lang=fr" class="focus-journey-link">MON PARCOURS ↗</a>
-        <button id="focus-language-switch" type="button" aria-label="Switch to English">EN</button>
-      </nav>
+    <header class="hf-header" data-hf-header>
+      <a class="hf-header__brand" href="/" aria-label="HUMAN FIRST, accueil"><span class="hf-header__mark" aria-hidden="true">HF</span><span class="hf-header__brand-copy"><span class="hf-header__name">HUMAN <strong>FIRST</strong></span><small class="hf-header__tagline">INITIATIVE INDÉPENDANTE</small></span></a>
     </header>
     <main id="main" class="focus-page">
       <div class="focus-eyebrow" id="focus-eyebrow">PILIER 02 · FOCUS · DÉMONSTRATION ADULTE</div>
