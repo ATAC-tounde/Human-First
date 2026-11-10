@@ -423,7 +423,7 @@ function renderProgram(){
  });
  renderCompass();
 }
-function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
+function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderLibraryCards();renderPathways();message(w('cleared'));}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
