@@ -9,6 +9,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/journey.css">
   <script type="module" src="/journey/app.mjs"></script>
+<link rel="stylesheet" href="/ui/actions.css">
 </head>
 <body>
   <a class="skip" href="#main" data-text="skip">Aller au contenu</a>
@@ -53,6 +54,16 @@
             <label class="file-label" for="pack-file" data-text="packImport">Importer un pack JSON</label>
             <input type="file" id="pack-file" accept="application/json,.json" aria-describedby="pack-title">
           </div>
+          <section class="hf-library-panel" aria-labelledby="library-heading">
+            <h3 id="library-heading" data-text="libraryHeading">Bibliothèques prêtes à charger</h3>
+            <p class="hf-library-intro" data-text="libraryIntro">Choisis une bibliothèque : un clic l'ajoute à tes objectifs. Ces exemples pédagogiques FR/EN ne sont ni certifiés ni évalués par des experts. Ils restent dans cet onglet.</p>
+            <div class="hf-library-grid" id="library-list"></div>
+            <div class="hf-library-tools">
+              <a class="hf-action hf-action--secondary" href="/examples/knowledge-pack-template.json" download="human-first-modele-bibliotheque.json" data-text="libraryDownload">Télécharger un exemple JSON</a>
+              <a class="hf-action hf-action--secondary" href="/studio" id="library-studio-link" data-text="libraryStudio">Créer ma bibliothèque dans Studio ↗</a>
+            </div>
+            <p class="hf-library-note" data-text="libraryNote">Les bibliothèques ajoutées disparaissent à la fermeture ou au rechargement de cet onglet. Pour les retrouver, recharge un pack JSON sauvegardé. Aucun fichier externe n'est téléchargé automatiquement.</p>
+          </section>
           <fieldset class="self-report" aria-labelledby="familiarity-heading"><legend id="familiarity-heading" data-text="familiarityTitle">Ce que je connais déjà (facultatif)</legend><p data-text="familiarityHelp">Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.</p><div id="familiarity-list" class="familiarity-list"></div></fieldset>
           <div class="controls"><button type="submit" class="primary" id="build" data-text="create">Créer mon parcours ↗</button><button type="button" id="clear" class="secondary" data-text="clear">Effacer cette séance</button></div>
           <p class="privacy" data-text="privacyNotice">Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.</p>
