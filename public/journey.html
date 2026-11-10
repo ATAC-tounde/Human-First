@@ -8,6 +8,7 @@
   <title>Mon parcours - HUMAN FIRST</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/journey.css">
+  <link rel="stylesheet" href="/journey/workspace.css">
   <script type="module" src="/journey/app.mjs"></script>
 <link rel="stylesheet" href="/ui/actions.css">
 </head>
@@ -74,6 +75,19 @@
         <div class="result-header"><div><p class="eyebrow" data-text="resultEyebrow">PROGRAMME INDIVIDUEL · DÉMONSTRATION</p><h2 id="result-title"></h2><p id="program-summary"></p></div><div class="result-actions"><button class="secondary" type="button" id="export" data-text="export">Exporter mon portfolio JSON</button><label for="import" class="file-label" data-text="import">Importer un portfolio JSON</label><input type="file" id="import" accept="application/json,.json"><button type="button" class="secondary" id="reset-progress" data-text="resetProgress">Effacer les étapes déclarées</button></div></div>
         <p class="disclaimer" id="disclaimer" role="note"></p>
         <div class="program-stats"><span id="program-count"></span><span id="program-estimate"></span></div>
+        <section id="journey-dashboard" class="journey-dashboard" aria-labelledby="dashboard-heading">
+          <h3 id="dashboard-heading" data-text="dashboardHeading">Retrouver mon fil d'apprentissage</h3>
+          <p data-text="dashboardIntro">Tes étapes sont des déclarations personnelles, pas une note ni une mesure de tes capacités.</p>
+          <ul class="dashboard-metrics" id="dashboard-metrics" aria-label="Récapitulatif des étapes déclarées">
+            <li><strong id="dashboard-total">0</strong><span data-text="dashboardTotal">Compétences dans mon parcours</span></li>
+            <li><strong id="dashboard-new">0</strong><span data-text="dashboardNew">Sans étape déclarée</span></li>
+            <li><strong id="dashboard-reviewed">0</strong><span data-text="dashboardReviewed">Avec une étape déclarée</span></li>
+          </ul>
+          <div class="dashboard-links">
+            <button type="button" class="hf-action hf-action--primary" id="dashboard-continue" data-text="dashboardContinue">Commencer ma prochaine activité</button>
+            <a href="#library-heading" class="hf-action hf-action--secondary" data-text="dashboardLibraries">Voir les bibliothèques</a>
+          </div>
+        </section>
         <section class="compass" id="practice-compass" aria-labelledby="compass-heading">
           <div class="compass-header">
             <p class="eyebrow" data-text="compassEyebrow">V1.3 · BOUSSOLE PÉDAGOGIQUE</p>
@@ -83,6 +97,46 @@
           <ol class="compass-list" id="compass-list"></ol>
           <p class="compass-footnote" data-text="compassReminder">Un lien de pilier ouvre son espace général, pas un exercice automatiquement attribué. Les propositions sont facultatives et restent dans cet onglet.</p>
         </section>
+        <section id="practice-panel" class="practice-panel" hidden aria-labelledby="practice-title">
+          <div class="practice-panel-top">
+            <div>
+              <p class="eyebrow" data-text="practiceEyebrow">ATELIER GUIDÉ · SANS NOTE</p>
+              <h3 id="practice-title" tabindex="-1"></h3>
+            </div>
+            <button type="button" id="practice-close" class="hf-action hf-action--secondary" data-text="practiceClose">Fermer l'activité</button>
+          </div>
+          <p id="practice-outcome" class="practice-outcome"></p>
+          <p class="practice-disclaimer" data-text="practiceDisclaimer">La consigne vient du référentiel chargé. Cette activité est à réaliser librement, sans correction ni exercice imposé. Aucun texte n'est enregistré.</p>
+          <div class="practice-pillar-choices" id="practice-pillar-choices" role="group" aria-label="Choisir une modalité de pratique"></div>
+          <div id="practice-instruction" class="practice-prompt"></div>
+          <p id="practice-context" class="practice-context" hidden></p>
+          <p class="practice-status" id="practice-status" role="status" aria-live="polite"></p>
+          <div class="practice-declarations" role="group" aria-label="Étapes personnelles facultatives">
+            <button type="button" class="hf-action hf-action--secondary" id="practice-mark-explored" data-text="practiceExplored">J'ai exploré</button>
+            <button type="button" class="hf-action hf-action--secondary" id="practice-mark-practiced" data-text="practicePracticed">J'ai pratiqué</button>
+            <button type="button" class="hf-action hf-action--secondary" id="practice-mark-review" data-text="practiceReview">À revoir</button>
+          </div>
+          <div class="dashboard-links" style="margin-top:16px">
+            <button type="button" class="hf-action hf-action--primary" id="practice-next" data-text="practiceNext">Compétence suivante</button>
+            <a class="hf-action hf-action--secondary" id="practice-open-space" href="/" data-text="practiceSpace">Explorer le pilier général ↗</a>
+          </div>
+        </section>
+        <section class="program-tools" aria-label="Retrouver mes compétences">
+          <label><span data-text="searchLabel">Rechercher une compétence</span>
+            <input id="program-search" type="search" maxlength="120" autocomplete="off" data-input="searchPlaceholder" placeholder="Titre, sujet, mot-clé…" aria-controls="program-list">
+          </label>
+          <label><span data-text="filterLabel">Étape déclarée</span>
+            <select id="program-filter" aria-controls="program-list">
+              <option value="all" data-text="filterAll">Toutes les compétences</option>
+              <option value="not-started" data-text="filterNew">Sans étape déclarée</option>
+              <option value="explored" data-text="filterExplored">Explorées</option>
+              <option value="practiced" data-text="filterPracticed">Pratiquées</option>
+              <option value="review-later" data-text="filterReview">À revoir</option>
+            </select>
+          </label>
+          <p id="program-visible-count" class="program-matches" role="status" aria-live="polite"></p>
+        </section>
+        <p id="program-empty" class="program-empty" hidden data-text="searchEmpty">Aucune compétence ne correspond. Modifie ta recherche ou ton filtre.</p>
         <ol id="program-list" class="program-list"></ol>
         <section id="formative-panel" class="formative-panel" hidden aria-labelledby="formative-heading">
           <div class="formative-top"><div><p class="eyebrow" id="formative-eyebrow">ATELIER FORMATIF · SANS NOTE</p><h3 id="formative-heading" tabindex="-1"></h3></div>
