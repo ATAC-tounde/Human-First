@@ -67,6 +67,9 @@ test('FOCUS page is reachable from the THINK FIRST homepage',async()=>{
  assert.ok(page.includes('id="focus-hero-link"'));
  assert.equal(headerModel('think','fr').links.find(x=>x.key==='focus').href,'/focus?lang=fr');
  assert.equal(headerModel('think','fr').links.find(x=>x.key==='focus').id,'focus-nav-link');
+ const {renderHeaderFixture}=await import('./helpers/header-fixture.mjs');
+ const mounted=renderHeaderFixture('think','fr');
+ assert.equal(mounted.id('focus-nav-link').href,'/focus?lang=fr');
 });
 test('V0.5 integration preserves the current twenty THINK challenges and no premature LEARN link',async()=>{
  const response=await fetch(base+'/api/catalog?lang=fr');
