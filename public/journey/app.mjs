@@ -494,8 +494,14 @@ function renderProgram(){
  $('disclaimer').textContent=program.disclaimer+' '+w('selfReport');
  $('program-count').textContent=w('count')(program.plan.length);
  $('program-estimate').textContent=w('estimate')(program.workload.totalMinutesIndicative,program.workload.minutesPerWeek);
+ renderDashboard();
  const list=$('program-list');list.replaceChildren();
- program.plan.forEach(item=>{
+ const shown=visibleSkills(program,events,{query:$('program-search').value,status:$('program-filter').value});
+ $('program-empty').hidden=Boolean(shown.length);
+ $('program-visible-count').textContent=locale==='en'?
+  shown.length+' of '+program.plan.length+' skills shown':
+  shown.length+' compétence(s) sur '+program.plan.length+' affichée(s)';
+ shown.forEach(item=>{
   const li=element('li','program-card');li.id='skill-'+item.skillId;li.tabIndex=-1;
   const top=element('div','card-top');const n=element('span','card-index',String(item.order).padStart(2,'0'));
   const title=element('div');title.append(element('h3',null,item.title),element('p',null,item.outcome));top.append(n,title);li.append(top);
@@ -507,13 +513,21 @@ function renderProgram(){
   const grid=element('div','pillars');
   for(const pillar of PILLARS){
     const card=element('div','pillar');card.append(element('b',null,w('titles')[pillar]),element('p',null,item.pillars[pillar]));
-    const link=element('a',null,w('activity')+' '+w('titles')[pillar]+' ↗');link.href=tags[pillar]+'?lang='+locale;
-    card.append(link);grid.append(card);
+    const localButton=element('button','hf-action hf-action--secondary',w('practiceOpen'));
+    localButton.type='button';
+    localButton.setAttribute('aria-label',w('practiceOpen')+' '+w('titles')[pillar]+': '+item.title);
+    localButton.addEventListener('click',()=>openPractice(item.skillId,pillar));
+    const link=element('a',null,w('activity')+' '+w('titles')[pillar]+' ↗');
+    link.href=tags[pillar]+'?lang='+locale;
+    link.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[pillar]+': '+item.title);
+    card.append(localButton,link);grid.append(card);
   }
   li.append(grid);
   const progress=element('div','progress-row');progress.append(element('span','progress-status',w('progress')+': '+latestStatus(item.skillId)));
   for(let i=0;i<PROGRESS_EVENTS.length;i++){
     const button=element('button',null,w('progressNames')[i]);button.type='button';
+    button.dataset.progressSkill=item.skillId;button.dataset.progressType=PROGRESS_EVENTS[i];
+    button.setAttribute('aria-label',w('progressNames')[i]+': '+item.title);
     button.addEventListener('click',()=>record(item.skillId,PROGRESS_EVENTS[i]));progress.append(button);
   }
   li.append(progress);
@@ -530,6 +544,7 @@ function renderProgram(){
   list.append(li);
  });
  renderCompass();
+ renderPractice();
 }
 function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderLibraryCards();renderPathways();message(w('cleared'));}
 function savePortfolio(){
