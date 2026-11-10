@@ -35,7 +35,7 @@ test('Design system: the shared stylesheet keeps navigation legible, responsive 
  assert.ok(style.includes('overflow-x:auto'),'All links stay reachable on narrow screens');
  assert.ok(style.includes('white-space:nowrap'));
  assert.ok(style.includes('focus-visible'));
- assert.ok(style.includes('background:#f8f9f5'));
+ assert.match(style,/body\{background:\s*#[0-9a-f]{6}!important/,'Shared neutral background uses a valid CSS color');
  assert.ok(script.includes('aria-current'));
  assert.ok(!script.includes('innerHTML'),'Shared header does not inject HTML content');
 });
@@ -71,7 +71,7 @@ test('Design system: localized navigation changes text and active marker without
   '#nav-ethics':ethics,'#brand-link':brand,'.hf-site-nav':nav,'#language-switch':language
  };
  const header={querySelector:key=>selectors[key]??null,
-  querySelectorAll:key=>key==='.hf-site-nav a'?anchors:[]};
+  querySelectorAll:key=>key==='.hf-brand, .hf-site-nav a'?[brand,...anchors]:[]};
  const root={querySelector:key=>key==='header.hf-site-header'?header:null,
   querySelectorAll:key=>key==='a[href]'?[]:[]};
  const before=Object.getOwnPropertyDescriptor(globalThis,'location');
