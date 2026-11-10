@@ -1,3 +1,4 @@
+import {mountHeader} from '../ui/header.mjs';
 import {installedPacks} from './packs.mjs';
 import {starterLibraries,libraryActions} from './libraries.mjs';
 import {addStarterLibrary} from './library-manager.mjs';
@@ -18,6 +19,7 @@ let registry=createRegistry(installedPacks);
 const importedPacks=[];
 const $=id=>document.getElementById(id);
 let locale=initialLanguage();
+mountHeader('journey',locale);
 let program=null;
 let events=[];
 let formative=[];
