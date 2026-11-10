@@ -147,3 +147,10 @@ export const starterLibraries=Object.freeze([
    ['projects.goal','projects.plan','projects.improve'],['work','transition','personal','higher-education'])]
  },['Une méthode simple pour passer d’une intention à des actions vérifiables.','A simple approach for turning intentions into verifiable action.'])
 ]);
+
+
+/** Shared FR/EN verbs and status labels: JOURNEY and Studio show identical actions. */
+export const libraryActions=Object.freeze({
+ fr:Object.freeze({load:'Charger la bibliothèque',loaded:'Bibliothèque chargée',use:'Utiliser comme modèle',current:'Modèle ouvert',skills:'compétences',paths:'parcours',demo:'Contenus de démonstration, non certifiés',loadedNotice:'Bibliothèque chargée dans cet onglet : ',studioNotice:'Modèle chargé comme brouillon : ',replace:'Remplacer le brouillon actuel par ce modèle ? Exporte auparavant toute modification à conserver.'}),
+ en:Object.freeze({load:'Load library',loaded:'Library loaded',use:'Use as a template',current:'Template open',skills:'skills',paths:'pathways',demo:'Demonstration content, not certified',loadedNotice:'Library loaded in this tab: ',studioNotice:'Template loaded as a draft: ',replace:'Replace the current draft with this template? Export any changes you want to keep first.'})
+});
