@@ -139,9 +139,11 @@ test('V0.8: client has no learner-profile network transmission, analytics, or au
 });
 
 test('V0.8: all four pillar apps link to the voluntary journey',async()=>{
- for(const path of ['/','/focus','/learn','/decide']){
-   const r=await fetch(origin+path);assert.equal(r.status,200,path);
-   const page=await r.text();assert.ok(page.includes('/journey?lang='),path);
+ const {headerModel}=await import('../public/ui/header.mjs');
+ for(const [route,page] of [['/','think'],['/focus','focus'],['/learn','learn'],['/decide','decide']]){
+  const response=await fetch(origin+route);assert.equal(response.status,200,route);
+  const html=await response.text();assert.ok(html.includes('data-hf-header'),route);
+  assert.equal(headerModel(page,'fr').links.find(x=>x.key==='journey').href,'/journey?lang=fr');
  }
 });
 
