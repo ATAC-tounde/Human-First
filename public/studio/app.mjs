@@ -1,5 +1,6 @@
 /** HUMAN FIRST Studio. No fetch, external API, analytics or storage of authored content.\n * Only the two-letter interface language may be persisted locally. */
 import {installedPacks} from '../journey/packs.mjs';
+import '../ui/header.mjs';
 import {starterLibraries,libraryActions} from '../journey/libraries.mjs';
 import {initialLanguage} from '../language.mjs';
 import {studioText,renderStudioLanguage,refreshStudioPanels} from './translations.mjs';
@@ -217,7 +218,7 @@ function renderReviewChecks(){const c=$('review-checks');const labels={accuracy:
 function renderPreview(focus=true){const result=previewDocument(doc,installedPacks,locale);const box=$('preview-body');box.replaceChildren();box.append(create('p',null,`${result.pathway.title} · ${result.plan.length} compétence(s) · temps indicatif ${result.workload.totalMinutesIndicative} min`));
  for(const x of result.plan){const card=create('article','preview-item');card.append(create('h3',null,`${x.order}. ${x.title}`),create('p',null,x.outcome),create('p',null,`${x.explanation} / ${x.pillars.think}`));box.append(card);} $('preview-panel').hidden=false;if(focus){$('preview-title').focus();$('preview-panel').scrollIntoView({behavior:'smooth',block:'start'});}}
 function events(){
- $('studio-language-switch').addEventListener('click',()=>{
+ $('language-switch').addEventListener('click',()=>{
   locale=locale==='en'?'fr':'en';
   const newUrl=new URL(location.href);newUrl.searchParams.set('lang',locale);
   history.replaceState(null,'',newUrl);
