@@ -9,27 +9,14 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" type="module" defer></script>
+  <link rel="stylesheet" href="/ui/header.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
   <div class="grain" aria-hidden="true"></div>
   <div class="shell">
-    <header class="site-header">
-      <a class="brand" href="/" id="brand-link" aria-label="HUMAN FIRST, retour à l’accueil">
-        <span class="brand-mark" aria-hidden="true"><span>H</span><span>F</span></span>
-        <span class="brand-text">HUMAN <b>FIRST</b><small>INITIATIVE INDÉPENDANTE</small></span>
-      </a>
-      <nav class="nav" aria-label="Navigation principale">
-        <a href="#method" id="nav-method">Notre méthode</a>
-        <a href="/focus?lang=fr" id="focus-nav-link">FOCUS</a>
-        <a href="/learn?lang=fr" class="learn-nav-link" id="learn-nav-link">LEARN</a>
-        <a href="/decide?lang=fr" class="decide-nav-link" id="decide-nav-link">DECIDE</a>
-        <a href="/journey?lang=fr" id="journey-nav-link">MON PARCOURS</a>
-        <a href="/studio" id="studio-nav-link">STUDIO</a>
-        <a href="#ethics" id="nav-ethics">Nos engagements</a>
-        <button type="button" id="language-switch" class="language-switch" aria-label="Switch to English">EN</button>
-        <span class="nav-edition">PROTOTYPE <strong>0.9-alpha</strong></span>
-      </nav>
+    <header class="hf-header" data-hf-header>
+      <a class="hf-header__brand" href="/" aria-label="HUMAN FIRST, accueil"><span class="hf-header__mark" aria-hidden="true">HF</span><span class="hf-header__brand-copy"><span class="hf-header__name">HUMAN <strong>FIRST</strong></span><small class="hf-header__tagline">INITIATIVE INDÉPENDANTE</small></span></a>
     </header>
 
     <main id="main">
