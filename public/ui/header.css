@@ -120,9 +120,11 @@ header.hf-header :is(a,button):focus-visible{
 @media(max-width:450px){
  header.hf-header{width:100%;min-height:68px}
  header.hf-header .hf-header__mark{width:39px;height:39px;flex-basis:39px;font-size:16px}
- header.hf-header .hf-header__brand{gap:8px}
- header.hf-header .hf-header__name{font-size:14px}
- header.hf-header .hf-header__tagline{font-size:7px;letter-spacing:.8px}
+ header.hf-header .hf-header__brand{gap:8px;min-width:0;flex:1 1 auto;white-space:normal}
+ header.hf-header .hf-header__brand-copy{min-width:0;overflow-wrap:anywhere}
+ header.hf-header .hf-header__name{font-size:13px;white-space:nowrap}
+ header.hf-header .hf-header__tagline{display:none}
+ header.hf-header .hf-header__right{min-width:0;flex:0 0 auto}
  header.hf-header .hf-header__tools{gap:6px}
  header.hf-header .hf-header__lang,header.hf-header .hf-header__menu{
   min-height:40px;padding:7px 10px;font-size:11px
