@@ -84,11 +84,15 @@ test('DECIDE: public navigation works without regressing THINK, FOCUS or LEARN',
  ]);
  for(const response of [think,focus,learn])assert.equal(response.status,200);
  const home=await think.text();
- for(const id of ['domain-filters','level-filter','focus-nav-link','learn-nav-link','decide-nav-link','decide-hero-link']){
-  assert.ok(home.includes(`id="${id}"`),`Missing ${id}`);
- }
- assert.ok((await focus.text()).includes('class="focus-decide-link"'));
- assert.ok((await learn.text()).includes('id="nav-decide"'));
+ for(const id of ['domain-filters','level-filter','decide-hero-link'])
+  assert.ok(home.includes('id="'+id+'"'),'Missing '+id);
+ const {headerModel}=await import('../public/ui/header.mjs');
+ for(const [page,key,id] of [
+  ['think','focus','focus-nav-link'],['think','learn','learn-nav-link'],
+  ['think','decide','decide-nav-link'],['learn','decide','nav-decide']])
+  assert.equal(headerModel(page,'fr').links.find(x=>x.key===key).id,id);
+ assert.ok((await focus.text()).includes('data-hf-header'));
+ assert.ok((await learn.text()).includes('data-hf-header'));
  const catalog=await (await fetch(base+'/api/catalog?lang=fr')).json();
  assert.equal(catalog.exercises.length,20);
  const learnCatalog=await (await fetch(base+'/api/learn/catalog?lang=en')).json();
