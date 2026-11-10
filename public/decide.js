@@ -117,7 +117,7 @@ function updateLinks(){
   for(const id of ['nav-think','nav-focus','nav-learn','nav-journey']){
     const base={"nav-think":"/","nav-focus":"/focus","nav-learn":"/learn","nav-journey":"/journey"}[id];
     $(id).href=base+'?lang='+locale;
-    if(id==='nav-journey')$(id).textContent=locale==='en'?'JOURNEY':'PARCOURS';
+    if(id==='nav-journey')$(id).textContent=locale==='en'?'MY JOURNEY':'MON PARCOURS';
   }
 }
 function applyCopy(){
