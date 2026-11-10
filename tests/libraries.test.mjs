@@ -78,11 +78,14 @@ test('V1.4: downloadable example is a fully importable pack in Journey and Studi
  assert.equal(validateDocument(importForEditing(template,{author:'Équipe pédagogique'}),installedPacks).ok,true);
 });
 
-test('V1.4: shared bilingual action labels, accessible buttons and cross-page styling',async()=>{
- const paths=['index','focus','learn','decide','journey','studio'];
- for(const page of paths){
+test('V1.4: static action-label contract and scoped stylesheet on the two library UIs',async()=>{
+ for(const page of ['journey','studio']){
   const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
   assert.ok(markup.includes('href="/ui/actions.css"'),page);
+ }
+ for(const page of ['index','focus','learn','decide']){
+  const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
+  assert.ok(!markup.includes('href="/ui/actions.css"'),page+' does not use these classes');
  }
  const journey=await readFile(new URL('../public/journey.html',import.meta.url),'utf8');
  const studio=await readFile(new URL('../public/studio.html',import.meta.url),'utf8');
@@ -93,13 +96,27 @@ test('V1.4: shared bilingual action labels, accessible buttons and cross-page st
  assert.ok(libraryActions.fr.load&&libraryActions.en.load);
  assert.ok(libraryActions.fr.use&&libraryActions.en.use);
  assert.ok(libraryActions.fr.loaded!==libraryActions.fr.load);
+ assert.equal(libraryActions.en.path,'pathway');
+ assert.equal(libraryActions.en.paths,'pathways');
+ const studioApp=await readFile(new URL('../public/studio/app.mjs',import.meta.url),'utf8');
+ const journeyApp=await readFile(new URL('../public/journey/app.mjs',import.meta.url),'utf8');
+ for(const script of [studioApp,journeyApp]){
+  assert.ok(script.includes("button.setAttribute('aria-label'"),'Card buttons have unique accessible labels');
+  assert.ok(script.includes('button.dataset.libraryId=library.id'));
+ }
+ assert.ok(studioApp.includes("button?.focus({preventScroll:true})"),'Restore keyboard focus after loading template');
+ assert.ok(studioApp.includes('activeTemplateAuditLength'),'Edited templates must be reloadable');
+ const css=await readFile(new URL('../public/ui/actions.css',import.meta.url),'utf8');
+ assert.ok(css.includes('min-height:44px'));
+ assert.ok(css.includes('.hf-action:focus-visible'));
+ assert.ok(css.includes(':not([aria-disabled="true"])'));
  const handler=await readFile(new URL('../server/index.mjs',import.meta.url),'utf8');
  for(const asset of ['/journey/libraries.mjs','/journey/library-manager.mjs',
   '/examples/knowledge-pack-template.json','/ui/actions.css'])
   assert.ok(handler.includes("'"+asset+"'"),asset);
 });
 
-test('V1.4: the same My Journey nav wording is used on all six spaces, even after switching language',async()=>{
+test('V1.4: static French and English My Journey navigation strings exist on all six spaces',async()=>{
  for(const page of ['index','focus','learn','decide','journey','studio']){
   const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
   assert.ok(markup.includes('MON PARCOURS'),page+' French navigation label');
@@ -108,4 +125,14 @@ test('V1.4: the same My Journey nav wording is used on all six spaces, even afte
   const code=await readFile(new URL('../public/'+script,import.meta.url),'utf8');
   assert.ok(code.includes('MY JOURNEY'),script+' English navigation label');
  }
+});
+
+test('V1.4: Studio and Journey reject the same malformed semantic version and cross-type IDs',()=>{
+ const broken={...starterLibraries[0].pack,version:'01.0.0'};
+ assert.throws(()=>createRegistry([...installedPacks,broken]),/semantic version/);
+ const document=importForEditing(JSON.stringify(broken),{author:'Équipe pédagogique'});
+ assert.equal(validateDocument(document,installedPacks).ok,false);
+ const collision=structuredClone(starterLibraries[0].pack);
+ collision.pathways[0].id=collision.competencies[0].id;
+ assert.throws(()=>createRegistry([...installedPacks,collision]),/conflicts with competency/);
 });
