@@ -28,6 +28,20 @@ Chaque compétence possède `id` namespacé (`pack.competence`), `title.fr/en`, 
 
 Les références croisées peuvent pointer vers les compétences du **pack en cours d'import**, celles des packs déjà chargés ou celles des packs installés. Le moteur refuse les cycles et les identifiants dupliqués (y compris une collision compétence/parcours). Les fichiers ne contiennent pas de JavaScript exécutable. Les packs sont limités à **150 kB** dans JOURNEY ; l'import dans Studio accepte jusqu'à **500 kB** (brouillons et packs). Les brouillons Studio complets `hf.studio.document.v1` sont destinés à Studio uniquement ; seuls les packs JSON bruts s'importent dans JOURNEY.
 
+
+## Parcourir et pratiquer sans chercher partout
+
+Une fois le parcours créé, le panneau **Retrouver mon fil d'apprentissage** indique uniquement le nombre de compétences du parcours et celles pour lesquelles une étape personnelle a été déclarée : **ce n'est ni un score ni une progression certifiante**.
+
+- **Commencer ma prochaine activité / Start my next activity** ouvre la consigne bilingue correspondant à la compétence et au pilier suggérés par la Boussole. L'apprenant peut changer de pilier directement entre THINK, FOCUS, LEARN et DECIDE.
+- Les cartes et la Boussole proposent également **Voir la consigne / Read the instruction** en un clic. Il s'agit **du texte d'activité du pack chargé**, pas d'un lien automatique à un exercice noté du catalogue général. Un lien séparé propose d'explorer le pilier entier.
+- La pratique guidée propose trois marqueurs **J'ai exploré / I explored this**, **J'ai pratiqué / I practiced this**, **À revoir / Review later** ; seule la dernière étape déclarée pour une compétence est affichée. Aucune réponse libre n'est envoyée ni conservée.
+- La barre **Rechercher une compétence / Find a skill** accepte les titres, sujets, mots-clés ou identifiants, sans tenir compte des accents et de la casse ; les filtres permettent de retrouver les compétences **sans étape**, **explorées**, **pratiquées** ou **à revoir**.
+- **Compétence suivante / Next skill** passe à la compétence suivante de la liste, sans imposer un ordre obligatoire. La navigation au clavier, le retour de focus et la traduction des noms accessibles sont pris en charge.
+- Une bibliothèque déjà chargée affiche maintenant **Ouvrir le parcours / Open this pathway**, permettant de la retrouver en un clic dans le même onglet. Un identifiant déjà utilisé par un autre pack est signalé, sans le remplacer silencieusement.
+
+Les marqueurs sont exportés dans le portfolio JSON et les sauvegardes chiffrées **sur action volontaire uniquement** ; en revenant après fermeture, l'apprenant doit recharger les bibliothèques qui avaient été utilisées avant d'importer son portfolio. La recherche, le filtre et l'activité actuellement ouverte sont des préférences d'interface éphémères et ne sont pas exportés. La langue choisie reste persistante lors de la navigation.
+
 ## Qualité, accessibilité, langues et limites
 
 - Les libellés des bibliothèques sont communs à JOURNEY et STUDIO, en français ou anglais, même après un changement de page.
