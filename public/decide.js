@@ -1,4 +1,4 @@
-import {mountHeader} from './ui/header.mjs';
+import {mountHeader,refreshHeaderLanguage} from './ui/header.mjs';
 import {decisionStages,decideScenarios,decideScenario,reflectionPrompts} from './decide-data.mjs';
 import {initialLanguage,syncLanguage} from './language.mjs';
 
@@ -124,7 +124,7 @@ function updateLinks(){
 }
 function applyCopy(){
   document.documentElement.lang=locale;
-  syncLanguage(locale);
+  syncLanguage(locale);refreshHeaderLanguage(locale);
   updateLinks();
   const c=copy();
   for(const [id,value] of Object.entries(c)){
