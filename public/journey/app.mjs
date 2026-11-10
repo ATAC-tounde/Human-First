@@ -783,7 +783,7 @@ const remoteUi=mountEncryptedRemoteSync({
 $('language-switch').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
-  locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('language-switch',locale);history.replaceState(null,'',url);
+  locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);
   renderLocale();
   relocalizeActiveFormative();
 });
