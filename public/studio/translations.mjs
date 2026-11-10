@@ -79,6 +79,13 @@ export function renderStudioLanguage(locale,root=globalThis.document){
    element.setAttribute(attribute,locale==='en'?studioText(value,'en'):value);
   }
  }
+ // A minimal root used by accessibility tests may expose only getElementById;
+ // preserve the language control even without the full header DOM facade.
+ const languageButton=root.getElementById?.('language-switch');
+ if(languageButton){
+  languageButton.textContent=locale==='en'?'FR':'EN';
+  languageButton.setAttribute('aria-label',locale==='en'?'Switch to French':'Passer en anglais');
+ }
  renderSiteHeader(locale,root);
  localizeLinks(locale,root);
 }
