@@ -116,17 +116,19 @@ test('V1.4: static action-label contract and scoped stylesheet on the two librar
   assert.ok(handler.includes("'"+asset+"'"),asset);
 });
 
-test('V1.4: static French and English My Journey navigation strings exist on all six spaces',async()=>{
- for(const page of ['index','focus','learn','decide','journey','studio']){
-  const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
-  assert.ok(markup.includes('MON PARCOURS'),page+' French navigation label');
+test('V1.4: the same canonical header and bilingual My Journey label on all six pages',async()=>{
+ const pages=['index','focus','learn','decide','journey','studio'];
+ const html=await Promise.all(pages.map(page=>readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8')));
+ const canonical=html[0].match(/<header class="hf-site-header"[\\s\\S]*?<\\/header>/)?.[0];
+ assert.ok(canonical,'Canonical header exists');
+ for(let i=0;i<pages.length;i++){
+  assert.ok(html[i].includes('MON PARCOURS'),pages[i]);
+  assert.equal(html[i].match(/<header class="hf-site-header"[\\s\\S]*?<\\/header>/)?.[0],canonical,pages[i]);
  }
- for(const script of ['app.js','focus.js','learn.js','decide.js','journey/app.mjs']){
-  const code=await readFile(new URL('../public/'+script,import.meta.url),'utf8');
-  assert.ok(code.includes('MY JOURNEY'),script+' English navigation label');
- }
+ const shared=await readFile(new URL('../public/ui/header.mjs',import.meta.url),'utf8');
+ assert.ok(shared.includes("journey:'MY JOURNEY'"));
+ assert.ok(shared.includes("journey:'MON PARCOURS'"));
 });
-
 test('V1.4: Studio and Journey reject the same malformed semantic version and cross-type IDs',()=>{
  const broken={...starterLibraries[0].pack,version:'01.0.0'};
  assert.throws(()=>createRegistry([...installedPacks,broken]),/semantic version/);
