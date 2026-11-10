@@ -1,4 +1,4 @@
-import {mountHeader} from './ui/header.mjs';
+import {mountHeader,refreshHeaderLanguage} from './ui/header.mjs';
 import {focusCards,getFocusCard} from './focus-library.mjs';
 import {initialLanguage,syncLanguage} from './language.mjs';
 
@@ -91,7 +91,7 @@ function renderSteps(item){
 function render(){
  const p=phrases[locale];
  document.documentElement.lang=locale;
- syncLanguage(locale);
+ syncLanguage(locale);refreshHeaderLanguage(locale);
  document.title=locale==='en'?'FOCUS - HUMAN FIRST':'FOCUS - HUMAN FIRST';
  txt('focus-eyebrow',p.eyebrow);txt('focus-title',p.title);const second=document.createElement('em');second.textContent=p.titleSecond;$('focus-title').append(document.createElement('br'),second);
  txt('focus-lead',p.lead);txt('focus-principles','');p.principles.forEach(value=>{const el=document.createElement('span');el.textContent=value;$('focus-principles').append(el);});
