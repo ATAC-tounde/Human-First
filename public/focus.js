@@ -63,8 +63,7 @@ function renderCards(){
   const heading=document.createElement('h3');heading.textContent=item.title;
   const desc=document.createElement('p');desc.textContent=item.subtitle;
   content.append(heading,desc);
-  const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='';arrow.setAttribute('aria-hidden','true');
-  button.append(top,content,arrow);
+  button.append(top,content);
   button.addEventListener('click',()=>{
    if(!$('focus-adult-check').checked){
     txt('focus-age-error',phrases[locale].adultError);
