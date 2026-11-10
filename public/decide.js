@@ -19,7 +19,7 @@ const dict = {
     'adult-detail':'Démonstration pédagogique. Évite les informations sensibles et les décisions à forts enjeux.',
     'scenario-eyebrow':'UN DILEMME À EXAMINER', 'scenario-title':'Sept situations pour s’entraîner.',
     'scenario-subtitle':'Les situations sont fictives. Tu peux créer la tienne et quitter à tout moment.',
-    'exit-work':'← Quitter et effacer mes notes',
+    'exit-work':' Quitter et effacer mes notes',
     'situation-label':'La situation',
     'frame-title':'Formuler mon objectif', 'goal-label':'Quel résultat souhaites-tu obtenir ?',
     'criterion-one-label':'Critère important n° 1', 'criterion-two-label':'Critère important n° 2',
@@ -41,8 +41,8 @@ const dict = {
     'paper-title':'À faire loin de l’écran', 'reflection-title':'Quelques questions pour toi',
     'last-note':'Tu n’as pas à justifier tes choix à cette application. Rien n’est enregistré.',
     'print-worksheet':'Imprimer une fiche vierge, sans mes notes',
-    'previous-step':'← Étape précédente','next-step':'Continuer sans obligation de répondre →',
-    'finish-work':'Terminer et effacer toutes mes notes ↗',
+    'previous-step':' Étape précédente','next-step':'Continuer sans obligation de répondre ',
+    'finish-work':'Terminer et effacer toutes mes notes ',
     'aside-label':'LE CHOIX T’APPARTIENT', 'aside-title':'Un conseil peut informer. Il ne décide pas.',
     'aside-text':'Aucune option ne reçoit de note ou de classement automatique. Tu peux revoir tes critères ou quitter à tout moment.',
     'privacy-note':'Tes notes restent dans cette page ouverte. Elles ne sont pas envoyées au serveur ni conservées dans un stockage navigateur. Fermer ou recharger efface les champs.',
@@ -69,7 +69,7 @@ const dict = {
     'adult-detail':'Educational demonstration. Avoid sensitive details and high-stakes decisions.',
     'scenario-eyebrow':'A DILEMMA TO EXAMINE', 'scenario-title':'Seven situations to explore.',
     'scenario-subtitle':'The scenarios are fictional. You can make one your own and leave at any time.',
-    'exit-work':'← Leave and erase my notes',
+    'exit-work':' Leave and erase my notes',
     'situation-label':'The situation',
     'frame-title':'Define my aim', 'goal-label':'What would you like to achieve?',
     'criterion-one-label':'Important criterion #1', 'criterion-two-label':'Important criterion #2',
@@ -91,8 +91,8 @@ const dict = {
     'paper-title':'Try this away from the screen', 'reflection-title':'Questions to consider',
     'last-note':'You do not have to justify your choices to this app. Nothing is recorded.',
     'print-worksheet':'Print a blank worksheet, without my notes',
-    'previous-step':'← Previous step','next-step':'Continue without having to answer →',
-    'finish-work':'Finish and erase all my notes ↗',
+    'previous-step':' Previous step','next-step':'Continue without having to answer ',
+    'finish-work':'Finish and erase all my notes ',
     'aside-label':'THE CHOICE IS YOURS', 'aside-title':'Advice can inform. It does not decide.',
     'aside-text':'No option is automatically scored or ranked. You can revisit your criteria or leave at any time.',
     'privacy-note':'Your notes stay in this open page. They are not sent to a server or saved in browser storage. Closing or reloading clears the fields.',
@@ -147,7 +147,7 @@ function renderCards(){
     const n=document.createElement('span');n.className='card-index';n.textContent='DECIDE '+String(index+1).padStart(2,'0');
     const heading=document.createElement('strong');heading.textContent=scenario.title;
     const description=document.createElement('span');description.textContent=scenario.short;
-    const action=document.createElement('span');action.className='card-action';action.textContent=copy().choose+' ↗';
+    const action=document.createElement('span');action.className='card-action';action.textContent=copy().choose+' ';
     button.append(n,heading,description,action);
     button.setAttribute('aria-label',`${copy().choose}: ${scenario.title}`);
     button.addEventListener('click',()=>start(scenario.id));root.append(button);
