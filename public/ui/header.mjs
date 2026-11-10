@@ -33,7 +33,7 @@ export function renderSiteHeader(locale=initialLanguage(),root=globalThis.docume
  const language=header.querySelector('#language-switch');
  if(language){language.textContent=lang==='fr'?'EN':'FR';language.setAttribute('aria-label',copy.switch)}
  const current=destinations[globalThis.location?.pathname??'/']??'';
- for(const item of header.querySelectorAll('.hf-site-nav a')){
+ for(const item of header.querySelectorAll('.hf-brand, .hf-site-nav a')){
   if(item.id===current)item.setAttribute('aria-current','page');
   else item.removeAttribute('aria-current');
  }
