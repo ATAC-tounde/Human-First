@@ -202,8 +202,8 @@ function renderLibraryCards(){
   const title=local(library.pack.title);
   card.append(element('h4',null,title),element('p',null,local(library.summary)));
   card.append(element('span','hf-library-meta',
-   library.pack.competencies.length+' '+action.skills+' · '+
-   library.pack.pathways.length+' '+action.paths+' · 18+'));
+   library.pack.competencies.length+' '+(library.pack.competencies.length===1?action.skill:action.skills)+' · '+
+   library.pack.pathways.length+' '+(library.pack.pathways.length===1?action.path:action.paths)+' · 18+'));
   const button=element('button','hf-action '+(loaded?'hf-action--secondary':'hf-action--primary'),
    loaded?action.loaded:action.load);
   button.type='button';button.dataset.libraryId=library.id;
