@@ -144,6 +144,7 @@ export function mountHeader(page,lang='fr',root=globalThis.document){
  toggle.textContent=model.menu;toggle.setAttribute('aria-label',model.menu);
  tools.append(languageButton,toggle);right.append(nav,tools);
  header.replaceChildren(brand,right);
+ root.documentElement?.classList?.add?.('hf-hydrated');
  header.dataset.hfMounted='true';header.dataset.hfLocale=model.lang;
  toggle.addEventListener('click',()=>{
   const open=toggle.getAttribute('aria-expanded')!=='true';
