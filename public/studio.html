@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/studio/studio.css">
 <script src="/studio/app.mjs" type="module"></script>
+<link rel="stylesheet" href="/ui/actions.css">
 </head><body>
 <a class="skip" href="#main">Aller au contenu</a>
 <div class="page">
@@ -16,9 +17,16 @@
 <section class="heading"><div><p class="eyebrow">CRÉATION PÉDAGOGIQUE · RÉFÉRENTIELS OUVERTS</p><h1>Concevoir des compétences.<br><em>Transmettre sans enfermer.</em></h1><p class="lede">Un atelier indépendant pour structurer des compétences, leurs prérequis et des activités THINK, FOCUS, LEARN et DECIDE. Les contenus restent dans cet onglet jusqu’à un export volontaire.</p></div>
 <div class="promise"><span class="number">04</span><p>Piliers<br><strong>Un moteur commun</strong></p><p class="caveat">Démonstration adulte (18+). Ni diplôme certifié, ni approbation institutionnelle, ni publication automatique.</p></div></section>
 <div class="disclosure" role="note"><strong>Données privées.</strong> Aucun compte ni synchronisation. Le contenu de travail n’est jamais envoyé au serveur. Exporter ton brouillon avant d’actualiser ou fermer l’onglet. Les revues indiquées ici sont <strong>déclaratives, non authentifiées</strong>. <label class="adult-gate" for="adult"><input id="adult" type="checkbox"> Je confirme avoir au moins 18 ans pour utiliser cet atelier.</label></div>
-<section class="toolbar" aria-label="Outils du Studio"><div class="toolbar-left"><label for="author">Rédacteur ou équipe</label><input id="author" autocomplete="off" maxlength="80" value="Équipe pédagogique"><button id="new" type="button" class="small">+ Nouveau</button><label class="small file-button" for="import">Importer un JSON<input id="import" type="file" accept=".json,application/json" hidden></label></div>
+<section class="toolbar" aria-label="Outils du Studio"><div class="toolbar-left"><label for="author">Rédacteur ou équipe</label><input id="author" autocomplete="off" maxlength="80" value="Équipe pédagogique"><button id="new" type="button" class="small">+ Nouveau</button><label class="small file-button" for="import">Importer un pack JSON<input id="import" type="file" accept=".json,application/json" hidden></label></div>
 <div class="toolbar-right"><button id="save-draft" type="button" class="small">Exporter le brouillon</button><button id="preview" type="button" class="small">Aperçu pédagogique</button><button id="validate" type="button" class="primary">Contrôler la qualité ↗</button></div></section>
-<div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
+<section class="hf-library-panel" aria-labelledby="studio-library-title">
+  <h2 id="studio-library-title">Commencer avec une bibliothèque prête à adapter</h2>
+  <p class="hf-library-intro">Choisis un modèle pédagogique FR/EN : il s'ouvre directement en brouillon modifiable. Un modèle n'est pas une publication vérifiée et ne remplace pas la revue humaine.</p>
+  <div class="hf-library-grid" id="studio-library-list"></div>
+  <div class="hf-library-tools"><a class="hf-action hf-action--secondary" href="/examples/knowledge-pack-template.json" download="human-first-modele-bibliotheque.json">Télécharger un exemple JSON</a></div>
+  <p class="hf-library-note">Format d'import : pack JSON avec id, version, title, competencies et pathways. L'exemple téléchargeable fonctionne dans MON PARCOURS et dans Studio.</p>
+  </section>
+  <div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
 <div class="workspace"><aside class="tree" aria-label="Plan du référentiel"><div class="pack-badge"><span id="status-tag" class="status-tag">BROUILLON</span><span id="version-label">1.0.0</span></div>
 <button type="button" id="select-pack" class="tree-pack">Paramètres du référentiel <span>↗</span></button>
 <div class="tree-header"><h2>Compétences</h2><button type="button" id="add-skill" aria-label="Ajouter une compétence" title="Ajouter une compétence">+</button></div><div id="skills" class="nodes" role="group" aria-label="Liste des compétences"></div>
