@@ -126,14 +126,16 @@ test('LEARN integration preserves twenty THINK challenges and FOCUS navigation',
  const focus=await fetch(base+'/focus');
  assert.equal(focus.status,200);
  const focusHtml=await focus.text();
- assert.ok(focusHtml.includes('class="focus-learn-link"'));
+ assert.ok(focusHtml.includes('data-hf-header'));
+ const {headerModel}=await import('../public/ui/header.mjs');
+ assert.equal(headerModel('focus','fr').links.find(x=>x.key==='learn').href,'/learn?lang=fr');
  const library=await fetch(base+'/focus-library.mjs');
  assert.equal(library.status,200);
  const home=await fetch(base+'/');
  const page=await home.text();
- for(const id of ['domain-filters','level-filter','focus-nav-link','learn-nav-link','focus-hero-link','learn-hero-link','offscreen-card']){
+ for(const id of ['domain-filters','level-filter','focus-hero-link','learn-hero-link','offscreen-card'])
   assert.ok(page.includes('id="'+id+'"'),id+' missing from current home');
- }
+ assert.equal(headerModel('think','fr').links.find(x=>x.key==='learn').id,'learn-nav-link');
  const learnPage=await (await fetch(base+'/learn')).text();
  assert.ok(learnPage.includes('id="catalog-screen"'));
 });
