@@ -141,3 +141,18 @@ body :is(.skip,.skip-link):focus-visible{
  padding:10px 16px;border:2px solid #17412c;border-radius:8px;
  background:#fffefa;color:#163629;box-shadow:0 5px 18px rgba(15,40,29,.16);
 }
+
+/* In browsers without JS, navigation stays usable instead of disappearing on mobile. */
+@media(max-width:1030px){
+ html:not(.hf-hydrated) header.hf-header{flex-direction:column;align-items:stretch;gap:10px}
+ html:not(.hf-hydrated) header.hf-header .hf-header__right{display:flex;flex-direction:column;align-items:stretch}
+ html:not(.hf-hydrated) header.hf-header .hf-header__nav{
+  position:static;display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:8px 0;border:0;box-shadow:none;background:transparent;
+ }
+}
+/* Keep scroll targets visible beneath the persistent header. */
+html{scroll-padding-top:112px}
+#method,#ethics,main[id],section[id]{scroll-margin-top:112px}
+/* Remove the old decorative dot overlay for a cleaner, readable surface. */
+.grain[aria-hidden="true"]{display:none!important}
