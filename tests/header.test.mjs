@@ -23,8 +23,8 @@ test('Design: each page has identical navigation order, brand and logo',()=>{
    assert.equal(model.logo,'HF');
    assert.equal(model.links.filter(x=>x.active).length,1);
    assert.equal(model.links.find(x=>x.key===page).active,true);
-   assert.equal(model.links.find(x=>x.key==='method').href,'/?lang='+language+'#method');
-   assert.equal(model.links.find(x=>x.key==='commitments').href,'/?lang='+language+'#ethics');
+   assert.equal(model.links.find(x=>x.key==='method').href,page==='think'?'#method':'/?lang='+language+'#method');
+   assert.equal(model.links.find(x=>x.key==='commitments').href,page==='think'?'#ethics':'/?lang='+language+'#ethics');
    assert.equal(model.links.find(x=>x.key==='journey').text,
     language==='fr'?'MON PARCOURS':'MY JOURNEY');
    assert.equal(model.links.find(x=>x.key==='studio').text,'STUDIO');
@@ -55,6 +55,7 @@ test('Design: all pages mount the same header from one source, no duplicate hand
  assert.ok(module.includes('Escape'), 'Keyboard closes menu');
  assert.ok(module.includes("aria-current"), 'Current page exposed to assistive technology');
  assert.ok(module.includes('MutationObserver'), 'Header follows page-controlled language');
+ assert.ok(module.includes("event.preventDefault()"),'Active navigation cannot discard an in-progress task');
 });
 
 test('Design: existing navigation IDs are kept for each interactive page',()=>{
