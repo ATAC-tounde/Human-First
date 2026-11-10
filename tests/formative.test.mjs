@@ -194,7 +194,7 @@ test('Formative: switching language preserves an unfinished private draft, not j
   assert.equal(feedback.hidden,!initiallyRevealed);
   if(initiallyRevealed)assert.deepEqual(checks.map(x=>x.checked),[true,false]);
  }
- const handler=source.slice(source.indexOf("$('lang').addEventListener('click'"));
+ const handler=source.slice(source.indexOf("$('language-switch').addEventListener('click'"));
  assert.ok(handler.includes('relocalizeActiveFormative()'));
  assert.ok(!handler.includes('closeFormative();locale='));
 });
