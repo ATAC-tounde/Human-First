@@ -11,19 +11,29 @@
   <link rel="stylesheet" href="/journey/workspace.css">
   <script type="module" src="/journey/app.mjs"></script>
 <link rel="stylesheet" href="/ui/actions.css">
+<link rel="stylesheet" href="/ui/header.css">
 </head>
 <body>
   <a class="skip" href="#main" data-text="skip">Aller au contenu</a>
   <div class="shell">
-    <header class="top">
-      <a class="brand" href="/" aria-label="HUMAN FIRST - Accueil"><span class="brand-icon">HF</span><span>HUMAN <strong>FIRST</strong><small>THINK FIRST. AI SECOND.</small></span></a>
-      <nav aria-label="Piliers HUMAN FIRST" class="links">
-        <a href="/" id="link-think">THINK</a><a href="/focus" id="link-focus">FOCUS</a><a href="/learn" id="link-learn">LEARN</a><a href="/decide" id="link-decide">DECIDE</a>
-        <span class="selected" aria-current="page" data-text="journeyNav">MON PARCOURS</span>
-        <a href="/studio" id="link-studio">STUDIO ↗</a>
-        <button type="button" id="lang" aria-label="Switch to English">EN</button>
-      </nav>
-    </header>
+    <header class="hf-site-header" data-hf-header>
+  <div class="hf-header-inner">
+    <a class="hf-brand" id="brand-link" href="/" aria-label="HUMAN FIRST, accueil">
+      <span class="hf-brand-mark" aria-hidden="true">HF</span>
+      <span class="hf-brand-wordmark"><span>HUMAN <strong>FIRST</strong></span><small data-hf-label="tagline">INITIATIVE INDÉPENDANTE</small></span>
+    </a>
+    <nav class="hf-site-nav" aria-label="Navigation principale">
+      <a id="nav-method" href="/#method">Notre méthode</a>
+      <a id="focus-nav-link" href="/focus">FOCUS</a>
+      <a id="learn-nav-link" href="/learn">LEARN</a>
+      <a id="decide-nav-link" href="/decide">DECIDE</a>
+      <a id="journey-nav-link" href="/journey">MON PARCOURS</a>
+      <a id="studio-nav-link" href="/studio">STUDIO</a>
+      <a id="nav-ethics" href="/#ethics">Nos engagements</a>
+    </nav>
+    <button type="button" id="language-switch" aria-label="Switch to English">EN</button>
+  </div>
+</header>
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div><p class="eyebrow" data-text="eyebrow">LE NOYAU PÉDAGOGIQUE · V1.4</p>
@@ -61,12 +71,12 @@
             <div class="hf-library-grid" id="library-list"></div>
             <div class="hf-library-tools">
               <a class="hf-action hf-action--secondary" href="/examples/knowledge-pack-template.json" download="human-first-modele-bibliotheque.json" data-text="libraryDownload">Télécharger un exemple JSON</a>
-              <a class="hf-action hf-action--secondary" href="/studio" id="library-studio-link" data-text="libraryStudio">Créer ma bibliothèque dans Studio ↗</a>
+              <a class="hf-action hf-action--secondary" href="/studio" id="library-studio-link" data-text="libraryStudio">Créer ma bibliothèque dans Studio </a>
             </div>
             <p class="hf-library-note" data-text="libraryNote">Les bibliothèques ajoutées disparaissent à la fermeture ou au rechargement de cet onglet. Pour les retrouver, recharge un pack JSON sauvegardé. Aucun fichier externe n'est téléchargé automatiquement.</p>
           </section>
           <fieldset class="self-report" aria-labelledby="familiarity-heading"><legend id="familiarity-heading" data-text="familiarityTitle">Ce que je connais déjà (facultatif)</legend><p data-text="familiarityHelp">Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.</p><div id="familiarity-list" class="familiarity-list"></div></fieldset>
-          <div class="controls"><button type="submit" class="primary" id="build" data-text="create">Créer mon parcours ↗</button><button type="button" id="clear" class="secondary" data-text="clear">Effacer cette séance</button></div>
+          <div class="controls"><button type="submit" class="primary" id="build" data-text="create">Créer mon parcours </button><button type="button" id="clear" class="secondary" data-text="clear">Effacer cette séance</button></div>
           <p class="privacy" data-text="privacyNotice">Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.</p>
           <p id="form-status" class="status" role="alert" aria-live="assertive"></p>
         </form>
@@ -118,7 +128,7 @@
           </div>
           <div class="dashboard-links" style="margin-top:16px">
             <button type="button" class="hf-action hf-action--primary" id="practice-next" data-text="practiceNext">Compétence suivante</button>
-            <a class="hf-action hf-action--secondary" id="practice-open-space" href="/" data-text="practiceSpace">Explorer le pilier général ↗</a>
+            <a class="hf-action hf-action--secondary" id="practice-open-space" href="/" data-text="practiceSpace">Explorer le pilier général </a>
           </div>
         </section>
         <section class="program-tools" aria-label="Retrouver mes compétences">
