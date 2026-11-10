@@ -342,7 +342,7 @@ function updateLanguageSwitch() {
   const journeyUrl='/journey?lang='+locale;
   $('journey-nav-link').href=journeyUrl;
   $('journey-hero-link').href=journeyUrl;
-  $('journey-nav-link').textContent=locale==='en'?'MY PATHWAY':'MON PARCOURS';
+  $('journey-nav-link').textContent=locale==='en'?'MY JOURNEY':'MON PARCOURS';
   $('journey-link-label').textContent=locale==='en'?'LEARNING KERNEL · PERSONAL PATHWAYS':'LE NOYAU · PARCOURS PERSONNALISÉS';
   $('journey-link-heading').textContent=locale==='en'?'Learning at every stage of life.':'Apprendre à chaque étape de la vie.';
   $('journey-link-description').textContent=locale==='en'?'Choose a goal. Competencies and four pillars form a voluntary program without scores or automated profiling.':'Choisis un objectif. Les compétences et les quatre piliers s’organisent autour de toi, sans note ni profilage automatique.';
