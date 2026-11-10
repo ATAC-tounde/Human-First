@@ -98,3 +98,14 @@ test('V1.4: shared bilingual action labels, accessible buttons and cross-page st
   '/examples/knowledge-pack-template.json','/ui/actions.css'])
   assert.ok(handler.includes("'"+asset+"'"),asset);
 });
+
+test('V1.4: the same My Journey nav wording is used on all six spaces, even after switching language',async()=>{
+ for(const page of ['index','focus','learn','decide','journey','studio']){
+  const markup=await readFile(new URL('../public/'+page+'.html',import.meta.url),'utf8');
+  assert.ok(markup.includes('MON PARCOURS'),page+' French navigation label');
+ }
+ for(const script of ['app.js','focus.js','learn.js','decide.js','journey/app.mjs']){
+  const code=await readFile(new URL('../public/'+script,import.meta.url),'utf8');
+  assert.ok(code.includes('MY JOURNEY'),script+' English navigation label');
+ }
+});
