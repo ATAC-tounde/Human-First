@@ -1,4 +1,4 @@
-import {mountHeader} from './ui/header.mjs';
+import {mountHeader,refreshHeaderLanguage} from './ui/header.mjs';
 // HUMAN FIRST LEARN. Intentionally no analytics, AI, timers, scores or third-party requests.
 import {initialLanguage,syncLanguage} from './language.mjs';
 const $=id=>document.getElementById(id);
@@ -64,9 +64,9 @@ function schedule(){
 }
 function localeCopy(){
  document.documentElement.lang=locale;
- syncLanguage(locale);
+ syncLanguage(locale);refreshHeaderLanguage(locale);
  $('lesson-filters').setAttribute('aria-label',locale==='en'?'Filter lessons':'Filtrer les leçons');
- document.querySelector('.hf-header__nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
+ // Header navigation name is localized centrally by refreshHeaderLanguage.
  $('nav-decide').href='/decide?lang='+locale;
  $('nav-journey').href='/journey?lang='+locale;
  $('nav-journey').textContent=locale==='en'?'MY JOURNEY':'MON PARCOURS';
