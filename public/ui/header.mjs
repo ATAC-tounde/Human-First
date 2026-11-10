@@ -152,6 +152,7 @@ export function mountHeader(page,lang='fr',root=globalThis.document){
   const words=LABELS[header.dataset.hfLocale];
   toggle.textContent=open?words.close:words.menu;
   toggle.setAttribute('aria-label',open?words.close:words.menu);
+  if(open)nav.querySelector('a')?.focus();
  });
  nav.addEventListener('click',event=>{
   const link=event.target.closest('a');
@@ -167,11 +168,7 @@ export function mountHeader(page,lang='fr',root=globalThis.document){
    applyLanguage(header,header.dataset.hfLocale);toggle.focus();
   }
  });
- // Existing independent pages own their language switches. React after their
- // own translation pass rather than adding a second click handler.
- if(typeof MutationObserver!=='undefined'){
-  const observer=new MutationObserver(()=>refreshHeaderLanguage(root.documentElement?.lang||model.lang,root));
-  observer.observe(root.documentElement,{attributes:true,attributeFilter:['lang']});
- }
+ // The page app owns locale changes, and calls refreshHeaderLanguage(locale)
+ // explicitly. Never infer UI preference from a locked lesson's HTML locale.
  return header;
 }
