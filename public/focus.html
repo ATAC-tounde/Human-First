@@ -10,24 +10,30 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/focus.css">
   <script type="module" src="/focus.js"></script>
+<link rel="stylesheet" href="/ui/header.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
   <div class="grain" aria-hidden="true"></div>
   <div class="shell">
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="HUMAN FIRST, accueil">
-        <span class="brand-mark" aria-hidden="true"><span>H</span><span>F</span></span>
-        <span class="brand-text">HUMAN <b>FIRST</b><small>INITIATIVE INDÉPENDANTE</small></span>
-      </a>
-      <nav class="focus-nav" aria-label="Navigation">
-        <a href="/" id="back-home">← <span id="nav-back-label">THINK FIRST</span></a>
-        <a href="/learn?lang=fr" class="focus-learn-link">LEARN ↗</a>
-        <a href="/decide?lang=fr" class="focus-decide-link">DECIDE ↗</a>
-        <a href="/journey?lang=fr" class="focus-journey-link">MON PARCOURS ↗</a>
-        <button id="focus-language-switch" type="button" aria-label="Switch to English">EN</button>
-      </nav>
-    </header>
+    <header class="hf-site-header" data-hf-header>
+  <div class="hf-header-inner">
+    <a class="hf-brand" id="brand-link" href="/" aria-label="HUMAN FIRST, accueil">
+      <span class="hf-brand-mark" aria-hidden="true">HF</span>
+      <span class="hf-brand-wordmark"><span>HUMAN <strong>FIRST</strong></span><small data-hf-label="tagline">INITIATIVE INDÉPENDANTE</small></span>
+    </a>
+    <nav class="hf-site-nav" aria-label="Navigation principale">
+      <a id="nav-method" href="/#method">Notre méthode</a>
+      <a id="focus-nav-link" href="/focus">FOCUS</a>
+      <a id="learn-nav-link" href="/learn">LEARN</a>
+      <a id="decide-nav-link" href="/decide">DECIDE</a>
+      <a id="journey-nav-link" href="/journey">MON PARCOURS</a>
+      <a id="studio-nav-link" href="/studio">STUDIO</a>
+      <a id="nav-ethics" href="/#ethics">Nos engagements</a>
+    </nav>
+    <button type="button" id="language-switch" aria-label="Switch to English">EN</button>
+  </div>
+</header>
     <main id="main" class="focus-page">
       <div class="focus-eyebrow" id="focus-eyebrow">PILIER 02 · FOCUS · DÉMONSTRATION ADULTE</div>
       <h1 id="focus-title">Retrouver de la place<br><em>pour son attention.</em></h1>
@@ -39,7 +45,7 @@
         <div id="focus-cards" class="focus-cards" aria-live="polite"></div>
       </section>
       <section id="focus-activity" hidden aria-labelledby="activity-title">
-        <button type="button" class="focus-back" id="focus-back">← Retour aux activités</button>
+        <button type="button" class="focus-back" id="focus-back"> Retour aux activités</button>
         <div class="focus-activity-heading">
           <p class="eyebrow muted" id="activity-category">ACTIVITÉ CHOISIE</p>
           <h2 id="activity-title" tabindex="-1"></h2>
@@ -49,14 +55,14 @@
         <label for="focus-intention" id="focus-intention-label" class="focus-label">Mon intention (facultative, reste dans cet onglet)</label>
         <textarea id="focus-intention" rows="2" maxlength="280" autocomplete="off" placeholder="Je veux essayer de..."></textarea>
         <div class="focus-steps" id="focus-steps"></div>
-        <div class="focus-action"><button id="focus-leave" class="button button-solid" type="button">Je quitte l'écran pour essayer ↗</button><button id="focus-skip" class="button button-line" type="button">Arrêter sans justification</button></div>
+        <div class="focus-action"><button id="focus-leave" class="button button-solid" type="button">Je quitte l'écran pour essayer </button><button id="focus-skip" class="button button-line" type="button">Arrêter sans justification</button></div>
       </section>
       <section id="focus-away" hidden aria-labelledby="away-title" class="focus-away">
         <p class="eyebrow light" id="away-label">C'EST À TOI, HORS ÉCRAN</p>
         <h2 id="away-title" tabindex="-1">L'application peut attendre.</h2>
         <p id="away-description">Ferme cet onglet si tu le souhaites. Prends le temps qui te convient : nous ne mesurons pas ton attention.</p>
         <p class="focus-away-note" id="away-no-timer">Aucune durée imposée. Aucune notification de retour.</p>
-        <button id="focus-return" type="button" class="button button-ghost">Je suis revenu et souhaite réfléchir ↗</button>
+        <button id="focus-return" type="button" class="button button-ghost">Je suis revenu et souhaite réfléchir </button>
       </section>
       <section id="focus-reflect" hidden aria-labelledby="reflect-title">
         <p class="eyebrow muted" id="reflect-label">UN BILAN, SANS SCORE</p>
@@ -65,7 +71,7 @@
         <ol id="focus-reflection-prompts" class="focus-reflection-prompts"></ol>
         <label for="focus-reflection" id="focus-reflection-label" class="focus-label">Mes observations (facultatives, non enregistrées)</label>
         <textarea id="focus-reflection" rows="4" maxlength="1000" autocomplete="off" placeholder="J'ai remarqué que..."></textarea>
-        <div class="focus-action"><button type="button" class="button button-solid" id="focus-end">Terminer et effacer mes notes ↗</button><button type="button" class="button button-line" id="focus-print">Imprimer uniquement les consignes</button></div>
+        <div class="focus-action"><button type="button" class="button button-solid" id="focus-end">Terminer et effacer mes notes </button><button type="button" class="button button-line" id="focus-print">Imprimer uniquement les consignes</button></div>
       </section>
       <div class="focus-privacy" id="focus-privacy" role="note">Confidentialité : les notes restent uniquement dans la mémoire de cet onglet. Elles ne sont ni transmises au serveur, ni stockées dans le navigateur. Quitter ou recharger cette page les efface.</div>
     </main>
