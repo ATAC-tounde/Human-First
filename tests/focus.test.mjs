@@ -62,9 +62,11 @@ test('FOCUS client sends no user notes, does not save texts and has no time pres
 
 test('FOCUS page is reachable from the THINK FIRST homepage',async()=>{
  const page=await (await fetch(base+'/')).text();
- assert.ok(page.includes('id="focus-nav-link"'));
+ const {headerModel}=await import('../public/ui/header.mjs');
+ assert.ok(page.includes('data-hf-header'));
  assert.ok(page.includes('id="focus-hero-link"'));
- assert.ok(page.includes('/focus?lang=fr'));
+ assert.equal(headerModel('think','fr').links.find(x=>x.key==='focus').href,'/focus?lang=fr');
+ assert.equal(headerModel('think','fr').links.find(x=>x.key==='focus').id,'focus-nav-link');
 });
 test('V0.5 integration preserves the current twenty THINK challenges and no premature LEARN link',async()=>{
  const response=await fetch(base+'/api/catalog?lang=fr');
