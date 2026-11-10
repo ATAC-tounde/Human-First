@@ -114,7 +114,7 @@ function createCard(ex,index) {
   const p=document.createElement('p');p.textContent=ex.introduction;mid.append(h,p);
   const bottom=document.createElement('div');bottom.className='card-bottom';
   const duration=document.createElement('span');duration.textContent=`⏱ ${ex.duration} ${w('minutes')} · ${ex.level}`;
-  const arrow=document.createElement('span');arrow.className='card-arrow';arrow.textContent='';arrow.setAttribute('aria-hidden','true');bottom.append(duration,arrow);
+  bottom.append(duration);
   btn.append(top,mid,bottom);
   btn.addEventListener('click',()=>guarded(async()=>{
     if(!$('adult-check').checked) {errorIn('home-error',w('adult'));$('adult-check').focus();return;}
