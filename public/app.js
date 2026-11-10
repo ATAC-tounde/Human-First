@@ -1,4 +1,4 @@
-import {mountHeader} from './ui/header.mjs';
+import {mountHeader,refreshHeaderLanguage} from './ui/header.mjs';
 import {applyLocale,word} from './i18n.js';
 import {initialLanguage,syncLanguage} from './language.mjs';
 // Sans télémétrie : seuls les rappels facultatifs et la préférence UI FR/EN sont enregistrés.
@@ -329,7 +329,7 @@ on('skip-transfer','click',()=>guarded(async()=>{state=await api('/api/session/a
 on('print-button','click',()=>window.print());
 on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};$('attempt').value='';$('transfer-answer').value='';render();scrollTop();}));
 function updateLanguageSwitch() {
-  syncLanguage(locale);
+  syncLanguage(locale);refreshHeaderLanguage(locale);
   const btn=$('language-switch');btn.textContent=locale==='fr'?'EN':'FR';
   btn.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
   const url='/focus?lang='+locale;
@@ -361,7 +361,7 @@ function updateLanguageSwitch() {
   $('focus-link-heading').textContent=locale==='en'?'Make room for attention, away from the screen.':'Une pratique de l’attention, loin de l’écran.';
   $('focus-link-description').textContent=locale==='en'?'Six optional activities, with no timer or stored answers.':'Six activités libres, sans minuteur ni collecte des réponses.';
   $('focus-hero-link').textContent=locale==='en'?'Explore FOCUS ':'Explorer FOCUS ';
-  syncLanguage(locale);
+  syncLanguage(locale);refreshHeaderLanguage(locale);
 }
 on('language-switch','click',()=>guarded(async()=>{
   if(state.stage!=='idle')return;
