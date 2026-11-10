@@ -93,6 +93,13 @@ test('DECIDE: public navigation works without regressing THINK, FOCUS or LEARN',
   assert.equal(headerModel(page,'fr').links.find(x=>x.key===key).id,id);
  assert.ok((await focus.text()).includes('data-hf-header'));
  assert.ok((await learn.text()).includes('data-hf-header'));
+ const {renderHeaderFixture}=await import('./helpers/header-fixture.mjs');
+ const homeHeader=renderHeaderFixture('think'),focusHeader=renderHeaderFixture('focus'),learnHeader=renderHeaderFixture('learn');
+ for(const id of ['focus-nav-link','learn-nav-link','decide-nav-link'])
+  assert.ok(homeHeader.id(id),id+' must exist after mounting');
+ assert.equal(focusHeader.link('decide').href,'/decide?lang=fr');
+ assert.ok(focusHeader.link('decide').classList.contains('focus-decide-link'));
+ assert.equal(learnHeader.id('nav-decide').href,'/decide?lang=fr');
  const catalog=await (await fetch(base+'/api/catalog?lang=fr')).json();
  assert.equal(catalog.exercises.length,20);
  const learnCatalog=await (await fetch(base+'/api/learn/catalog?lang=en')).json();
