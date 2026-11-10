@@ -152,7 +152,7 @@ test('i18n: actual Studio UI translation preserves unsaved form fields and recom
     return textNode;
    }};
   },
-  getElementById:id=>id==='studio-language-switch'?button:id==='preview-panel'?previewPanel:null
+  getElementById:id=>id==='language-switch'?button:id==='preview-panel'?previewPanel:null
  };
  const before=globalThis.NodeFilter;
  try{
@@ -195,7 +195,7 @@ test('i18n: actual Studio UI translation preserves unsaved form fields and recom
 });
 test('i18n: Studio production toggle uses refreshStudioPanels without recreating editing inputs',async()=>{
  const studio=await read('public/studio/app.mjs');
- const start=studio.indexOf("$('studio-language-switch').addEventListener");
+ const start=studio.indexOf("$('language-switch').addEventListener");
  const end=studio.indexOf("$('editor-form').addEventListener",start);
  assert.ok(start>0&&end>start);
  const action=studio.slice(start,end);
@@ -212,7 +212,7 @@ test('i18n: a pending LEARN bootstrap disables switching and restores preference
  const source=await read('public/learn.js');
  const start=source.indexOf('async function bootstrap()');
  const block=source.slice(start);
- assert.match(block,/\$\('switch-lang'\)\.disabled=true/);
+ assert.match(block,/\$\('language-switch'\)\.disabled=true/);
  assert.ok(block.indexOf('syncLanguage(preferredLocale)')<block.lastIndexOf('api(\`/api/learn/catalog'), 'sync navigation preference before any fallible extra catalog load');
- assert.match(block,/finally\{\$\('switch-lang'\)\.disabled=state\.stage!==\'idle\'/);
+ assert.match(block,/finally\{\$\('language-switch'\)\.disabled=state\.stage!==\'idle\'/);
 });
