@@ -42,6 +42,11 @@ const targetUrl=(key,lang)=>{
  const [path,hash='']=route.split('#');
  return path+'?lang='+lang+(hash?'#'+hash:'');
 };
+const linkTarget=(page,key,lang)=>{
+ if(page==='think'&&key==='method')return '#method';
+ if(page==='think'&&key==='commitments')return '#ethics';
+ return targetUrl(key,lang);
+};
 /** A pure contract used by the UI and tests. */
 export function headerModel(page='think',lang='fr'){
  if(!PAGES.includes(page))throw new TypeError('Unknown HUMAN FIRST page');
@@ -50,7 +55,7 @@ export function headerModel(page='think',lang='fr'){
   page,lang:language,brand:words.brand,logo:'HF',
   menu:words.menu,navigation:words.navigation,
   links:NAV.map(key=>Object.freeze({key,text:words[key],
-   href:targetUrl(key,language),active:key===page,id:IDS[page]?.[key]||null})),
+   href:linkTarget(page,key,language),active:key===page,id:IDS[page]?.[key]||null})),
   languageButtonId:IDS[page].button,
   languageButtonText:language==='fr'?'EN':'FR'
  });
@@ -148,9 +153,12 @@ export function mountHeader(page,lang='fr',root=globalThis.document){
   toggle.setAttribute('aria-label',open?words.close:words.menu);
  });
  nav.addEventListener('click',event=>{
-  if(event.target.closest('a')){
-   toggle.setAttribute('aria-expanded','false');nav.classList.remove('is-open');
-  }
+  const link=event.target.closest('a');
+  if(!link)return;
+  // Never reload an in-progress practice or unsaved Studio draft on the active link.
+  if(link.getAttribute('aria-current')==='page')event.preventDefault();
+  toggle.setAttribute('aria-expanded','false');nav.classList.remove('is-open');
+  applyLanguage(header,header.dataset.hfLocale);
  });
  header.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&toggle.getAttribute('aria-expanded')==='true'){
