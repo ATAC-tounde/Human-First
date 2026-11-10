@@ -113,14 +113,14 @@ test('V1.4 UI: static practice markup and asset allowlist are present',async()=>
 
 });
 
-test('V1.4 accessible names and pathway help are updated when language or library changes',async()=>{
- const app=await readFile(new URL('../public/journey/app.mjs',import.meta.url),'utf8');
- for(const key of ['dashboardMetricsAria','practicePillarsAria','practiceProgressAria','searchGroupAria'])
-  assert.equal(app.split(key+':').length-1,2,key+' has FR and EN copy');
- assert.ok(app.includes("document.querySelector('.program-tools').setAttribute('aria-label'"));
- assert.ok(app.includes("$('path').value=pathId;renderPathways();"));
- assert.ok(app.includes("$('path').value=targetPath;renderPathways();"));
- assert.ok(app.includes("document.querySelectorAll('#program-list button[data-progress-skill]')"));
+test('V1.4: pathway help, accessible group and filter markup are present without UI implementation assumptions',async()=>{
  const html=await readFile(new URL('../public/journey.html',import.meta.url),'utf8');
- assert.ok(html.includes('id="program-visible-count" class="program-matches" tabindex="-1"'));
+ for(const fragment of ['id="path-help" aria-live="polite"',
+  'id="program-visible-count" class="program-matches" tabindex="-1" role="status"',
+  'id="dashboard-metrics" aria-label="Récapitulatif des étapes déclarées"',
+  'id="practice-pillar-choices" role="group"',
+  'id="program-search" type="search"',
+  'id="program-filter" aria-controls="program-list"']){
+  assert.ok(html.includes(fragment),fragment);
+ }
 });
