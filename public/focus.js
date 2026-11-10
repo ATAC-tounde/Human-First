@@ -106,7 +106,7 @@ function render(){
  document.querySelector('.focus-learn-link').href=`/learn?lang=${locale}`;
  document.querySelector('.focus-decide-link').href=`/decide?lang=${locale}`;
  document.querySelector('.focus-journey-link').href=`/journey?lang=${locale}`;
- document.querySelector('.focus-journey-link').textContent=locale==='en'?'JOURNEY ↗':'PARCOURS ↗';
+ document.querySelector('.focus-journey-link').textContent=locale==='en'?'MY JOURNEY ↗':'MON PARCOURS ↗';
  $('focus-picker').hidden=phase!=='choose';
  $('focus-activity').hidden=phase!=='activity';
  $('focus-away').hidden=phase!=='away';
