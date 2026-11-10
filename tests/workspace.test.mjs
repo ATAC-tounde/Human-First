@@ -113,7 +113,11 @@ test('V1.4 UI: static practice markup and asset allowlist are present',async()=>
 
 });
 
-test('V1.4: pathway help, accessible group and filter markup are present without UI implementation assumptions',async()=>{
+test('V1.4: every accessible-name key has FR/EN copy and markup is present',async()=>{
+ const app=await readFile(new URL('../public/journey/app.mjs',import.meta.url),'utf8');
+ for(const key of ['dashboardMetricsAria','practicePillarsAria','practiceProgressAria','searchGroupAria'])
+  assert.equal(app.split(key+':').length-1,2,key+' must be translated in French and English');
+
  const html=await readFile(new URL('../public/journey.html',import.meta.url),'utf8');
  for(const fragment of ['id="path-help" aria-live="polite"',
   'id="program-visible-count" class="program-matches" tabindex="-1" role="status"',
