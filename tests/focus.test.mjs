@@ -74,7 +74,7 @@ test('V0.5 integration preserves the current twenty THINK challenges and no prem
  const catalog=await response.json();
  assert.equal(catalog.exercises.length,20);
  const page=await (await fetch(base+'/focus')).text();
- assert.ok(!page.includes('href="/learn"'),'LEARN will be introduced in V0.6');
+ assert.ok(page.includes('href="/learn"'),'Shared no-JS navigation now exposes LEARN');
  const homepage=await (await fetch(base+'/')).text();
  assert.ok(homepage.includes('id="domain-filters"'),'existing domain filters preserved');
  assert.ok(homepage.includes('id="level-filter"'),'existing difficulty filter preserved');
