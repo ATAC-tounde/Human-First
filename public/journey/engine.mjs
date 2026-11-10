@@ -9,7 +9,7 @@ export const KERNEL_VERSION = '1.0.0';
 export const PILLARS = Object.freeze(['think', 'focus', 'learn', 'decide']);
 export const FAMILIARITY = Object.freeze(['new', 'exploring', 'practicing', 'confident']);
 const ID = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
-const VERSION = /^\d+\.\d+\.\d+$/;
+const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const stages = ['personal', 'school-return', 'higher-education', 'work', 'transition', 'teaching'];
 const ageBands = ['unspecified', '18-24', '25-39', '40-59', '60+'];
 const isPlain = value => value !== null && typeof value === 'object' &&
@@ -71,6 +71,7 @@ export function createRegistry(packs) {
       id(path.id, 'Pathway');
       assert(path.id.startsWith(pack.id+'.'), `${path.id} not in pack ${pack.id}`);
       assert(!pathways.has(path.id), `Duplicate pathway ${path.id}`);
+      assert(!byId.has(path.id), `Pathway ID conflicts with competency ${path.id}`);
       texts(path.title, `${path.id} title`);texts(path.summary, `${path.id} summary`);
       assert(Array.isArray(path.competencyIds) && path.competencyIds.length, `${path.id} missing goals`);
       path.competencyIds.forEach(x=>id(x, `${path.id} goal`));
