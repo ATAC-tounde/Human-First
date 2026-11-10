@@ -1,4 +1,4 @@
-import {mountHeader} from '../ui/header.mjs';
+import {mountHeader,refreshHeaderLanguage} from '../ui/header.mjs';
 import {installedPacks} from './packs.mjs';
 import {starterLibraries,libraryActions} from './libraries.mjs';
 import {addStarterLibrary} from './library-manager.mjs';
@@ -178,7 +178,7 @@ function message(value){$('form-status').textContent=value;}
 const tags={think:'/',focus:'/focus',learn:'/learn',decide:'/decide'};
 function renderLocale(){
  document.documentElement.lang=locale;
- syncLanguage(locale);
+ syncLanguage(locale);refreshHeaderLanguage(locale);
  translateVault();
  remoteUi.render();
  document.title=(locale==='en'?'My journey':'Mon parcours')+' | HUMAN FIRST';
