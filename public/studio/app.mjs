@@ -1,3 +1,4 @@
+import {mountHeader} from '../ui/header.mjs';
 /** HUMAN FIRST Studio. No fetch, external API, analytics or storage of authored content.\n * Only the two-letter interface language may be persisted locally. */
 import {installedPacks} from '../journey/packs.mjs';
 import {starterLibraries,libraryActions} from '../journey/libraries.mjs';
@@ -7,6 +8,7 @@ import {makeDocument,renamePack,editDraft,validateDocument,requestReview,approve
   reopenDraft,publishDocument,nextDraft,exportPack,exportStudioDocument,importForEditing,
   previewDocument,versionFormativeTask,REVIEW_CHECKS,LICENSES} from './model.mjs';
 let locale=initialLanguage();
+mountHeader('studio',locale);
 const tr=source=>studioText(source,locale);
 const $=id=>document.getElementById(id);
 const root=$('form-fields');
