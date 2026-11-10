@@ -9,6 +9,7 @@ import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs'
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
 import {mountEncryptedRemoteSync} from './remote-ui.mjs';
 import {suggestPractice} from './compass.mjs';
+import {selfReportedSummary,latestDeclarations,visibleSkills,practicePrompt} from './workspace.mjs';
 import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
@@ -21,6 +22,7 @@ let program=null;
 let events=[];
 let formative=[];
 let activeFormative=null;
+let activePractice=null; // in-tab UI selection only, never exported
 let aliasManifest=null;
 let familiarity={};
 const vaultWords={
@@ -93,6 +95,19 @@ fr:{
  compassSkill:'Voir les quatre activités de cette compétence',compassPillar:'Explorer',
  skip:'Aller au contenu',journeyNav:'MON PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V1.4',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
  noScore:'✓ Sans notation automatisée',noAccount:'✓ Sans compte',portable:'✓ Exportable et modifiable',foundationTitle:'L’IDÉE CENTRALE',foundationHeading:'Des compétences, pas des cases.',foundationCopy:'Aucun métier, diplôme, pays ou domaine n’est intégré en dur au moteur. De nouveaux référentiels s’ajoutent comme modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.',
+ dashboardHeading:"Retrouver mon fil d'apprentissage",dashboardIntro:'Tes étapes sont des déclarations personnelles, pas une note ni une mesure de tes capacités.',
+ dashboardTotal:'Compétences dans mon parcours',dashboardNew:'Sans étape déclarée',dashboardReviewed:'Avec une étape déclarée',
+ dashboardContinue:'Commencer ma prochaine activité',dashboardLibraries:'Voir les bibliothèques',
+ practiceEyebrow:'ATELIER GUIDÉ · SANS NOTE',practiceClose:"Fermer l'activité",
+ practiceDisclaimer:"La consigne vient du référentiel chargé. Cette activité est à réaliser librement, sans correction ni exercice imposé. Aucun texte n'est enregistré.",
+ practiceExplored:"J'ai exploré",practicePracticed:"J'ai pratiqué",practiceReview:'À revoir',
+ practiceNext:'Compétence suivante',practiceSpace:'Explorer le pilier général ↗',
+ practiceOpen:'Voir la consigne',practiceCurrent:'Mon étape déclarée',
+ searchLabel:'Rechercher une compétence',searchPlaceholder:'Titre, sujet, mot-clé…',
+ filterLabel:'Étape déclarée',filterAll:'Toutes les compétences',filterNew:'Sans étape déclarée',
+ filterExplored:'Explorées',filterPracticed:'Pratiquées',filterReview:'À revoir',
+ searchEmpty:'Aucune compétence ne correspond. Modifie ta recherche ou ton filtre.',
+ libraryResume:'Ouvrir le parcours',
  libraryHeading:'Bibliothèques prêtes à charger',
  libraryIntro:"Choisis une bibliothèque : un clic l'ajoute à tes objectifs. Ces exemples pédagogiques FR/EN ne sont ni certifiés ni évalués par des experts. Ils restent dans cet onglet.",
  libraryDownload:'Télécharger un exemple JSON',libraryStudio:'Créer ma bibliothèque dans Studio ↗',
@@ -121,6 +136,19 @@ en:{
  compassSkill:'See all four activities for this skill',compassPillar:'Explore',
  skip:'Skip to content',journeyNav:'MY JOURNEY',eyebrow:'THE LEARNING KERNEL · V1.4',heroOne:'A pathway shaped by you.',heroTwo:'Free to change as you grow.',heroLead:'Your goals change throughout life. Skills and four pillars can evolve with you, without reducing your potential to an age or a degree.',
  noScore:'✓ No automatic grading',noAccount:'✓ No account',portable:'✓ Portable and editable',foundationTitle:'THE CORE IDEA',foundationHeading:'Competencies, not labels.',foundationCopy:'No occupation, degree, country or field is hard-coded into the engine. New versioned content packs can add explicit prerequisites and activities across the four pillars.',
+ dashboardHeading:'Pick up where I left off',dashboardIntro:'These are your own declared steps, not grades or measures of ability.',
+ dashboardTotal:'Skills in my pathway',dashboardNew:'No step declared yet',dashboardReviewed:'With a declared step',
+ dashboardContinue:'Start my next activity',dashboardLibraries:'Browse the libraries',
+ practiceEyebrow:'GUIDED PRACTICE · NO GRADE',practiceClose:'Close activity',
+ practiceDisclaimer:'This instruction comes from the loaded curriculum. Practice freely without an assigned exercise or automatic correction. No text is saved.',
+ practiceExplored:'I explored this',practicePracticed:'I practiced this',practiceReview:'Review later',
+ practiceNext:'Next skill',practiceSpace:'Explore the general pillar ↗',
+ practiceOpen:'Read the instruction',practiceCurrent:'My declared step',
+ searchLabel:'Find a skill',searchPlaceholder:'Title, topic, keyword…',
+ filterLabel:'Declared step',filterAll:'All skills',filterNew:'No step declared',
+ filterExplored:'Explored',filterPracticed:'Practiced',filterReview:'Review later',
+ searchEmpty:'No skills match. Change your search or filter.',
+ libraryResume:'Open this pathway',
  libraryHeading:'Ready-to-use knowledge libraries',
  libraryIntro:'Choose a library: one click adds its learning goals. These bilingual demonstrations are not certified or independently reviewed. They stay in this tab.',
  libraryDownload:'Download a JSON example',libraryStudio:'Create my own library in Studio ↗',
@@ -155,6 +183,7 @@ function renderLocale(){
  document.querySelector('[data-text="aliasesLabel"]').textContent=locale==='en'?'Load an equivalence map for older catalogs (optional)':'Table d’équivalences pour anciens référentiels (facultative)';
  $('lang').textContent=locale==='en'?'FR':'EN';$('lang').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
  for(const pillar of PILLARS)$('link-'+pillar).href=tags[pillar]+'?lang='+locale;
+ $('program-search').placeholder=w('searchPlaceholder');
  const qual=$('qualification'),occupation=$('occupation');
  qual.placeholder=locale==='en'?'Bachelor, vocational training, self-directed learning…':'Licence, BTS, formation libre…';
  occupation.placeholder=locale==='en'?'Laboratory, design, computing…':'Laboratoire, artisanat, informatique…';
@@ -179,10 +208,20 @@ function renderLibraryCards(){
    loaded?action.loaded:action.load);
   button.type='button';button.dataset.libraryId=library.id;
   button.setAttribute('aria-label',(loaded?action.loaded:action.load)+': '+title);
-  if(loaded)button.setAttribute('aria-disabled','true');
-  button.addEventListener('click',()=>{if(!loaded)loadStarter(library.id);});
+  if(loaded){
+   button.textContent=w('libraryResume');
+   button.setAttribute('aria-label',w('libraryResume')+': '+title);
+  }
+  button.addEventListener('click',()=>loaded?openLibraryPath(library):loadStarter(library.id));
   card.append(button);list.append(card);
  }
+}
+function openLibraryPath(library){
+ const pathId=library.pack.pathways[0]?.id;
+ if(!pathId||!registry.paths.has(pathId))return;
+ $('path').value=pathId;renderFamiliarity();
+ if($('adult').checked)generate();
+ else{$('adult').focus();message(w('noAge'));}
 }
 function activatePack(pack,nextRegistry,targetPath){
  const hadProgram=Boolean(program);
@@ -202,7 +241,7 @@ function loadStarter(id){
   message(libraryActions[locale].loadedNotice+local(added.library.pack.title)+'.');
   // Preserve keyboard position when the cards are updated.
   const button=[...document.querySelectorAll('#library-list button')].find(x=>x.dataset.libraryId===id);
-  button?.focus();
+  button?.focus({preventScroll:true});
  }catch(error){message(w('libraryError')+String(error.message||error));}
 }
 function renderPathways(){
