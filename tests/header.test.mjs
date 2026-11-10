@@ -66,7 +66,8 @@ test('Design: all pages hydrate the same header with identical server-visible na
  assert.ok(module.includes("aria-expanded"), 'Accessible menu state');
  assert.ok(module.includes('Escape'), 'Keyboard closes menu');
  assert.ok(module.includes("aria-current"), 'Current page exposed to assistive technology');
- assert.ok(module.includes('MutationObserver'), 'Header follows page-controlled language');
+ assert.ok(module.includes('refreshHeaderLanguage'), 'Page apps control navigation locale');
+ assert.ok(!module.includes('MutationObserver'), 'Lesson language must not override UI preference');
  assert.ok(module.includes("event.preventDefault()"),'Active navigation cannot discard an in-progress task');
 });
 
