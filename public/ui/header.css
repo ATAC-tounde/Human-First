@@ -1,7 +1,6 @@
 /* HUMAN FIRST design system - shared header, identical on all six pages.
    This stylesheet is loaded last and is deliberately scoped to .hf-site-header. */
 :root{--hf-forest:#173c30;--hf-forest-strong:#102e25;--hf-text:#20362d;--hf-canvas:#faf9f5;--hf-border:#d2dfd3;--hf-accent:#a65b37}
-html{scroll-padding-top:110px}
 body{color:var(--hf-text)}
 header.hf-site-header{
   --hf-header-height:100px;
@@ -9,14 +8,14 @@ header.hf-site-header{
   position:relative;
   isolation:isolate;
   box-sizing:border-box;
-  width:min(1450px,calc(100vw - 48px))!important;
-  max-width:none!important;
+  width:100%!important;
+  max-width:100%!important;
   min-height:var(--hf-header-height)!important;
   height:auto!important;
   margin:0 0 20px!important;
   padding:0!important;
-  left:50%;
-  transform:translateX(-50%);
+  left:auto;
+  transform:none;
   border:0!important;
   border-bottom:1px solid var(--hf-border)!important;
   background:transparent!important;
@@ -44,7 +43,7 @@ header.hf-site-header .hf-brand-mark{
 header.hf-site-header .hf-brand-wordmark{display:flex;flex-direction:column;gap:3px;line-height:1.15;font:500 17px/1.2 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.4px}
 header.hf-site-header .hf-brand-wordmark strong{font-weight:850}
 header.hf-site-header .hf-brand-wordmark small{
-  display:block!important;margin:0;color:#5a7062;font:700 8px/1.4 Inter,"Segoe UI",Arial,sans-serif;
+  display:block!important;margin:0;color:#5a7062;font:700 10px/1.4 Inter,"Segoe UI",Arial,sans-serif;
   letter-spacing:1.4px;text-transform:uppercase;
 }
 header.hf-site-header .hf-site-nav{
@@ -105,7 +104,7 @@ header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{op
  header.hf-site-header{width:calc(100vw - 24px)!important}
  header.hf-site-header .hf-brand-mark{width:40px;height:40px;border-radius:10px;font-size:15px}
  header.hf-site-header .hf-brand-wordmark{font-size:15px}
- header.hf-site-header .hf-brand-wordmark small{font-size:7px}
+ header.hf-site-header .hf-brand-wordmark small{font-size:10px}
  header.hf-site-header .hf-site-nav{gap:5px!important}
  header.hf-site-header .hf-site-nav a{font-size:12px!important;padding:10px 9px}
 }
