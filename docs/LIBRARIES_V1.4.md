@@ -6,7 +6,7 @@ Ouvrir **MON PARCOURS / JOURNEY**, puis la section **Bibliothèques prêtes à c
 
 Les quatre bibliothèques sont **information numérique**, **lecture des données**, **lecture critique de l'information de santé** (sans diagnostic ni conseil médical) et **organisation de projet**. Il s'agit d'exemples pédagogiques originaux et non d'ouvrages de référence vérifiés par des experts. Ils ne confèrent aucune compétence certifiée. Les boutons désactivent la double-importation en indiquant **Bibliothèque chargée / Library loaded**.
 
-Aucun appel réseau, téléchargement ou stockage du profil n'est déclenché par ce choix : les packs sont fournis avec l'application, puis validés en mémoire par le moteur `createRegistry`. Une actualisation de la page retire les packs ajoutés. Pour réutiliser un portfolio exporté lié à une bibliothèque, **charger d'abord cette bibliothèque**, puis importer le portfolio. L'import est refusé si la bibliothèque requise n'est pas disponible.
+Aucun appel réseau, téléchargement ou stockage du profil n'est déclenché par ce choix : les packs sont fournis avec l'application, puis validés en mémoire par le moteur `createRegistry`. Une actualisation de la page retire les packs ajoutés. Pour réutiliser un portfolio exporté, **recharger les mêmes bibliothèques dans le même ordre et avec les mêmes versions** avant d'importer le portfolio : le catalogue doit correspondre à `catalogVersion`. Si le fichier dépend d'un pack personnalisé, il faut aussi recharger ce pack. Une version différente nécessite une table d'équivalences explicite et vérifiée. Aucun contenu n'est abandonné silencieusement. L'import est refusé si la bibliothèque requise n'est pas disponible.
 
 ## Usage pour le rédacteur
 
@@ -18,7 +18,7 @@ Télécharger **`public/examples/knowledge-pack-template.json`**, modifiable dan
 
 | Champ | Type | Fonction |
 | --- | --- | --- |
-| `id` | chaîne courte, minuscule, chiffres et tirets | Namespace unique du pack |
+| `id` | 2 à 40 caractères ; commence par une lettre minuscule, puis minuscules, chiffres et tirets | Namespace unique du pack |
 | `version` | chaîne `X.Y.Z` | Version sémantique du pack |
 | `title` | objet `{fr,en}` | Titre bilingue |
 | `competencies` | tableau | Compétences et activités |
@@ -26,7 +26,7 @@ Télécharger **`public/examples/knowledge-pack-template.json`**, modifiable dan
 
 Chaque compétence possède `id` namespacé (`pack.competence`), `title.fr/en`, `outcome.fr/en`, `tags[]`, `requires[]` et `activities.think/focus/learn/decide` avec leurs textes `fr` et `en`. Les `contexts` (situations) sont facultatifs, par exemple `work: {fr,en}`. Chaque parcours possède `id`, `title.fr/en`, `summary.fr/en`, `competencyIds[]`, et éventuellement `audiences[]`.
 
-Les références croisées ne peuvent pointer que vers des compétences présentes dans les packs déjà chargés ou installés ; les cycles et les identifiants dupliqués sont refusés. Les fichiers ne contiennent pas de JavaScript exécutable. Les packs sont limités à **150 kB** dans JOURNEY ; l'import dans Studio accepte jusqu'à **500 kB** (brouillons et packs). Les brouillons Studio complets `hf.studio.document.v1` sont destinés à Studio uniquement ; seuls les packs JSON bruts s'importent dans JOURNEY.
+Les références croisées peuvent pointer vers les compétences du **pack en cours d'import**, celles des packs déjà chargés ou celles des packs installés. Le moteur refuse les cycles et les identifiants dupliqués (y compris une collision compétence/parcours). Les fichiers ne contiennent pas de JavaScript exécutable. Les packs sont limités à **150 kB** dans JOURNEY ; l'import dans Studio accepte jusqu'à **500 kB** (brouillons et packs). Les brouillons Studio complets `hf.studio.document.v1` sont destinés à Studio uniquement ; seuls les packs JSON bruts s'importent dans JOURNEY.
 
 ## Qualité, accessibilité, langues et limites
 
