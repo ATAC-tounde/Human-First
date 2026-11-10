@@ -129,6 +129,10 @@ test('LEARN integration preserves twenty THINK challenges and FOCUS navigation',
  assert.ok(focusHtml.includes('data-hf-header'));
  const {headerModel}=await import('../public/ui/header.mjs');
  assert.equal(headerModel('focus','fr').links.find(x=>x.key==='learn').href,'/learn?lang=fr');
+ const {renderHeaderFixture}=await import('./helpers/header-fixture.mjs');
+ const focusNav=renderHeaderFixture('focus','fr').link('learn');
+ assert.equal(focusNav.href,'/learn?lang=fr');
+ assert.ok(focusNav.classList.contains('focus-learn-link'));
  const library=await fetch(base+'/focus-library.mjs');
  assert.equal(library.status,200);
  const home=await fetch(base+'/');
