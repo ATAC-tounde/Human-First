@@ -85,7 +85,7 @@ header.hf-site-header button:focus-visible{
 }
 header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:1100px){
- header.hf-site-header{width:calc(100vw - 32px)!important}
+ header.hf-site-header{width:100%!important;max-width:100%!important}
  header.hf-site-header .hf-header-inner{
   display:grid;grid-template-columns:1fr 48px;
   grid-template-rows:auto auto;gap:9px 10px;padding:14px 0 11px;
@@ -101,7 +101,7 @@ header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{op
  header.hf-site-header .hf-site-nav a{padding:10px 12px}
 }
 @media(max-width:480px){
- header.hf-site-header{width:calc(100vw - 24px)!important}
+ header.hf-site-header{width:100%!important;max-width:100%!important}
  header.hf-site-header .hf-brand-mark{width:40px;height:40px;border-radius:10px;font-size:15px}
  header.hf-site-header .hf-brand-wordmark{font-size:15px}
  header.hf-site-header .hf-brand-wordmark small{font-size:10px}
@@ -111,7 +111,9 @@ header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{op
 @media print{header.hf-site-header{display:none!important}}
 
 
-/* Shared page finish: restrained surfaces, dependable contrast and controls.
+/* The header is constrained by its page shell (including DECIDE's padding),
+ * never by the viewport width; this avoids overflow at 320-1100px.
+ * Shared page finish: restrained surfaces, dependable contrast and controls.
  * Local product-specific layouts remain intact; only their visual baselines align. */
 html{background:#f8f9f5!important}
 body{background:#f8f9f5!important;background-image:none!important}
