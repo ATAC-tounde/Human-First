@@ -6,9 +6,9 @@
  text-align:center;text-decoration:none;cursor:pointer;max-width:100%;
  overflow-wrap:anywhere;transition:background-color .15s ease}
 .hf-action--primary{background:#244638;color:white;border-color:#244638}
-.hf-action--primary:hover{background:#35684e}
+.hf-action--primary:hover:not(:disabled):not([aria-disabled="true"]){background:#35684e}
 .hf-action--secondary{background:white;color:#244638}
-.hf-action--secondary:hover{background:#e7eee6}
+.hf-action--secondary:hover:not(:disabled):not([aria-disabled="true"]){background:#e7eee6}
 .hf-action:focus-visible{outline:3px solid #c77b43;outline-offset:3px}
 .hf-action:disabled,.hf-action[aria-disabled="true"]{opacity:.65;cursor:default}
 .hf-library-panel{border:1px solid #cbdcc9;background:#f3f7ef;border-radius:14px;
