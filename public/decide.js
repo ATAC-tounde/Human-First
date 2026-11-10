@@ -126,8 +126,7 @@ function applyCopy(){
   }
   set('hero-title',c['hero-title']);
   const emph=document.createElement('em');emph.textContent=c['hero-tail'];$('hero-title').append(emph);
-  $('language-switch').textContent=locale==='en'?'FR':'EN';
-  $('language-switch').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
+  // The canonical header owns the button caption and accessible language label.
   $('option-one').placeholder=locale==='en'?'Option A':'Option A';
   $('option-two').placeholder=locale==='en'?'Option B':'Option B';
   renderCards();
