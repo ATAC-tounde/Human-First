@@ -87,8 +87,8 @@ test('DECIDE: public navigation works without regressing THINK, FOCUS or LEARN',
  for(const id of ['domain-filters','level-filter','focus-nav-link','learn-nav-link','decide-nav-link','decide-hero-link']){
   assert.ok(home.includes(`id="${id}"`),`Missing ${id}`);
  }
- assert.ok((await focus.text()).includes('class="focus-decide-link"'));
- assert.ok((await learn.text()).includes('id="nav-decide"'));
+ assert.ok((await focus.text()).includes('id="decide-nav-link"'));
+ assert.ok((await learn.text()).includes('id="decide-nav-link"'));
  const catalog=await (await fetch(base+'/api/catalog?lang=fr')).json();
  assert.equal(catalog.exercises.length,20);
  const learnCatalog=await (await fetch(base+'/api/learn/catalog?lang=en')).json();
