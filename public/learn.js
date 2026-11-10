@@ -1,9 +1,11 @@
+import {mountHeader} from './ui/header.mjs';
 // HUMAN FIRST LEARN. Intentionally no analytics, AI, timers, scores or third-party requests.
 import {initialLanguage,syncLanguage} from './language.mjs';
 const $=id=>document.getElementById(id);
 const text=(id,value)=>{const node=$(id);if(node)node.textContent=String(value??'');};
 const show=(id,on)=>{$(id).hidden=!on;};
 let locale=initialLanguage();
+mountHeader('learn',locale);
 let state={stage:'idle'};let catalog=[];let filter='all';let busy=false;
 const dateStore='hf-learn:dates:v1';
 const dictionary={
@@ -64,7 +66,7 @@ function localeCopy(){
  document.documentElement.lang=locale;
  syncLanguage(locale);
  $('lesson-filters').setAttribute('aria-label',locale==='en'?'Filter lessons':'Filtrer les leçons');
- document.querySelector('.site-header nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
+ document.querySelector('.hf-header__nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
  $('nav-decide').href='/decide?lang='+locale;
  $('nav-journey').href='/journey?lang='+locale;
  $('nav-journey').textContent=locale==='en'?'MY JOURNEY':'MON PARCOURS';
