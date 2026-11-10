@@ -109,7 +109,7 @@ fr:{
  searchEmpty:'Aucune compétence ne correspond. Modifie ta recherche ou ton filtre.',
  dashboardMetricsAria:'Récapitulatif des étapes déclarées',practicePillarsAria:'Choisir une modalité de pratique',
  practiceProgressAria:'Étapes personnelles facultatives',searchGroupAria:'Retrouver mes compétences',
- libraryResume:'Ouvrir le parcours',
+ libraryConflict:'Identifiant déjà utilisé par un pack différent',libraryResume:'Ouvrir le parcours',
  libraryHeading:'Bibliothèques prêtes à charger',
  libraryIntro:"Choisis une bibliothèque : un clic l'ajoute à tes objectifs. Ces exemples pédagogiques FR/EN ne sont ni certifiés ni évalués par des experts. Ils restent dans cet onglet.",
  libraryDownload:'Télécharger un exemple JSON',libraryStudio:'Créer ma bibliothèque dans Studio ↗',
@@ -152,7 +152,7 @@ en:{
  searchEmpty:'No skills match. Change your search or filter.',
  dashboardMetricsAria:'Self-declared steps summary',practicePillarsAria:'Choose a learning mode',
  practiceProgressAria:'Optional personal progress markers',searchGroupAria:'Find my skills',
- libraryResume:'Open this pathway',
+ libraryConflict:'ID already used by a different pack',libraryResume:'Open this pathway',
  libraryHeading:'Ready-to-use knowledge libraries',
  libraryIntro:'Choose a library: one click adds its learning goals. These bilingual demonstrations are not certified or independently reviewed. They stay in this tab.',
  libraryDownload:'Download a JSON example',libraryStudio:'Create my own library in Studio ↗',
@@ -205,13 +205,16 @@ function renderLibraryCards(){
  const list=$('library-list');list.replaceChildren();
  const action=libraryActions[locale];
  for(const library of starterLibraries){
-  const loaded=importedPacks.some(pack=>pack.id===library.id);
+  const existing=importedPacks.find(pack=>pack.id===library.id);
+  const loaded=Boolean(existing)&&JSON.stringify(existing)===JSON.stringify(library.pack);
+  const conflict=Boolean(existing)&&!loaded;
   const card=element('article','hf-library-card');
   const title=local(library.pack.title);
   card.append(element('h4',null,title),element('p',null,local(library.summary)));
   card.append(element('span','hf-library-meta',
    library.pack.competencies.length+' '+(library.pack.competencies.length===1?action.skill:action.skills)+' · '+
    library.pack.pathways.length+' '+(library.pack.pathways.length===1?action.path:action.paths)+' · 18+'));
+  if(loaded)card.append(element('span','hf-library-meta',action.loaded));
   const button=element('button','hf-action '+(loaded?'hf-action--secondary':'hf-action--primary'),
    loaded?action.loaded:action.load);
   button.type='button';button.dataset.libraryId=library.id;
@@ -219,6 +222,10 @@ function renderLibraryCards(){
   if(loaded){
    button.textContent=w('libraryResume');
    button.setAttribute('aria-label',w('libraryResume')+': '+title);
+  }else if(conflict){
+   button.textContent=w('libraryConflict');
+   button.setAttribute('aria-label',w('libraryConflict')+': '+title);
+   button.disabled=true;
   }
   button.addEventListener('click',()=>loaded?openLibraryPath(library):loadStarter(library.id));
   card.append(button);list.append(card);
