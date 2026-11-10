@@ -42,8 +42,8 @@
             <h1 id="hero-title">Avant la réponse,<br><em>ta réflexion.</em></h1>
             <p class="hero-intro">Et si la meilleure IA était celle qui t’aidait à penser <strong>par toi-même</strong> ? Découvre une nouvelle manière d’apprendre : essayer d’abord, comprendre ensuite.</p>
             <div class="hero-actions">
-              <a class="button button-solid" href="#exercises" id="discover-button">Choisir un défi <span aria-hidden="true"></span></a>
-              <a class="button button-ghost" href="#method">Découvrir la méthode <span aria-hidden="true"></span></a>
+              <a class="button button-solid" href="#exercises" id="discover-button">Choisir un défi </a>
+              <a class="button button-ghost" href="#method">Découvrir la méthode </a>
             </div>
             <div class="hero-notes"><span><span class="tick">✓</span> Sans compte</span><span><span class="tick">✓</span> Sans publicité</span><span><span class="tick">✓</span> Gratuit</span></div>
           </div>
@@ -129,7 +129,7 @@
           <div class="method-grid">
             <article><span class="step-count">01 <span class="thin-rule"></span></span><div class="method-symbol">✎</div><h3>Tu essaies</h3><p>Tu poses tes idées, même imparfaites. Tu peux aussi passer si tu préfères.</p></article>
             <article><span class="step-count">02 <span class="thin-rule"></span></span><div class="method-symbol">✳</div><h3>On te guide</h3><p>Des questions et des indices t’aident, sans te donner immédiatement la solution.</p></article>
-            <article><span class="step-count">03 <span class="thin-rule"></span></span><div class="method-symbol"></div><h3>Tu vérifies</h3><p>Tu appliques ce que tu as compris sur un autre problème, sans aide.</p></article>
+            <article><span class="step-count">03 <span class="thin-rule"></span></span><div class="method-symbol" aria-hidden="true">◇</div><h3>Tu vérifies</h3><p>Tu appliques ce que tu as compris sur un autre problème, sans aide.</p></article>
           </div>
         </section>
 
@@ -149,7 +149,7 @@
               <label for="attempt" class="field-label">Ton raisonnement (même incomplet)</label>
               <textarea id="attempt" maxlength="2000" rows="5" placeholder="J'aurais tendance à penser que… car…"></textarea>
               <p class="field-hint">Aucune bonne note à obtenir. L’important est d’essayer.</p>
-              <div class="action-row"><button class="button button-solid" id="attempt-button">Valider ma tentative <span aria-hidden="true"></span></button><button class="button button-line" id="skip-button">Je ne sais pas / passer</button></div>
+              <div class="action-row"><button class="button button-solid" id="attempt-button">Valider ma tentative </button><button class="button button-line" id="skip-button">Je ne sais pas / passer</button></div>
             </div>
             <div id="coaching-view" hidden>
               <div class="attempt-recap" id="attempt-recap"></div>
@@ -161,19 +161,19 @@
                 <button type="button" id="ai-button" class="button button-line">Poser une question socratique</button>
                 <p id="ai-result" role="status" aria-live="polite"></p>
               </div>
-              <div class="action-row"><button class="button button-solid" id="hint-button">Recevoir un indice <span aria-hidden="true"></span></button><button class="button button-line" id="explanation-button">Voir l’explication</button></div>
+              <div class="action-row"><button class="button button-solid" id="hint-button">Recevoir un indice </button><button class="button button-line" id="explanation-button">Voir l’explication</button></div>
             </div>
             <div id="direct-access" class="direct-access" hidden><button id="direct-button" class="text-button">Accéder directement à l'explication </button></div>
             <div id="explanation-view" hidden>
               <article class="explanation-card"><span class="prompt-label">EXPLICATION DE RÉFÉRENCE</span><p id="explanation-text"></p></article>
               <p class="compassion-note">Tu peux relire cette explication autant que nécessaire. Ce n’est pas une compétition.</p>
-              <button id="transfer-button" class="button button-solid">Essayer un autre problème sans aide <span aria-hidden="true"></span></button>
+              <button id="transfer-button" class="button button-solid">Essayer un autre problème sans aide </button>
             </div>
             <div id="transfer-view" hidden>
               <label for="transfer-answer" class="field-label">Ta réponse autonome</label>
               <textarea id="transfer-answer" rows="5" maxlength="2000" placeholder="J'en conclus que… parce que…"></textarea>
               <p class="field-hint">Pas d'indice sur cette étape. Tu peux passer si tu bloques.</p>
-              <div class="action-row"><button class="button button-solid" id="submit-transfer">Voir mon bilan <span aria-hidden="true"></span></button><button class="button button-line" id="skip-transfer">Passer sans répondre</button></div>
+              <div class="action-row"><button class="button button-solid" id="submit-transfer">Voir mon bilan </button><button class="button button-line" id="skip-transfer">Passer sans répondre</button></div>
             </div>
             <div id="finished-view" hidden>
               <div class="review-box"><span class="prompt-label" id="finished-question-label">LE PROBLÈME SANS AIDE</span><p id="finished-question"></p><span class="prompt-label" id="finished-own-label">MA RÉPONSE</span><p id="finished-own-answer"></p></div>
@@ -181,9 +181,9 @@
               <div class="review-box"><span class="prompt-label">QUESTIONS POUR T’AUTO-ÉVALUER</span><ul id="review-items"></ul></div>
               <div class="answer-box"><span class="prompt-label">EXEMPLE DE RAISONNEMENT POSSIBLE</span><p id="sample-answer"></p></div>
               <p id="session-summary" class="field-hint"></p>
-              <div class="offscreen-box"><span aria-hidden="true"></span><div><strong>Et maintenant, loin de l'écran ?</strong><p id="offline-challenge">Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
+              <div class="offscreen-box"><div><strong>Et maintenant, loin de l'écran ?</strong><p id="offline-challenge">Prends une feuille et imagine un exemple personnel où cette idée pourrait être utile.</p></div></div>
               <section class="offscreen-box" id="offscreen-card" aria-labelledby="offscreen-card-title">
-                <span aria-hidden="true"></span><div>
+                <div>
                   <p class="eyebrow muted" id="offscreen-label">HORS ÉCRAN - LIBRE ET SANS COMPTE</p>
                   <h3 id="offscreen-card-title">Un défi concret</h3>
                   <p id="offscreen-card-info"></p>
@@ -199,7 +199,7 @@
                 <button type="button" id="schedule-button" class="button button-line">Programmer une révision</button>
                 <p id="schedule-status" role="status" aria-live="polite"></p>
               </div>
-              <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance <span aria-hidden="true"></span></button><button class="button button-line" id="print-button" type="button">Imprimer ma fiche de réflexion</button></div>
+              <div class="action-row"><button class="button button-solid" id="done-button">Terminer ma séance </button><button class="button button-line" id="print-button" type="button">Imprimer ma fiche de réflexion</button></div>
             </div>
             <div id="recall-view" hidden>
               <label id="recall-label" for="recall-answer" class="field-label">Ce dont je me souviens, sans aide</label>
@@ -213,7 +213,7 @@
               <article class="explanation-card"><span id="recall-reference-label" class="prompt-label">UNE EXPLICATION POSSIBLE</span><p id="recall-reference-text"></p></article>
               <p id="recall-note" class="field-hint">Compare ta réponse sans te noter : qu'as-tu retrouvé par toi-même ?</p>
               <section class="offscreen-box" id="recall-offscreen-card" aria-labelledby="recall-offscreen-title">
-                <span aria-hidden="true"></span><div>
+                <div>
                   <p class="eyebrow muted" id="recall-offscreen-label">UNE ACTIVITÉ LOIN DE L’ÉCRAN</p>
                   <h3 id="recall-offscreen-title">Pour la vie réelle</h3>
                   <p id="recall-offscreen-info"></p>
