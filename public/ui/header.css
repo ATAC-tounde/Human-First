@@ -110,3 +110,30 @@ header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{op
  header.hf-site-header .hf-site-nav a{font-size:12px!important;padding:10px 9px}
 }
 @media print{header.hf-site-header{display:none!important}}
+
+
+/* Shared page finish: restrained surfaces, dependable contrast and controls.
+ * Local product-specific layouts remain intact; only their visual baselines align. */
+html{background:#f8f9f5!important}
+body{background:#f8f9f5!important;background-image:none!important}
+body>.grain{display:none!important}
+body .shell,body .page,body .site-shell{background-image:none!important}
+:is(.button,.primary,.secondary,.primary-btn,.outline-btn,.hf-action,.small,.quiet,.file-label){
+ border-radius:9px!important;
+}
+:is(button.primary,button.secondary,button.primary-btn,button.outline-btn,
+ button.hf-action,button.button,button.small,button.quiet,
+ a.button,a.hf-action,label.file-label){
+ min-height:44px;
+}
+:is(button,a,input,select,textarea,.file-label):focus-visible{
+ outline:3px solid #ad623d!important;outline-offset:3px!important;
+}
+:is(.hero-copy,.hero-lead,.lede,.hero-intro,.focus-lead){text-wrap:pretty}
+:is(.program-card,.hf-library-card,.focus-card,.lesson-card,.studio-library-card){
+ box-shadow:0 3px 14px rgba(18,47,36,.045);
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ header.hf-site-header *{transition:none!important}
+}
