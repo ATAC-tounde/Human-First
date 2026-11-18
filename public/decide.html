@@ -9,21 +9,29 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/decide.css">
   <script type="module" src="/decide.js"></script>
+<link rel="stylesheet" href="/ui/header.css">
 </head>
 <body>
 <a href="#main" class="skip">Aller au contenu</a>
 <div class="shell">
-  <header class="header">
-    <a class="brand" href="/" aria-label="HUMAN FIRST, accueil"><span class="mark">HF</span>HUMAN <b>FIRST</b></a>
-    <nav class="nav" aria-label="Espaces HUMAN FIRST">
-      <a href="/" id="nav-think">THINK</a>
-      <a href="/focus" id="nav-focus">FOCUS</a>
-      <a href="/learn" id="nav-learn">LEARN</a>
-      <span aria-current="page" class="current">DECIDE</span>
-      <a href="/journey?lang=fr" id="nav-journey">PARCOURS</a>
-      <button type="button" id="switch-lang" aria-label="Switch to English">EN</button>
+  <header class="hf-site-header" data-hf-header>
+  <div class="hf-header-inner">
+    <a class="hf-brand" id="brand-link" href="/" aria-label="HUMAN FIRST, accueil">
+      <span class="hf-brand-mark" aria-hidden="true">HF</span>
+      <span class="hf-brand-wordmark"><span>HUMAN <strong>FIRST</strong></span><small data-hf-label="tagline">INITIATIVE INDÉPENDANTE</small></span>
+    </a>
+    <nav class="hf-site-nav" aria-label="Navigation principale">
+      <a id="nav-method" href="/#method">Notre méthode</a>
+      <a id="focus-nav-link" href="/focus">FOCUS</a>
+      <a id="learn-nav-link" href="/learn">LEARN</a>
+      <a id="decide-nav-link" href="/decide">DECIDE</a>
+      <a id="journey-nav-link" href="/journey">MON PARCOURS</a>
+      <a id="studio-nav-link" href="/studio">STUDIO</a>
+      <a id="nav-ethics" href="/#ethics">Nos engagements</a>
     </nav>
-  </header>
+    <button type="button" id="language-switch" aria-label="Switch to English">EN</button>
+  </div>
+</header>
   <main id="main">
     <section id="choose-view" aria-labelledby="hero-title">
       <div class="hero"><p class="eyebrow" id="hero-eyebrow">PILIER 04 · DECIDE · DÉMONSTRATION</p>
@@ -45,7 +53,7 @@
     </section>
     <section id="work-view" hidden aria-labelledby="work-title">
       <div class="work-top">
-        <button id="exit-work" class="quiet" type="button">← Quitter et effacer mes notes</button>
+        <button id="exit-work" class="quiet" type="button"> Quitter et effacer mes notes</button>
         <p class="eyebrow" id="step-marker">ÉTAPE 1 SUR 5</p>
       </div>
       <div class="progress" role="progressbar" aria-label="Étape de réflexion" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"><div id="progress-fill"></div></div>
@@ -112,9 +120,9 @@
           </section>
           <p class="error" id="work-error" role="alert" hidden></p>
           <div class="actions">
-            <button type="button" id="previous-step" class="button secondary">← Étape précédente</button>
-            <button type="button" id="next-step" class="button primary">Continuer sans obligation de répondre →</button>
-            <button type="button" id="finish-work" class="button primary" hidden>Terminer et effacer toutes mes notes ↗</button>
+            <button type="button" id="previous-step" class="button secondary"> Étape précédente</button>
+            <button type="button" id="next-step" class="button primary">Continuer sans obligation de répondre </button>
+            <button type="button" id="finish-work" class="button primary" hidden>Terminer et effacer toutes mes notes </button>
           </div>
         </div>
         <aside class="aside" aria-labelledby="aside-title">

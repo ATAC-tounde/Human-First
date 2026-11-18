@@ -1,0 +1,140 @@
+/* HUMAN FIRST design system - shared header, identical on all six pages.
+   This stylesheet is loaded last and is deliberately scoped to .hf-site-header. */
+:root{--hf-forest:#173c30;--hf-forest-strong:#102e25;--hf-text:#20362d;--hf-canvas:#faf9f5;--hf-border:#d2dfd3;--hf-accent:#a65b37}
+body{color:var(--hf-text)}
+header.hf-site-header{
+  --hf-header-height:100px;
+  display:block!important;
+  position:relative;
+  isolation:isolate;
+  box-sizing:border-box;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:var(--hf-header-height)!important;
+  height:auto!important;
+  margin:0 0 20px!important;
+  padding:0!important;
+  left:auto;
+  transform:none;
+  border:0!important;
+  border-bottom:1px solid var(--hf-border)!important;
+  background:transparent!important;
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  box-shadow:none!important;
+  color:var(--hf-text);
+}
+header.hf-site-header .hf-header-inner{
+  width:100%;min-height:var(--hf-header-height);display:flex;align-items:center;
+  justify-content:space-between;gap:clamp(15px,2vw,30px);padding:11px 0;
+}
+header.hf-site-header .hf-brand{
+  display:inline-flex!important;flex-shrink:0;align-items:center;gap:12px;
+  color:var(--hf-forest-strong)!important;text-decoration:none!important;
+  letter-spacing:normal!important;white-space:nowrap!important;
+  min-width:197px;font-style:normal!important;
+}
+header.hf-site-header .hf-brand-mark{
+  display:flex;justify-content:center;align-items:center;width:47px;height:47px;
+  border-radius:12px;transform:none;
+  background:var(--hf-forest);color:#fff;
+  box-shadow:0 2px 8px rgba(16,46,37,.10);
+  font:800 17px/1 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:.4px;
+}
+header.hf-site-header .hf-brand-wordmark{display:flex;flex-direction:column;gap:3px;line-height:1.15;font:500 17px/1.2 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.4px}
+header.hf-site-header .hf-brand-wordmark strong{font-weight:850}
+header.hf-site-header .hf-brand-wordmark small{
+  display:block!important;margin:0;color:#5a7062;font:700 10px/1.4 Inter,"Segoe UI",Arial,sans-serif;
+  letter-spacing:1.4px;text-transform:uppercase;
+}
+header.hf-site-header .hf-site-nav{
+  display:flex!important;justify-content:flex-end;align-items:center;
+  gap:clamp(8px,1.4vw,19px)!important;min-width:0;
+  padding:0;margin-left:auto;flex-wrap:nowrap!important;
+}
+header.hf-site-header .hf-site-nav a{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  text-decoration:none!important;color:var(--hf-text)!important;
+  padding:11px 10px;min-height:44px;border:1px solid transparent;
+  border-radius:8px;white-space:nowrap;letter-spacing:0!important;
+  font:650 12.5px/1.35 Inter,"Segoe UI",Arial,sans-serif!important;
+  background:transparent!important;box-shadow:none!important;
+  text-transform:none!important;
+}
+header.hf-site-header .hf-site-nav a:hover{
+  color:var(--hf-forest-strong)!important;background:#e8efe7!important;
+  text-decoration:none!important;
+}
+header.hf-site-header .hf-site-nav a[aria-current="page"],
+header.hf-site-header .hf-site-nav a[aria-current="location"]{
+  font-weight:800!important;color:var(--hf-forest-strong)!important;
+  background:#deeadf!important;border-color:#c5d9c8!important;
+}
+header.hf-site-header #language-switch{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 46px;width:46px;height:44px;min-width:46px;
+  padding:0!important;margin:0!important;
+  border:1px solid #b9cdbd!important;border-radius:9px!important;
+  background:#e6eee5!important;color:var(--hf-forest-strong)!important;
+  font:800 12px/1 Inter,"Segoe UI",Arial,sans-serif!important;
+  letter-spacing:0!important;cursor:pointer;
+}
+header.hf-site-header #language-switch:hover:not(:disabled){background:#d2e2d2!important}
+header.hf-site-header a:focus-visible,
+header.hf-site-header button:focus-visible{
+  outline:3px solid #ad623d!important;outline-offset:3px!important;
+}
+header.hf-site-header :is(.hf-brand,.hf-site-nav a,#language-switch):disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:1100px){
+ header.hf-site-header{width:100%!important;max-width:100%!important}
+ header.hf-site-header .hf-header-inner{
+  display:grid;grid-template-columns:1fr 48px;
+  grid-template-rows:auto auto;gap:9px 10px;padding:14px 0 11px;
+ }
+ header.hf-site-header .hf-brand{grid-column:1;grid-row:1}
+ header.hf-site-header #language-switch{grid-column:2;grid-row:1}
+ header.hf-site-header .hf-site-nav{
+  grid-column:1/-1;grid-row:2;justify-content:flex-start;
+  overflow-x:auto;overscroll-behavior-x:contain;
+  scrollbar-width:thin;scrollbar-color:#aabfac transparent;
+  margin:0;max-width:100%;padding-bottom:4px;
+ }
+ header.hf-site-header .hf-site-nav a{padding:10px 12px}
+}
+@media(max-width:480px){
+ header.hf-site-header{width:100%!important;max-width:100%!important}
+ header.hf-site-header .hf-brand-mark{width:40px;height:40px;border-radius:10px;font-size:15px}
+ header.hf-site-header .hf-brand-wordmark{font-size:15px}
+ header.hf-site-header .hf-brand-wordmark small{font-size:10px}
+ header.hf-site-header .hf-site-nav{gap:5px!important}
+ header.hf-site-header .hf-site-nav a{font-size:12px!important;padding:10px 9px}
+}
+@media print{header.hf-site-header{display:none!important}}
+
+
+/* The header is constrained by its page shell (including DECIDE's padding),
+ * never by the viewport width; this avoids overflow at 320-1100px.
+ * Shared page finish: restrained surfaces, dependable contrast and controls.
+ * Local product-specific layouts remain intact; only their visual baselines align. */
+html{background:#f8f9f5!important}
+body{background:#f8f9f5!important;background-image:none!important}
+body>.grain{display:none!important}
+body .shell,body .page,body .site-shell{background-image:none!important}
+:is(.button,.primary,.secondary,.primary-btn,.outline-btn,.hf-action,.small,.quiet,.file-label){
+ border-radius:9px!important;
+}
+:is(button.primary,button.secondary,button.primary-btn,button.outline-btn,
+ button.hf-action,button.button,button.small,button.quiet,
+ a.button,a.hf-action,label.file-label){
+ min-height:44px;
+}
+:is(button,a,input,select,textarea,.file-label):focus-visible{
+ outline:3px solid #ad623d!important;outline-offset:3px!important;
+}
+:is(.hero-copy,.hero-lead,.lede,.hero-intro,.focus-lead){text-wrap:pretty}
+:is(.program-card,.hf-library-card,.focus-card,.lesson-card,.studio-library-card){
+ box-shadow:0 3px 14px rgba(18,47,36,.045);
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ header.hf-site-header *{transition:none!important}
+}

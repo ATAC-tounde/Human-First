@@ -1,5 +1,6 @@
 import {applyLocale,word} from './i18n.js';
 import {initialLanguage,syncLanguage} from './language.mjs';
+import {renderSiteHeader} from './ui/header.mjs';
 // Sans télémétrie : seuls les rappels facultatifs et la préférence UI FR/EN sont enregistrés.
 const $ = id => document.getElementById(id);
 let locale=initialLanguage();
@@ -112,7 +113,7 @@ function createCard(ex,index) {
   const p=document.createElement('p');p.textContent=ex.introduction;mid.append(h,p);
   const bottom=document.createElement('div');bottom.className='card-bottom';
   const duration=document.createElement('span');duration.textContent=`⏱ ${ex.duration} ${w('minutes')} · ${ex.level}`;
-  const arrow=document.createElement('span');arrow.className='card-arrow';arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');bottom.append(duration,arrow);
+  const arrow=document.createElement('span');arrow.className='card-arrow';arrow.textContent='';arrow.setAttribute('aria-hidden','true');bottom.append(duration,arrow);
   btn.append(top,mid,bottom);
   btn.addEventListener('click',()=>guarded(async()=>{
     if(!$('adult-check').checked) {errorIn('home-error',w('adult'));$('adult-check').focus();return;}
@@ -328,6 +329,7 @@ on('print-button','click',()=>window.print());
 on('done-button','click',()=>guarded(async()=>{await api('/api/session/reset',{});clearDraft();state={stage:'idle'};$('attempt').value='';$('transfer-answer').value='';render();scrollTop();}));
 function updateLanguageSwitch() {
   syncLanguage(locale);
+  renderSiteHeader(locale);
   const btn=$('language-switch');btn.textContent=locale==='fr'?'EN':'FR';
   btn.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
   const url='/focus?lang='+locale;
@@ -342,23 +344,23 @@ function updateLanguageSwitch() {
   const journeyUrl='/journey?lang='+locale;
   $('journey-nav-link').href=journeyUrl;
   $('journey-hero-link').href=journeyUrl;
-  $('journey-nav-link').textContent=locale==='en'?'MY PATHWAY':'MON PARCOURS';
+  $('journey-nav-link').textContent=locale==='en'?'MY JOURNEY':'MON PARCOURS';
   $('journey-link-label').textContent=locale==='en'?'LEARNING KERNEL · PERSONAL PATHWAYS':'LE NOYAU · PARCOURS PERSONNALISÉS';
   $('journey-link-heading').textContent=locale==='en'?'Learning at every stage of life.':'Apprendre à chaque étape de la vie.';
   $('journey-link-description').textContent=locale==='en'?'Choose a goal. Competencies and four pillars form a voluntary program without scores or automated profiling.':'Choisis un objectif. Les compétences et les quatre piliers s’organisent autour de toi, sans note ni profilage automatique.';
-  $('journey-hero-link').textContent=locale==='en'?'Build my pathway ↗':'Construire mon parcours ↗';
+  $('journey-hero-link').textContent=locale==='en'?'Build my pathway ':'Construire mon parcours ';
   $('decide-link-label').textContent=locale==='en'?'PILLAR 04 · DECIDE':'PILIER 04 · DECIDE';
   $('decide-link-heading').textContent=locale==='en'?'Your judgment before any recommendation.':'Ton jugement avant toute recommandation.';
   $('decide-link-description').textContent=locale==='en'?'Seven situations to clarify criteria and examine AI rankings critically.':'Sept situations, tes critères, des alternatives et un regard critique sur les classements d’IA.';
-  $('decide-hero-link').textContent=locale==='en'?'Explore DECIDE ↗':'Explorer DECIDE ↗';
+  $('decide-hero-link').textContent=locale==='en'?'Explore DECIDE ':'Explorer DECIDE ';
   $('learn-link-label').textContent=locale==='en'?'PILLAR 03 · LEARN':'PILIER 03 · LEARN';
   $('learn-link-heading').textContent=locale==='en'?'Read, retrieve, explain and apply.':'Lire, retrouver, expliquer puis appliquer.';
   $('learn-link-description').textContent=locale==='en'?'Six bilingual lessons, unaided recall and optional reviews.':'Six leçons bilingues, des restitutions sans aide et des révisions volontaires.';
-  $('learn-hero-link').textContent=locale==='en'?'Explore LEARN ↗':'Explorer LEARN ↗';
+  $('learn-hero-link').textContent=locale==='en'?'Explore LEARN ':'Explorer LEARN ';
   $('focus-link-label').textContent=locale==='en'?'PILLAR 02 · FOCUS':'PILIER 02 · FOCUS';
   $('focus-link-heading').textContent=locale==='en'?'Make room for attention, away from the screen.':'Une pratique de l’attention, loin de l’écran.';
   $('focus-link-description').textContent=locale==='en'?'Six optional activities, with no timer or stored answers.':'Six activités libres, sans minuteur ni collecte des réponses.';
-  $('focus-hero-link').textContent=locale==='en'?'Explore FOCUS ↗':'Explorer FOCUS ↗';
+  $('focus-hero-link').textContent=locale==='en'?'Explore FOCUS ':'Explorer FOCUS ';
   syncLanguage(locale);
 }
 on('language-switch','click',()=>guarded(async()=>{

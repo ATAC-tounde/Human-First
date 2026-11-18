@@ -1,5 +1,6 @@
 // HUMAN FIRST LEARN. Intentionally no analytics, AI, timers, scores or third-party requests.
 import {initialLanguage,syncLanguage} from './language.mjs';
+import {renderSiteHeader} from './ui/header.mjs';
 const $=id=>document.getElementById(id);
 const text=(id,value)=>{const node=$(id);if(node)node.textContent=String(value??'');};
 const show=(id,on)=>{$(id).hidden=!on;};
@@ -15,11 +16,11 @@ const dictionary={
   adult:'Je confirme avoir au moins 18 ans.',age:'Démonstration éducative, sans compte, destinée aux adultes. Aucun résultat d’étude scientifique n’est revendiqué.',
   reviewsHeading:'Mes restitutions choisies',reviewsIntro:'Si tu le souhaites, ton navigateur peut conserver une date de révision. Pas de notification, pas de suivi.',clear:'Effacer les dates enregistrées',nothing:'Aucune date de révision choisie.',due:'À partir du',ready:'Révision disponible',review:'Faire une restitution',
   needAdult:'Confirme d’abord que tu as 18 ans ou plus pour entrer dans la démonstration.',
-  step:'ÉTAPE',of:'SUR',studyButton:'Fermer le cours, essayer de me souvenir ↗',recallCaption:'RESTITUTION SANS AIDE',recallLabel:'Ce dont je me souviens',recallGuide:'Sans rouvrir les explications, reformule les idées importantes. Tu peux aussi choisir de passer.',
-  recallSubmit:'Comparer avec une explication ↗',skip:'Passer sans répondre',feedbackHeading:'Trois questions, sans note',feedbackCaption:'POUR MIEUX COMPRENDRE',ownRecall:'MA PREMIÈRE RESTITUTION',feedbackNext:'Appliquer à un autre problème ↗',
-  applyGuide:'Voici une situation différente. Aucun indice ni explication ne sera affiché avant ta réponse ou ton choix de passer.',applyCaption:'UNE SITUATION NOUVELLE',applyLabel:'Ma réponse autonome',applySubmit:'Terminer et comparer ↗',applySkip:'Passer',
+  step:'ÉTAPE',of:'SUR',studyButton:'Fermer le cours, essayer de me souvenir ',recallCaption:'RESTITUTION SANS AIDE',recallLabel:'Ce dont je me souviens',recallGuide:'Sans rouvrir les explications, reformule les idées importantes. Tu peux aussi choisir de passer.',
+  recallSubmit:'Comparer avec une explication ',skip:'Passer sans répondre',feedbackHeading:'Trois questions, sans note',feedbackCaption:'POUR MIEUX COMPRENDRE',ownRecall:'MA PREMIÈRE RESTITUTION',feedbackNext:'Appliquer à un autre problème ',
+  applyGuide:'Voici une situation différente. Aucun indice ni explication ne sera affiché avant ta réponse ou ton choix de passer.',applyCaption:'UNE SITUATION NOUVELLE',applyLabel:'Ma réponse autonome',applySubmit:'Terminer et comparer ',applySkip:'Passer',
   closing:'Ce qui compte, c’est ce qui te reste.',closingLead:'Tu peux maintenant quitter cette page. Tu n’as pas à prouver ta progression.',myApply:'MA RÉPONSE AU PROBLÈME NOUVEAU',reference:'UNE APPROCHE POSSIBLE',paper:'À essayer loin de l’écran',
-  offerHeading:'Revenir plus tard, seulement si tu le souhaites',offerText:'Programmer une restitution locale dans 2 jours ? Aucune notification ne sera envoyée.',optin:'J’accepte de mémoriser localement l’identifiant de la leçon et une date.',offerButton:'Programmer la révision',print:'Imprimer une fiche',finish:'Terminer et quitter ↗',
+  offerHeading:'Revenir plus tard, seulement si tu le souhaites',offerText:'Programmer une restitution locale dans 2 jours ? Aucune notification ne sera envoyée.',optin:'J’accepte de mémoriser localement l’identifiant de la leçon et une date.',offerButton:'Programmer la révision',print:'Imprimer une fiche',finish:'Terminer et quitter ',
   noText:'Aucune réponse fournie.',lost:'Ton texte n’est plus disponible dans cet onglet.',write:'Écris quelques mots ou choisis Passer.',consent:'Coche d’abord ton accord facultatif.',scheduled:'Date enregistrée dans ce navigateur. Aucune notification ne sera envoyée.',cleared:'Les dates locales ont été effacées.',saveError:'Enregistrement local impossible. Vérifie les réglages de ton navigateur.',
   exit:'Quitter librement',asideTitle:'Comprendre. Pas collectionner des réponses.',asideText:'Tout le monde peut oublier, hésiter ou changer d’avis. Rien ici ne mesure ton intelligence ou ta valeur.',asideFooter:'Tu peux arrêter à tout moment. Les textes de tes réponses ne quittent pas cet onglet.',foot:'Penser d’abord. L’IA ensuite.',privacy:'18+ · Démonstration · Sans publicité, compte ou analytique',
   privacyText:'Ce texte reste dans cet onglet. Il n’est pas envoyé au serveur.',recallPrivate:'Ce texte reste dans cet onglet. Il n’est pas envoyé au serveur.',applyPrivate:'Aucun indice pendant cette étape. Aucune réponse envoyée au serveur.',error:'Une erreur est survenue. Réessaie.',loadError:'Impossible de charger les leçons.'
@@ -29,9 +30,9 @@ const dictionary={
   listHeading:'Six short lessons. Your own reasoning.',listLead:'Start with a topic that interests you. Prerequisites are suggestions, never obstacles.',all:'All lessons',critical:'Critical thinking',data:'Data interpretation',learning:'Learning',agency:'Independent judgment',
   start:'Explore lesson',recommended:'Suggested after',lessonLabel:'LESSON',minutes:'min',tier:'Level',adult:'I confirm that I am at least 18 years old.',age:'Educational demo for adults without an account. No scientific effectiveness claim is made.',
   reviewsHeading:'My chosen recall activities',reviewsIntro:'If you choose, this browser can keep a review date. No notifications or monitoring.',clear:'Erase my local review dates',nothing:'No review dates selected.',due:'Available from',ready:'Review available',review:'Recall without notes',needAdult:'Confirm you are at least 18 before entering this demo.',
-  step:'STEP',of:'OF',studyButton:'Close the lesson and try to remember ↗',recallCaption:'INDEPENDENT RECALL',recallLabel:'What I remember',recallGuide:'Without reopening the explanation, put the key ideas in your own words. You may also skip.',recallSubmit:'Compare with an explanation ↗',skip:'Skip without answering',feedbackHeading:'Three questions, no score',feedbackCaption:'UNDERSTAND MORE DEEPLY',ownRecall:'MY FIRST RECALL',feedbackNext:'Apply to a new problem ↗',
-  applyGuide:'Here is a different situation. No clue or explanation appears before you answer or choose to skip.',applyCaption:'A NEW SITUATION',applyLabel:'My independent answer',applySubmit:'Finish and compare ↗',applySkip:'Skip',closing:'What matters is what you take away.',closingLead:'You can close this page now. You do not need to prove your progress.',myApply:'MY ANSWER TO THE NEW PROBLEM',reference:'ONE POSSIBLE APPROACH',paper:'Try this away from a screen',
-  offerHeading:'Return later, but only if you wish',offerText:'Schedule optional recall in 2 days in this browser? No notifications will be sent.',optin:'I agree to store the lesson ID and a date locally.',offerButton:'Schedule review',print:'Print a study card',finish:'Finish and leave ↗',
+  step:'STEP',of:'OF',studyButton:'Close the lesson and try to remember ',recallCaption:'INDEPENDENT RECALL',recallLabel:'What I remember',recallGuide:'Without reopening the explanation, put the key ideas in your own words. You may also skip.',recallSubmit:'Compare with an explanation ',skip:'Skip without answering',feedbackHeading:'Three questions, no score',feedbackCaption:'UNDERSTAND MORE DEEPLY',ownRecall:'MY FIRST RECALL',feedbackNext:'Apply to a new problem ',
+  applyGuide:'Here is a different situation. No clue or explanation appears before you answer or choose to skip.',applyCaption:'A NEW SITUATION',applyLabel:'My independent answer',applySubmit:'Finish and compare ',applySkip:'Skip',closing:'What matters is what you take away.',closingLead:'You can close this page now. You do not need to prove your progress.',myApply:'MY ANSWER TO THE NEW PROBLEM',reference:'ONE POSSIBLE APPROACH',paper:'Try this away from a screen',
+  offerHeading:'Return later, but only if you wish',offerText:'Schedule optional recall in 2 days in this browser? No notifications will be sent.',optin:'I agree to store the lesson ID and a date locally.',offerButton:'Schedule review',print:'Print a study card',finish:'Finish and leave ',
   noText:'No answer provided.',lost:'Your text is no longer available in this tab.',write:'Write a few words or choose Skip.',consent:'Select your optional agreement first.',scheduled:'Date stored in this browser. No notification will be sent.',cleared:'Local review dates have been erased.',saveError:'Unable to store the date locally. Check your browser settings.',
   exit:'Leave freely',asideTitle:'Understand. Do not collect answers.',asideText:'Everyone can forget, hesitate or change their mind. Nothing here measures your intelligence or worth.',asideFooter:'You may stop at any moment. Your written responses stay in this tab.',foot:'Think first. AI second.',privacy:'18+ · Demo · No ads, accounts or analytics',
   privacyText:'This text stays in this tab. It is not sent to the server.',recallPrivate:'This text stays in this tab. It is not sent to the server.',applyPrivate:'No hints during this step. No written answer is sent to the server.',error:'An error occurred. Try again.',loadError:'Unable to load lessons.'
@@ -64,11 +65,7 @@ function localeCopy(){
  document.documentElement.lang=locale;
  syncLanguage(locale);
  $('lesson-filters').setAttribute('aria-label',locale==='en'?'Filter lessons':'Filtrer les leçons');
- document.querySelector('.site-header nav').setAttribute('aria-label',locale==='en'?'HUMAN FIRST spaces':'Espaces HUMAN FIRST');
- $('nav-decide').href='/decide?lang='+locale;
- $('nav-journey').href='/journey?lang='+locale;
- $('nav-journey').textContent=locale==='en'?'JOURNEY':'PARCOURS';
- const langButton=$('switch-lang');langButton.textContent=locale==='fr'?'EN':'FR';langButton.setAttribute('aria-label',locale==='fr'?'Switch to English':'Passer en français');
+ renderSiteHeader(locale);
  const replace={
  'hero-text':w('heroText'),'list-lead':w('listLead'),'adult-text':w('adult'),'age-description':w('age'),
  'reviews-title':w('reviewsHeading'),'reviews-intro':w('reviewsIntro'),'erase-reviews':w('clear'),
@@ -102,7 +99,7 @@ function el(tag,cls,content){const n=document.createElement(tag);if(cls)n.classN
 function cards(){const grid=$('lesson-grid');grid.replaceChildren();const subset=catalog.filter(x=>filter==='all'||x.domain===filter);
  for(const lesson of subset){const card=el('article','lesson-card');const header=el('div','card-header');header.append(el('span','card-index',`${w('lessonLabel')} · ${lesson.id.toUpperCase()}`),el('span','card-badge',`${w('tier')} ${lesson.tier}/3`));
  const middle=el('div','card-main');middle.append(el('h3',null,lesson.title),el('p',null,lesson.summary));
- const footer=el('div','card-footer');footer.append(el('span',null,`${lesson.duration} ${w('minutes')}`));const btn=el('button','card-button',`${w('start')} ↗`);btn.type='button';btn.addEventListener('click',()=>run(()=>startLesson(lesson.id,'study'),'catalog-error'));footer.append(btn);
+ const footer=el('div','card-footer');footer.append(el('span',null,`${lesson.duration} ${w('minutes')}`));const btn=el('button','card-button',`${w('start')} `);btn.type='button';btn.addEventListener('click',()=>run(()=>startLesson(lesson.id,'study'),'catalog-error'));footer.append(btn);
  card.append(header,middle,footer);grid.append(card);
  }
 }
@@ -119,7 +116,7 @@ async function startLesson(id,mode){
  $('recall-answer').value='';$('apply-answer').value='';$('review-optin').checked=false;report('offer-status','');render(true);
 }
 function render(focus=false){
- const active=state.stage&&state.stage!=='idle';show('catalog-screen',!active);show('lesson-screen',active);$('switch-lang').disabled=active;
+ const active=state.stage&&state.stage!=='idle';show('catalog-screen',!active);show('lesson-screen',active);$('language-switch').disabled=active;
  if(!active){cards();reviewCards();return;}
  const steps={'learn-study':1,'learn-recall':2,'learn-feedback':3,'learn-apply':4,'learn-finished':5};
  const step=steps[state.stage]||1;const stage=state.stage;
@@ -167,7 +164,7 @@ function bind(){
  $('offer-button').addEventListener('click',schedule);
  $('print-button').addEventListener('click',()=>window.print());
  $('erase-reviews').addEventListener('click',()=>{try{localStorage.removeItem(dateStore);}catch{}reviewCards();report('catalog-error',w('cleared'));});
- $('switch-lang').addEventListener('click',()=>run(async()=>{
+ $('language-switch').addEventListener('click',()=>run(async()=>{
   if(state.stage!=='idle')return;locale=locale==='fr'?'en':'fr';catalog=(await api(`/api/learn/catalog?lang=${locale}`)).lessons;
   localeCopy();filter='all';filters();cards();reviewCards();history.replaceState(null,'',`${location.pathname}?lang=${locale}`);
  },'catalog-error'));
@@ -176,7 +173,7 @@ async function bootstrap(){
  const preferredLocale=locale;
  bind();
  // Avoid a race between user switching the language and the initial requests.
- $('switch-lang').disabled=true;
+ $('language-switch').disabled=true;
  localeCopy();
  try{
   const [loaded,session]=await Promise.all([api(`/api/learn/catalog?lang=${locale}`),api('/api/learn/session')]);
@@ -189,6 +186,6 @@ async function bootstrap(){
   }
   catalog=loaded.lessons;state=session;filters();render();
  }catch(e){report('catalog-error',`${w('loadError')} ${e.message}`);}
- finally{$('switch-lang').disabled=state.stage!=='idle';}
+ finally{$('language-switch').disabled=state.stage!=='idle';}
 }
 bootstrap();

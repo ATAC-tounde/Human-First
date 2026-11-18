@@ -1,5 +1,8 @@
 import {installedPacks} from './packs.mjs';
+import {starterLibraries,libraryActions} from './libraries.mjs';
+import {addStarterLibrary} from './library-manager.mjs';
 import {initialLanguage,syncLanguage} from '../language.mjs';
+import {renderSiteHeader} from '../ui/header.mjs';
 import {availableFormative,makeFormativeObservation} from './assessment.mjs';
 import {normalizeAliasManifest} from './continuity.mjs';
 import {restorePortablePortfolio} from './restore.mjs';
@@ -7,7 +10,8 @@ import {encryptPortfolio,decryptPortfolio,VAULT_MAX_ENVELOPE} from './vault.mjs'
 import {saveEncryptedDevice,readEncryptedDevice,clearEncryptedDevice} from './device-vault.mjs';
 import {mountEncryptedRemoteSync} from './remote-ui.mjs';
 import {suggestPractice} from './compass.mjs';
-import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,importPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
+import {selfReportedSummary,latestDeclarations,visibleSkills,practicePrompt} from './workspace.mjs';
+import {createRegistry,buildJourney,normalizeProfile,exportPortfolio,registryPublicStats,PILLARS,PROGRESS_EVENTS} from './engine.mjs';
 
 // Entire learner profile, self-report and progress remain in this document's memory.
 // No fetch(), analytics, AI call, cookie, localStorage or sessionStorage for these fields.
@@ -19,6 +23,8 @@ let program=null;
 let events=[];
 let formative=[];
 let activeFormative=null;
+let activePractice=null; // in-tab UI selection only, never exported
+let practiceReturnFocus=null;
 let aliasManifest=null;
 let familiarity={};
 const vaultWords={
@@ -89,10 +95,30 @@ fr:{
  compassPractice:'Tu l’as explorée : essaie une mise en pratique attentive.',
  compassTransfer:'Tu as déclaré une pratique : essaie de décider dans un autre contexte.',
  compassSkill:'Voir les quatre activités de cette compétence',compassPillar:'Explorer',
- skip:'Aller au contenu',journeyNav:'PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V0.8',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
+ skip:'Aller au contenu',journeyNav:'MON PARCOURS',eyebrow:'LE NOYAU PÉDAGOGIQUE · V1.4',heroOne:'Un parcours à ton image.',heroTwo:'Et toujours libre d’évoluer.',heroLead:'Tes objectifs changent avec les années. Nos compétences et les quatre piliers évoluent avec toi, sans réduire ton potentiel à un âge ou à un diplôme.',
  noScore:'✓ Sans notation automatisée',noAccount:'✓ Sans compte',portable:'✓ Exportable et modifiable',foundationTitle:'L’IDÉE CENTRALE',foundationHeading:'Des compétences, pas des cases.',foundationCopy:'Aucun métier, diplôme, pays ou domaine n’est intégré en dur au moteur. De nouveaux référentiels s’ajoutent comme modules de contenu versionnés, avec des prérequis explicites et des activités sur les quatre piliers.',
+ dashboardHeading:"Retrouver mon fil d'apprentissage",dashboardIntro:'Tes étapes sont des déclarations personnelles, pas une note ni une mesure de tes capacités.',
+ dashboardTotal:'Compétences dans mon parcours',dashboardNew:'Sans étape déclarée',dashboardReviewed:'Avec une étape déclarée',
+ dashboardContinue:'Commencer ma prochaine activité',dashboardLibraries:'Voir les bibliothèques',
+ practiceEyebrow:'ATELIER GUIDÉ · SANS NOTE',practiceClose:"Fermer l'activité",
+ practiceDisclaimer:"La consigne vient du référentiel chargé. Cette activité est à réaliser librement, sans correction ni exercice imposé. Aucun texte n'est enregistré.",
+ practiceExplored:"J'ai exploré",practicePracticed:"J'ai pratiqué",practiceReview:'À revoir',
+ practiceNext:'Compétence suivante',practiceSpace:'Explorer le pilier général ',
+ practiceOpen:'Voir la consigne',practiceCurrent:'Mon étape déclarée',
+ searchLabel:'Rechercher une compétence',searchPlaceholder:'Titre, sujet, mot-clé…',
+ filterLabel:'Étape déclarée',filterAll:'Toutes les compétences',filterNew:'Sans étape déclarée',
+ filterExplored:'Explorées',filterPracticed:'Pratiquées',filterReview:'À revoir',
+ searchEmpty:'Aucune compétence ne correspond. Modifie ta recherche ou ton filtre.',
+ dashboardMetricsAria:'Récapitulatif des étapes déclarées',practicePillarsAria:'Choisir une modalité de pratique',
+ practiceProgressAria:'Étapes personnelles facultatives',searchGroupAria:'Retrouver mes compétences',
+ libraryConflict:'Identifiant déjà utilisé par un pack différent',libraryResume:'Ouvrir le parcours',
+ libraryHeading:'Bibliothèques prêtes à charger',
+ libraryIntro:"Choisis une bibliothèque : un clic l'ajoute à tes objectifs. Ces exemples pédagogiques FR/EN ne sont ni certifiés ni évalués par des experts. Ils restent dans cet onglet.",
+ libraryDownload:'Télécharger un exemple JSON',libraryStudio:'Créer ma bibliothèque dans Studio ',
+ libraryNote:"Les bibliothèques ajoutées disparaissent en actualisant cet onglet. Avant de reprendre un portfolio exporté, recharge les mêmes bibliothèques (ou packs JSON) dans le même ordre. Aucun fichier externe n'est téléchargé automatiquement.",
+ libraryReady:'Bibliothèque chargée. Tu peux choisir son parcours ci-dessus.',libraryError:'Impossible de charger cette bibliothèque : ',
  packTitle:'Ajouter un référentiel pédagogique',packHelp:'Importe un pack JSON déclaratif depuis ton appareil : il sera vérifié, utilisable uniquement dans cet onglet et jamais publié automatiquement.',packImport:'Importer un pack JSON',packAdded:'Référentiel importé dans cet onglet. Contenu non certifié : contrôle pédagogique nécessaire.',packFailed:'Référentiel refusé : ',
- builderEyebrow:'ATELIER DE PARCOURS',builderTitle:'Construire mon programme',adultTitle:'Accès au prototype',adultNotice:'Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.',stageTitle:'Ma situation actuelle',stagePersonal:'Apprendre par intérêt personnel',stageSchool:'Reprise d’études à l’âge adulte',stageHigher:'Études supérieures',stageWork:'Vie professionnelle',stageTransition:'Reconversion / transition',stageTeaching:'Enseignement / formation',ageTitle:'Tranche d’âge (facultatif)',ageUnspecified:'Je préfère ne pas préciser',ageHelp:'Jamais utilisée pour déduire tes capacités.',qualificationTitle:'Études / diplôme (facultatif)',qualificationHelp:'Description libre, non utilisée comme classement.',occupationTitle:'Métier / domaine (facultatif)',occupationHelp:'Pour préciser ton contexte, sans limiter les choix.',paceTitle:'Temps souhaité par semaine',pace30:'30 minutes environ',pace60:'1 heure environ',pace120:'2 heures environ',pace180:'3 heures environ',paceHelp:'Simple repère facultatif, pas un chronomètre.',pathTitle:'Mon objectif d’apprentissage',familiarityTitle:'Ce que je connais déjà (facultatif)',familiarityHelp:'Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.',create:'Créer mon parcours ↗',clear:'Effacer cette séance',privacyNotice:'Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.',
+ builderEyebrow:'ATELIER DE PARCOURS',builderTitle:'Construire mon programme',adultTitle:'Accès au prototype',adultNotice:'Je confirme avoir 18 ans ou plus. Les parcours pour mineurs exigent des garanties complémentaires.',stageTitle:'Ma situation actuelle',stagePersonal:'Apprendre par intérêt personnel',stageSchool:'Reprise d’études à l’âge adulte',stageHigher:'Études supérieures',stageWork:'Vie professionnelle',stageTransition:'Reconversion / transition',stageTeaching:'Enseignement / formation',ageTitle:'Tranche d’âge (facultatif)',ageUnspecified:'Je préfère ne pas préciser',ageHelp:'Jamais utilisée pour déduire tes capacités.',qualificationTitle:'Études / diplôme (facultatif)',qualificationHelp:'Description libre, non utilisée comme classement.',occupationTitle:'Métier / domaine (facultatif)',occupationHelp:'Pour préciser ton contexte, sans limiter les choix.',paceTitle:'Temps souhaité par semaine',pace30:'30 minutes environ',pace60:'1 heure environ',pace120:'2 heures environ',pace180:'3 heures environ',paceHelp:'Simple repère facultatif, pas un chronomètre.',pathTitle:'Mon objectif d’apprentissage',familiarityTitle:'Ce que je connais déjà (facultatif)',familiarityHelp:'Une auto-description, jamais un diagnostic ni un certificat. Toutes les compétences restent accessibles.',create:'Créer mon parcours ',clear:'Effacer cette séance',privacyNotice:'Tes réponses restent uniquement dans cet onglet. Aucun profil n’est envoyé au serveur. Tu peux exporter volontairement un fichier JSON pour reprendre plus tard.',
  resultEyebrow:'PROGRAMME INDIVIDUEL · DÉMONSTRATION',export:'Exporter mon portfolio JSON non chiffré',import:'Importer un portfolio JSON',resetProgress:'Effacer les étapes déclarées',exitTitle:'La suite t’appartient.',exitDescription:'Tu peux explorer ces compétences dans THINK, FOCUS, LEARN et DECIDE, arrêter sans justification, ou modifier ton programme à tout moment.',portabilityEyebrow:'TU RESTES PROPRIÉTAIRE DU PARCOURS',portabilityTitle:'Tu peux repartir avec tes données.',portabilityText:'Aucun compte n’est requis. Le portfolio exporté contient ton contexte déclaré, tes choix et les étapes auto-déclarées, jamais des réponses libres ou un classement d’aptitudes. Garde ce fichier privé.',importHome:'Reprendre un portfolio exporté',footer:'18+ · Prototype de démonstration · Pas de mesure de l’intelligence · Think first. AI second.',
  stats:(p,c,g)=>`${p} modules · ${c} compétences · ${g} parcours`,
  levels:['Je débute','J’explore','Je pratique','Je me sens à l’aise'],
@@ -112,10 +138,30 @@ en:{
  compassPractice:'You explored this skill: try focused practice.',
  compassTransfer:'You declared practice: try making a choice in a different context.',
  compassSkill:'See all four activities for this skill',compassPillar:'Explore',
- skip:'Skip to content',journeyNav:'JOURNEY',eyebrow:'THE LEARNING KERNEL · V0.8',heroOne:'A pathway shaped by you.',heroTwo:'Free to change as you grow.',heroLead:'Your goals change throughout life. Skills and four pillars can evolve with you, without reducing your potential to an age or a degree.',
+ skip:'Skip to content',journeyNav:'MY JOURNEY',eyebrow:'THE LEARNING KERNEL · V1.4',heroOne:'A pathway shaped by you.',heroTwo:'Free to change as you grow.',heroLead:'Your goals change throughout life. Skills and four pillars can evolve with you, without reducing your potential to an age or a degree.',
  noScore:'✓ No automatic grading',noAccount:'✓ No account',portable:'✓ Portable and editable',foundationTitle:'THE CORE IDEA',foundationHeading:'Competencies, not labels.',foundationCopy:'No occupation, degree, country or field is hard-coded into the engine. New versioned content packs can add explicit prerequisites and activities across the four pillars.',
+ dashboardHeading:'Pick up where I left off',dashboardIntro:'These are your own declared steps, not grades or measures of ability.',
+ dashboardTotal:'Skills in my pathway',dashboardNew:'No step declared yet',dashboardReviewed:'With a declared step',
+ dashboardContinue:'Start my next activity',dashboardLibraries:'Browse the libraries',
+ practiceEyebrow:'GUIDED PRACTICE · NO GRADE',practiceClose:'Close activity',
+ practiceDisclaimer:'This instruction comes from the loaded curriculum. Practice freely without an assigned exercise or automatic correction. No text is saved.',
+ practiceExplored:'I explored this',practicePracticed:'I practiced this',practiceReview:'Review later',
+ practiceNext:'Next skill',practiceSpace:'Explore the general pillar ',
+ practiceOpen:'Read the instruction',practiceCurrent:'My declared step',
+ searchLabel:'Find a skill',searchPlaceholder:'Title, topic, keyword…',
+ filterLabel:'Declared step',filterAll:'All skills',filterNew:'No step declared',
+ filterExplored:'Explored',filterPracticed:'Practiced',filterReview:'Review later',
+ searchEmpty:'No skills match. Change your search or filter.',
+ dashboardMetricsAria:'Self-declared steps summary',practicePillarsAria:'Choose a learning mode',
+ practiceProgressAria:'Optional personal progress markers',searchGroupAria:'Find my skills',
+ libraryConflict:'ID already used by a different pack',libraryResume:'Open this pathway',
+ libraryHeading:'Ready-to-use knowledge libraries',
+ libraryIntro:'Choose a library: one click adds its learning goals. These bilingual demonstrations are not certified or independently reviewed. They stay in this tab.',
+ libraryDownload:'Download a JSON example',libraryStudio:'Create my own library in Studio ',
+ libraryNote:'Added libraries disappear when you reload this tab. Before restoring an exported portfolio, load the same libraries (or JSON packs) in the same order. No external files are downloaded automatically.',
+ libraryReady:'Library loaded. You can select its pathway above.',libraryError:'Cannot load this library: ',
  packTitle:'Add a learning content pack',packHelp:'Import a declarative JSON pack from your device: it will be validated, used in this tab only, and never automatically published.',packImport:'Import a JSON pack',packAdded:'Pack available in this tab. Not certified: educational review required.',packFailed:'Pack rejected: ',
- builderEyebrow:'JOURNEY WORKSHOP',builderTitle:'Build my learning program',adultTitle:'Demo access',adultNotice:'I confirm that I am 18 or older. Learning paths for minors need additional safeguards.',stageTitle:'My current situation',stagePersonal:'Personal learning',stageSchool:'Returning to education as an adult',stageHigher:'Higher education',stageWork:'Professional life',stageTransition:'Career change / transition',stageTeaching:'Teaching / training',ageTitle:'Age band (optional)',ageUnspecified:'Prefer not to say',ageHelp:'Never used to infer your ability.',qualificationTitle:'Education / qualification (optional)',qualificationHelp:'Free description, not used as a ranking.',occupationTitle:'Occupation / field (optional)',occupationHelp:'Adds context without limiting your choices.',paceTitle:'Preferred time per week',pace30:'About 30 minutes',pace60:'About 1 hour',pace120:'About 2 hours',pace180:'About 3 hours',paceHelp:'Only a guide; never an enforced timer.',pathTitle:'My learning goal',familiarityTitle:'What I already know (optional)',familiarityHelp:'Self-description only, not a diagnostic or certificate. Every competency remains open.',create:'Create my pathway ↗',clear:'Erase this session',privacyNotice:'Your entries remain in this tab only. No profile is sent to a server. You can explicitly export a JSON file to return later.',
+ builderEyebrow:'JOURNEY WORKSHOP',builderTitle:'Build my learning program',adultTitle:'Demo access',adultNotice:'I confirm that I am 18 or older. Learning paths for minors need additional safeguards.',stageTitle:'My current situation',stagePersonal:'Personal learning',stageSchool:'Returning to education as an adult',stageHigher:'Higher education',stageWork:'Professional life',stageTransition:'Career change / transition',stageTeaching:'Teaching / training',ageTitle:'Age band (optional)',ageUnspecified:'Prefer not to say',ageHelp:'Never used to infer your ability.',qualificationTitle:'Education / qualification (optional)',qualificationHelp:'Free description, not used as a ranking.',occupationTitle:'Occupation / field (optional)',occupationHelp:'Adds context without limiting your choices.',paceTitle:'Preferred time per week',pace30:'About 30 minutes',pace60:'About 1 hour',pace120:'About 2 hours',pace180:'About 3 hours',paceHelp:'Only a guide; never an enforced timer.',pathTitle:'My learning goal',familiarityTitle:'What I already know (optional)',familiarityHelp:'Self-description only, not a diagnostic or certificate. Every competency remains open.',create:'Create my pathway ',clear:'Erase this session',privacyNotice:'Your entries remain in this tab only. No profile is sent to a server. You can explicitly export a JSON file to return later.',
  resultEyebrow:'PERSONAL PROGRAM · DEMONSTRATION',export:'Export my unencrypted JSON portfolio',import:'Import a JSON portfolio',resetProgress:'Erase self-reported steps',exitTitle:'The next step is yours.',exitDescription:'Explore the skills through THINK, FOCUS, LEARN and DECIDE. Stop whenever you want or change your pathway freely.',portabilityEyebrow:'YOU CONTROL YOUR PATHWAY',portabilityTitle:'Your data can travel with you.',portabilityText:'No account needed. Your exported portfolio contains your chosen context and self-reported steps, never free-text answers or rankings of ability. Keep your file private.',importHome:'Continue from an exported portfolio',footer:'18+ · Demonstration · No intelligence measurement · Think first. AI second.',
  stats:(p,c,g)=>`${p} packs · ${c} competencies · ${g} pathways`,
  levels:['New to this','Exploring','Practicing','Feel confident'],
@@ -141,15 +187,78 @@ function renderLocale(){
    if(typeof w(key)==='string')element.textContent=w(key);
  }
  document.querySelector('[data-text="aliasesLabel"]').textContent=locale==='en'?'Load an equivalence map for older catalogs (optional)':'Table d’équivalences pour anciens référentiels (facultative)';
- $('lang').textContent=locale==='en'?'FR':'EN';$('lang').setAttribute('aria-label',locale==='en'?'Passer en français':'Switch to English');
- for(const pillar of PILLARS)$('link-'+pillar).href=tags[pillar]+'?lang='+locale;
+ renderSiteHeader(locale);
+ $('program-search').placeholder=w('searchPlaceholder');
+ $('dashboard-metrics').setAttribute('aria-label',w('dashboardMetricsAria'));
+ $('practice-pillar-choices').setAttribute('aria-label',w('practicePillarsAria'));
+ document.querySelector('.practice-declarations').setAttribute('aria-label',w('practiceProgressAria'));
+ document.querySelector('.program-tools').setAttribute('aria-label',w('searchGroupAria'));
  const qual=$('qualification'),occupation=$('occupation');
  qual.placeholder=locale==='en'?'Bachelor, vocational training, self-directed learning…':'Licence, BTS, formation libre…';
  occupation.placeholder=locale==='en'?'Laboratory, design, computing…':'Laboratoire, artisanat, informatique…';
  const stats=registryPublicStats(registry);
  $('stats').textContent=w('stats')(stats.packs,stats.competencies,stats.pathways);
+ renderLibraryCards();
  renderPathways();
  if(program)renderProgram();
+}
+function renderLibraryCards(){
+ const list=$('library-list');list.replaceChildren();
+ const action=libraryActions[locale];
+ for(const library of starterLibraries){
+  const existing=importedPacks.find(pack=>pack.id===library.id);
+  const loaded=Boolean(existing)&&JSON.stringify(existing)===JSON.stringify(library.pack);
+  const conflict=Boolean(existing)&&!loaded;
+  const card=element('article','hf-library-card');
+  const title=local(library.pack.title);
+  card.append(element('h4',null,title),element('p',null,local(library.summary)));
+  card.append(element('span','hf-library-meta',
+   library.pack.competencies.length+' '+(library.pack.competencies.length===1?action.skill:action.skills)+' · '+
+   library.pack.pathways.length+' '+(library.pack.pathways.length===1?action.path:action.paths)+' · 18+'));
+  if(loaded)card.append(element('span','hf-library-meta',action.loaded));
+  const button=element('button','hf-action '+(loaded?'hf-action--secondary':'hf-action--primary'),
+   loaded?action.loaded:action.load);
+  button.type='button';button.dataset.libraryId=library.id;
+  button.setAttribute('aria-label',(loaded?action.loaded:action.load)+': '+title);
+  if(loaded){
+   button.textContent=w('libraryResume');
+   button.setAttribute('aria-label',w('libraryResume')+': '+title);
+  }else if(conflict){
+   button.textContent=w('libraryConflict');
+   button.setAttribute('aria-label',w('libraryConflict')+': '+title);
+   button.disabled=true;
+  }
+  button.addEventListener('click',()=>loaded?openLibraryPath(library):loadStarter(library.id));
+  card.append(button);list.append(card);
+ }
+}
+function openLibraryPath(library){
+ const pathId=library.pack.pathways[0]?.id;
+ if(!pathId||!registry.paths.has(pathId))return;
+ $('path').value=pathId;renderPathways();
+ if($('adult').checked)generate();
+ else{$('adult').focus();message(w('noAge'));}
+}
+function activatePack(pack,nextRegistry,targetPath){
+ const hadProgram=Boolean(program);
+ closeFormative();
+ importedPacks.push(pack);registry=nextRegistry;
+ aliasManifest=null;$('alias-state').textContent='';
+ renderLocale();
+ if(targetPath&&registry.paths.has(targetPath)){
+  $('path').value=targetPath;renderPathways();
+  if($('adult').checked)generate();
+ }else if(hadProgram)renderProgram();
+}
+function loadStarter(id){
+ try{
+  const added=addStarterLibrary(installedPacks,importedPacks,id);
+  activatePack(added.optionalPacks.at(-1),added.registry,added.library.pack.pathways[0]?.id);
+  message(libraryActions[locale].loadedNotice+local(added.library.pack.title)+'.');
+  // Preserve keyboard position when the cards are updated.
+  const button=[...document.querySelectorAll('#library-list button')].find(x=>x.dataset.libraryId===id);
+  button?.focus({preventScroll:true});
+ }catch(error){message(w('libraryError')+String(error.message||error));}
 }
 function renderPathways(){
  const selector=$('path');const selected=selector.value;
@@ -194,7 +303,13 @@ function readProfile(){
 function generate(){
  if(!$('adult').checked){message(w('noAge'));$('adult').focus();return;}
  try{
-  const profile=readProfile();program=buildJourney(registry,profile);message(w('success'));
+  const profile=readProfile();
+  const nextProgram=buildJourney(registry,profile);
+  if(program?.pathway.id!==nextProgram.pathway.id){
+   closePractice();
+   $('program-search').value='';$('program-filter').value='all';
+  }
+  program=nextProgram;message(w('success'));
   renderProgram();$('result').hidden=false;
   $('result-title').focus({preventScroll:true});$('result').scrollIntoView({behavior:'auto',block:'start'});
  }catch(error){message(w('invalid')+error.message);}
@@ -207,8 +322,17 @@ function latestStatus(skillId){
  return w('progressNames')[PROGRESS_EVENTS.indexOf(last.type)];
 }
 function record(skillId,type){
+ if(events.length>=1500){message(locale==='en'?'Export your portfolio before adding more steps.':'Exporte ton portfolio avant d’ajouter d’autres étapes.');return;}
+ const oldFocus=document.activeElement;
+ const fromCard=oldFocus?.dataset?.progressSkill===skillId;
  events.push({skillId,type,at:new Date().toISOString(),source:'self-declared'});
  renderProgram();
+ if(fromCard){
+  const next=[...document.querySelectorAll('#program-list button[data-progress-skill]')]
+   .find(button=>button.dataset.progressSkill===skillId&&button.dataset.progressType===type);
+  if(next)next.focus({preventScroll:true});
+  else $('program-visible-count').focus({preventScroll:true});
+ }
 }
 // Formative work is deliberately not graded. The learner's writing only exists in
 // this textarea, not in the portfolio, analytics or any HTTP request.
@@ -293,6 +417,78 @@ function saveFormative(){
  }catch(e){message(String(e.message||e));}
 }
 
+function choosePillar(skillId){
+ const state=latestDeclarations(program,events).get(skillId);
+ return state==='review-later'?'learn':state==='explored'?'focus':state==='practiced'?'decide':'think';
+}
+function closePractice(){
+ activePractice=null;
+ practiceReturnFocus=null;
+ $('practice-panel').hidden=true;
+}
+function closePracticeAndReturnFocus(){
+ const origin=practiceReturnFocus;
+ const skill=activePractice?.skillId;
+ const pillar=activePractice?.pillar;
+ closePractice();
+ // Re-rendering the program can detach the original button; recover an
+ // equivalent affordance for the same competence, before falling back.
+ const fallback=skill?[...document.querySelectorAll('[data-practice-skill]')]
+  .find(node=>node.dataset.practiceSkill===skill&&node.dataset.practicePillar===pillar):null;
+ const target=origin?.isConnected?origin:(fallback??$('dashboard-continue'));
+ target?.focus?.({preventScroll:true});
+}
+function openPractice(skillId,pillar=choosePillar(skillId),focus=true){
+ try{
+  practicePrompt(program,skillId,pillar);
+  if(!activePractice||!document.activeElement?.closest?.('#practice-panel'))
+   practiceReturnFocus=document.activeElement;
+  activePractice={skillId,pillar};
+  renderPractice();
+  if(focus){
+   $('practice-panel').scrollIntoView({behavior:'auto',block:'start'});
+   $('practice-title').focus({preventScroll:true});
+  }
+ }catch(error){message(w('invalid')+String(error.message||error));}
+}
+function renderPractice(){
+ if(!activePractice)return;
+ let current;
+ try{current=practicePrompt(program,activePractice.skillId,activePractice.pillar);}
+ catch{closePractice();return;}
+ $('practice-panel').hidden=false;
+ $('practice-title').textContent=current.title+' · '+w('titles')[current.pillar];
+ $('practice-outcome').textContent=current.outcome;
+ $('practice-instruction').textContent=current.activity;
+ const context=$('practice-context');context.hidden=!current.context;
+ context.textContent=current.context?w('context')+' '+current.context:'';
+ $('practice-status').textContent=w('practiceCurrent')+': '+latestStatus(current.skillId);
+ const choices=$('practice-pillar-choices');choices.replaceChildren();
+ for(const pillar of PILLARS){
+  const button=element('button','hf-action hf-action--secondary',w('titles')[pillar]);
+  button.type='button';button.dataset.pillar=pillar;
+  button.setAttribute('aria-pressed',String(pillar===current.pillar));
+  button.setAttribute('aria-label',w('practiceOpen')+' '+w('titles')[pillar]+': '+current.title);
+  button.addEventListener('click',()=>{
+   activePractice={skillId:current.skillId,pillar};
+   renderPractice();
+   [...choices.querySelectorAll('button')].find(x=>x.dataset.pillar===pillar)?.focus({preventScroll:true});
+  });
+  choices.append(button);
+ }
+ $('practice-open-space').href=tags[current.pillar]+'?lang='+locale;
+ $('practice-open-space').textContent=w('practiceSpace')+' '+w('titles')[current.pillar];
+ $('practice-open-space').setAttribute('aria-label',w('practiceSpace')+' '+w('titles')[current.pillar]);
+ const position=program.plan.findIndex(item=>item.skillId===current.skillId);
+ $('practice-next').disabled=position<0||position>=program.plan.length-1;
+}
+function renderDashboard(){
+ const counts=selfReportedSummary(program,events);
+ $('dashboard-total').textContent=String(counts.total);
+ $('dashboard-new').textContent=String(counts['not-started']);
+ $('dashboard-reviewed').textContent=String(counts.total-counts['not-started']);
+ $('dashboard-continue').disabled=!program.plan.length;
+}
 function renderCompass(){
  const list=$('compass-list');
  list.replaceChildren();
@@ -313,10 +509,14 @@ function renderCompass(){
   const skillLink=element('a',null,w('compassSkill'));
   skillLink.href='#skill-'+next.skillId;
   skillLink.setAttribute('aria-label',w('compassSkill')+': '+next.title);
-  const pillarLink=element('a',null,w('compassPillar')+' '+w('titles')[next.pillar]+' ↗');
+  const pillarLink=element('a',null,w('compassPillar')+' '+w('titles')[next.pillar]+' ');
   pillarLink.href=tags[next.pillar]+'?lang='+locale;
   pillarLink.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[next.pillar]+': '+next.title);
-  actions.append(skillLink,pillarLink);
+  const open=element('button','hf-action hf-action--secondary',w('practiceOpen'));
+  open.type='button';open.dataset.practiceSkill=next.skillId;open.dataset.practicePillar=next.pillar;
+  open.setAttribute('aria-label',w('practiceOpen')+': '+next.title+' · '+w('titles')[next.pillar]);
+  open.addEventListener('click',()=>openPractice(next.skillId,next.pillar));
+  actions.append(open,skillLink,pillarLink);
   li.append(actions);
   list.append(li);
  }
@@ -332,8 +532,14 @@ function renderProgram(){
  $('disclaimer').textContent=program.disclaimer+' '+w('selfReport');
  $('program-count').textContent=w('count')(program.plan.length);
  $('program-estimate').textContent=w('estimate')(program.workload.totalMinutesIndicative,program.workload.minutesPerWeek);
+ renderDashboard();
  const list=$('program-list');list.replaceChildren();
- program.plan.forEach(item=>{
+ const shown=visibleSkills(program,events,{query:$('program-search').value,status:$('program-filter').value});
+ $('program-empty').hidden=Boolean(shown.length);
+ $('program-visible-count').textContent=locale==='en'?
+  shown.length+' of '+program.plan.length+' skills shown':
+  shown.length+' compétence(s) sur '+program.plan.length+' affichée(s)';
+ shown.forEach(item=>{
   const li=element('li','program-card');li.id='skill-'+item.skillId;li.tabIndex=-1;
   const top=element('div','card-top');const n=element('span','card-index',String(item.order).padStart(2,'0'));
   const title=element('div');title.append(element('h3',null,item.title),element('p',null,item.outcome));top.append(n,title);li.append(top);
@@ -345,13 +551,22 @@ function renderProgram(){
   const grid=element('div','pillars');
   for(const pillar of PILLARS){
     const card=element('div','pillar');card.append(element('b',null,w('titles')[pillar]),element('p',null,item.pillars[pillar]));
-    const link=element('a',null,w('activity')+' '+w('titles')[pillar]+' ↗');link.href=tags[pillar]+'?lang='+locale;
-    card.append(link);grid.append(card);
+    const localButton=element('button','hf-action hf-action--secondary',w('practiceOpen'));
+    localButton.type='button';localButton.dataset.practiceSkill=item.skillId;
+    localButton.dataset.practicePillar=pillar;
+    localButton.setAttribute('aria-label',w('practiceOpen')+' '+w('titles')[pillar]+': '+item.title);
+    localButton.addEventListener('click',()=>openPractice(item.skillId,pillar));
+    const link=element('a',null,w('activity')+' '+w('titles')[pillar]+' ');
+    link.href=tags[pillar]+'?lang='+locale;
+    link.setAttribute('aria-label',w('compassPillar')+' '+w('titles')[pillar]+': '+item.title);
+    card.append(localButton,link);grid.append(card);
   }
   li.append(grid);
   const progress=element('div','progress-row');progress.append(element('span','progress-status',w('progress')+': '+latestStatus(item.skillId)));
   for(let i=0;i<PROGRESS_EVENTS.length;i++){
     const button=element('button',null,w('progressNames')[i]);button.type='button';
+    button.dataset.progressSkill=item.skillId;button.dataset.progressType=PROGRESS_EVENTS[i];
+    button.setAttribute('aria-label',w('progressNames')[i]+': '+item.title);
     button.addEventListener('click',()=>record(item.skillId,PROGRESS_EVENTS[i]));progress.append(button);
   }
   li.append(progress);
@@ -368,8 +583,16 @@ function renderProgram(){
   list.append(li);
  });
  renderCompass();
+ renderPractice();
 }
-function resetAll(){closeFormative();aliasManifest=null;$('alias-state').textContent='';registry=createRegistry(installedPacks);importedPacks.length=0;program=null;events=[];formative=[];familiarity={};$('profile-form').reset();$('result').hidden=true;renderPathways();message(w('cleared'));}
+function resetAll(){
+ closeFormative();closePractice();aliasManifest=null;$('alias-state').textContent='';
+ registry=createRegistry(installedPacks);importedPacks.length=0;
+ program=null;events=[];formative=[];familiarity={};
+ $('program-search').value='';$('program-filter').value='all';
+ $('profile-form').reset();$('result').hidden=true;
+ renderLibraryCards();renderPathways();message(w('cleared'));
+}
 function savePortfolio(){
  if(!program){message(w('noProfile'));return;}
  try{
@@ -386,7 +609,8 @@ function applyImportedPortfolio(portfolio){
  const p={...portfolio.profile,locale};
  const restoredProgram=buildJourney(registry,p);
  if(program&&!window.confirm(vaultWords[locale].replace))return false;
- closeFormative();
+ closeFormative();closePractice();
+ $('program-search').value='';$('program-filter').value='all';
  program=restoredProgram;
  events=portfolio.evidence;
  formative=portfolio.formative;
@@ -463,7 +687,7 @@ async function importEncryptedVault(input){
   if(file.size>VAULT_MAX_ENVELOPE)throw new Error('Encrypted backup exceeds size limit');
   const secret=encryptedPassphrase();
   const plain=await decryptPortfolio(await file.text(),secret);
-  const restored=aliasManifest?migratePortfolio(plain,registry,aliasManifest):importPortfolio(plain,registry);
+  const restored=restorePortablePortfolio(plain,registry,aliasManifest);
   if(applyImportedPortfolio(restored))vaultStatus(vaultWords[locale].restored);
   else vaultStatus('');
  }catch(error){vaultStatus(vaultWords[locale].failed+String(error.message||error));}
@@ -487,15 +711,7 @@ async function loadPack(input) {
    try{parsed=JSON.parse(await file.text());}catch{throw new TypeError('Invalid JSON pack');}
    // JSON only: never execute imported scripts or import arbitrary JavaScript URLs.
    const next=createRegistry([...installedPacks,...importedPacks,parsed]);
-   importedPacks.push(parsed);registry=next;
-   aliasManifest=null;$('alias-state').textContent='';
-   const oldProfile=program?.generatedFor;
-   closeFormative();renderLocale();
-   if(oldProfile&&registry.paths.has(oldProfile.pathId)){
-     program=buildJourney(registry,oldProfile);
-     events=events.filter(item=>registry.skills.has(item.skillId));
-     renderProgram();
-   }
+   activatePack(parsed,next,parsed.pathways?.[0]?.id);
    message(w('packAdded'));
  }catch(error){message(w('packFailed')+error.message);}
 }
@@ -516,6 +732,23 @@ async function loadAliasFile(input){
 }
 
 $('profile-form').addEventListener('submit',e=>{e.preventDefault();generate();});
+$('dashboard-continue').addEventListener('click',()=>{
+ if(!program)return;
+ const next=suggestPractice(program,events,{limit:1})[0];
+ if(next)openPractice(next.skillId,next.pillar);
+});
+$('program-search').addEventListener('input',()=>{if(program)renderProgram();});
+$('program-filter').addEventListener('change',()=>{if(program)renderProgram();});
+$('practice-close').addEventListener('click',closePracticeAndReturnFocus);
+for(const [id,type] of [['practice-mark-explored','explored'],['practice-mark-practiced','practiced'],['practice-mark-review','review-later']]){
+ $(id).addEventListener('click',()=>{if(activePractice)record(activePractice.skillId,type);});
+}
+$('practice-next').addEventListener('click',()=>{
+ if(!activePractice||!program)return;
+ const index=program.plan.findIndex(x=>x.skillId===activePractice.skillId);
+ const next=program.plan[index+1];
+ if(next)openPractice(next.skillId,choosePillar(next.skillId));
+});
 $('pack-file').addEventListener('change',e=>loadPack(e.target));
 $('path').addEventListener('change',()=>{$('path-help').textContent=local(registry.paths.get($('path').value).summary);renderFamiliarity();});
 $('stage').addEventListener('change',renderPathways);
@@ -547,7 +780,7 @@ const remoteUi=mountEncryptedRemoteSync({
  downloadCipher:downloadEncrypted,
  confirm:message=>window.confirm(message)
 });
-$('lang').addEventListener('click',()=>{
+$('language-switch').addEventListener('click',()=>{
   // Do not drop what the learner typed when translating the UI.
   familiarity=Object.fromEntries([...document.querySelectorAll('.familiarity-item select')].map(el=>[el.id.slice('familiarity-'.length),el.value]));
   locale=locale==='en'?'fr':'en';const url=new URL(location.href);url.searchParams.set('lang',locale);history.replaceState(null,'',url);

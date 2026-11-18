@@ -1,0 +1,36 @@
+/* V1.4: private in-tab practice navigator and qualitative self-report. */
+.journey-dashboard{margin:26px 0 25px;background:#edf3e8;border:1px solid #cad9c8;border-radius:13px;padding:23px}
+.journey-dashboard h3,.practice-panel h3{margin:0 0 10px;font:400 clamp(23px,3vw,30px)/1.25 Georgia,serif;color:#244638}
+.journey-dashboard p,.practice-panel p{font-size:13px;line-height:1.75;color:#486150;margin:7px 0 15px}
+.dashboard-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0 21px;padding:0;list-style:none}
+.dashboard-metrics li{min-width:0;background:#fffefa;border:1px solid #d4e1d1;border-radius:9px;padding:13px}
+.dashboard-metrics strong{display:block;font:700 clamp(19px,3vw,25px)/1.3 'Segoe UI',Arial,sans-serif;color:#244638}
+.dashboard-metrics span{display:block;font-size:11px;line-height:1.5;color:#526956}
+.dashboard-links{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.program-tools{margin:25px 0 18px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.program-tools label{font-size:12px;font-weight:750;display:flex;flex-direction:column;gap:8px;flex:1 1 220px}
+.program-tools input,.program-tools select{min-height:44px;width:100%;padding:10px 12px;border:1px solid #a9c2aa;border-radius:7px;background:#fffefa;color:#244638}
+.program-tools .program-matches{font-size:12px;font-weight:700;color:#456a4e;flex:0 0 auto;margin:0 0 10px}
+.program-empty{background:#f8f4eb;padding:18px;border-radius:8px;color:#685b40;font-size:13px}
+.practice-panel{padding:clamp(17px,3vw,27px);margin:25px 0;border:2px solid #779779;border-radius:13px;background:#fffefa}
+.practice-panel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}
+.practice-panel .practice-outcome{font-size:14px;font-weight:700;color:#2d593f}
+.practice-panel .practice-prompt{font-size:17px;color:#253b30;background:#e8f0e5;border-left:4px solid #719775;border-radius:6px;padding:20px;margin:19px 0}
+.practice-panel .practice-disclaimer{color:#62745f;font-size:12px}
+.practice-panel .practice-context{background:#f4f1e9;padding:13px;border-radius:7px}
+.practice-pillar-choices{display:flex;flex-wrap:wrap;gap:9px;padding:0;margin:15px 0}
+.practice-pillar-choices button[aria-pressed="true"]{background:#244638;color:#fff;border-color:#244638}
+.practice-declarations{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:17px 0 0}
+.practice-declarations .hf-action{flex:0 1 auto}
+.practice-panel .practice-status{font-size:12px;color:#48634e;min-height:18px}
+.card-practice-actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0 9px}
+.card-practice-actions .hf-action{font-size:12px}
+.hf-library-card .hf-action+.hf-action{margin-top:2px}
+@media(max-width:660px){
+ .dashboard-metrics{grid-template-columns:1fr}
+ .practice-panel-top{flex-direction:column}
+ .practice-declarations .hf-action,.dashboard-links .hf-action{width:100%}
+ .program-tools{align-items:stretch}
+ .program-tools .program-matches{margin:0}
+}
+@media print{.journey-dashboard,.program-tools,.practice-panel,.card-practice-actions{display:none!important}}

@@ -66,13 +66,13 @@ test('FOCUS page is reachable from the THINK FIRST homepage',async()=>{
  assert.ok(page.includes('id="focus-hero-link"'));
  assert.ok(page.includes('/focus?lang=fr'));
 });
-test('V0.5 integration preserves the current twenty THINK challenges and no premature LEARN link',async()=>{
+test('V0.5 integration preserves the current twenty THINK challenges and current LEARN link',async()=>{
  const response=await fetch(base+'/api/catalog?lang=fr');
  assert.equal(response.status,200);
  const catalog=await response.json();
  assert.equal(catalog.exercises.length,20);
  const page=await (await fetch(base+'/focus')).text();
- assert.ok(!page.includes('href="/learn"'),'LEARN will be introduced in V0.6');
+ assert.ok(page.includes('id="learn-nav-link"'),'LEARN is available in the shared navigation');
  const homepage=await (await fetch(base+'/')).text();
  assert.ok(homepage.includes('id="domain-filters"'),'existing domain filters preserved');
  assert.ok(homepage.includes('id="level-filter"'),'existing difficulty filter preserved');
