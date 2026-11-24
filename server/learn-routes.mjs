@@ -2,7 +2,7 @@
 // A separate cookie prevents collisions with THINK and its recall workflow.
 // No learner-written answer is accepted, logged, persisted or sent to third parties.
 import {getLesson,syllabus,lessonForStage} from './learn-catalog.mjs';
-import {sessionReady,readSession,makeSession,tokenFor} from './session-crypto.mjs';
+import {sessionReady,readSession,makeSession,tokenFor,useSecureSessionCookie} from './session-crypto.mjs';
 
 const cookieName='hf_learn';
 const stages=new Set(['learn-study','learn-recall','learn-feedback','learn-apply','learn-finished']);
@@ -10,15 +10,11 @@ function cookieValue(req){
   const raw=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='));
   return raw ? raw.substring(cookieName.length+1) : '';
 }
-function httpsCookie(req){
-  return Boolean(req.socket.encrypted)||Boolean(process.env.VERCEL)||
-      (process.env.TRUST_PROXY==='1'&&req.headers['x-forwarded-proto']==='https');
-}
 function cookie(req,session){
-  return `${cookieName}=${tokenFor(session)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=7200${httpsCookie(req)?'; Secure':''}`;
+  return `${cookieName}=${tokenFor(session)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=7200${useSecureSessionCookie(req)?'; Secure':''}`;
 }
 function clearCookie(req){
-  return `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${httpsCookie(req)?'; Secure':''}`;
+  return `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${useSecureSessionCookie(req)?'; Secure':''}`;
 }
 function current(req){
   const session=readSession(cookieValue(req));
