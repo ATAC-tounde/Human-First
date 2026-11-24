@@ -18,6 +18,14 @@ if (configured) {
 }
 
 export function sessionReady() { return Boolean(key); }
+
+export function useSecureSessionCookie(req) {
+  // Vercel terminates HTTPS before a request reaches this function.
+  if (process.env.VERCEL) return true;
+  return Boolean(req.socket?.encrypted) ||
+    (process.env.TRUST_PROXY === '1' && req.headers['x-forwarded-proto'] === 'https');
+}
+
 export function sealSession(payload) {
   if (!key) throw new Error('session-secret-missing');
   const iv = randomBytes(12);

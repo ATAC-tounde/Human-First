@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publicCatalog, getExercise, publicTraining, localizeExercise } from './catalog.mjs';
-import { sessionReady, readSession, makeSession, tokenFor } from './session-crypto.mjs';
+import { sessionReady, readSession, makeSession, tokenFor, useSecureSessionCookie } from './session-crypto.mjs';
 import {publicPaths,enhanceCatalog,metadataFor} from './tracks.mjs';
 import {reviewTask} from './reviews.mjs';
 import {coachSettings,askCoach} from './coach.mjs';
@@ -88,16 +88,12 @@ function currentSession(req) {
   const session=readSession(cookieValue(req));
   return session && getExercise(session.exerciseId) ? session : null;
 }
-function cookieSecure(req) {
-  return Boolean(req.socket.encrypted) || Boolean(process.env.VERCEL) ||
-    (process.env.TRUST_PROXY === '1' && req.headers['x-forwarded-proto'] === 'https');
-}
 function sessionCookie(req,session) {
   const token=tokenFor(session);
-  return `hf_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=7200${cookieSecure(req)?'; Secure':''}`;
+  return `hf_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=7200${useSecureSessionCookie(req)?'; Secure':''}`;
 }
 function clearCookie(req) {
-  return `hf_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${cookieSecure(req)?'; Secure':''}`;
+  return `hf_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${useSecureSessionCookie(req)?'; Secure':''}`;
 }
 function allowMutation(req) {
   if (req.headers['x-think-first'] !== '1' || req.headers['content-type']?.split(';')[0].trim() !== 'application/json') return false;
