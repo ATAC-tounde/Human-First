@@ -192,15 +192,16 @@ test('V1.1: existing JSON import remains functional and no secrets are sent by l
  const server=await readFile(join(base,'server/index.mjs'),'utf8');
  for(const id of ['vault-panel','vault-passphrase','vault-confirm','vault-download','vault-import','vault-save-device',
   'vault-resume-device','vault-clear-device','vault-status'])assert.ok(html.includes('id="'+id+'"'),id);
- assert.match(app,/exportPortfolio\s*\(\s*registry\s*,\s*program\.generatedFor\s*,\s*events\s*,\s*\{\s*formative\s*\}\s*\)/);
- assert.match(app,/restorePortablePortfolio\s*\(\s*plain\s*,\s*registry\s*,\s*aliasManifest\s*\)/);
+ assert.ok(app.includes('exportPortfolio(registry,program.generatedFor,events,{formative,bundledLibraries:bundledReferences(importedPacks)})'));
+ assert.ok(app.includes('preparePortfolioRestore(plain,registry,importedPacks,aliasManifest,locale)'));
  assert.match(app,/\$\(['"]vault-passphrase['"]\)\.value\s*=\s*['"]{2}/);
  assert.match(app,/secret\s*!==\s*\$\(['"]vault-confirm['"]\)\.value/,'Backups require passphrase confirmation');
  assert.match(app,/readEncryptedDevice\s*\(\s*\)\s*&&\s*!window\.confirm/,'Overwriting a device backup requires confirmation');
  assert.match(app,/\$\(['"]vault-confirm['"]\)\.value\s*=\s*['"]{2}/,'Confirmation field must be cleared');
  assert.match(html,/id="vault-import-label"[^>]*tabindex="0"/,'Keyboard file import must be reachable');
  assert.match(html,/id="vault-import"[^>]*tabindex="-1"/,'The invisible native input must not add a second focus stop');
- assert.match(app,/program\s*&&\s*!window\.confirm\s*\(/,'Restoration must preserve the current work unless approved');
+ assert.ok(app.includes('if(program||importedPacks.some('),'An open journey or a replaced pack requires confirmation');
+ assert.ok(app.includes('if(confirmations.length&&!window.confirm('),'Declining restoration must preserve the current work');
  assert.ok(!/\bfetch\s*\(/.test(app.replace(/^\s*\/\/.*$/gm,'')),'No network posting of personal profile or password');
  assert.ok(!/\blocalStorage\s*[.\[]/.test(app),'No cleartext localStorage');
  for(const route of ['/journey/vault.mjs','/journey/device-vault.mjs'])assert.ok(server.includes("'"+route+"'"));

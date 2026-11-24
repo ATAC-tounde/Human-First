@@ -4,6 +4,7 @@
  * Every competency has an explicit bilingual goal and four practice activities.
  * Nothing is fetched or stored when these packs are selected.
  */
+import {everydayPack} from './everyday.mjs';
 const pair=(fr,en)=>({fr,en});
 const skill=(pack,id,title,outcome,tags,requires,steps,contexts={})=>({
  id:pack+'.'+id,title:pair(...title),outcome:pair(...outcome),tags,requires,
@@ -145,7 +146,8 @@ export const starterLibraries=Object.freeze([
   pathways:[pathway('projects','delivery',['Conduire un petit projet','Deliver a small project'],
    ['Clarifier un objectif, organiser les étapes et apprendre de l’expérience.','Clarify a goal, organize steps and learn from experience.'],
    ['projects.goal','projects.plan','projects.improve'],['work','transition','personal','higher-education'])]
- },['Une méthode simple pour passer d’une intention à des actions vérifiables.','A simple approach for turning intentions into verifiable action.'])
+ },['Une méthode simple pour passer d’une intention à des actions vérifiables.','A simple approach for turning intentions into verifiable action.']),
+ library(everydayPack,[everydayPack.pathways[0].summary.fr,everydayPack.pathways[0].summary.en])
 ]);
 
 

@@ -41,6 +41,7 @@ const publicFiles = {
   '/journey.css': ['journey.css', 'text/css; charset=utf-8'],
   '/journey/engine.mjs': ['journey/engine.mjs', 'text/javascript; charset=utf-8'],
   '/journey/libraries.mjs': ['journey/libraries.mjs', 'text/javascript; charset=utf-8'],
+  '/journey/everyday.mjs': ['journey/everyday.mjs', 'text/javascript; charset=utf-8'],
   '/journey/library-manager.mjs': ['journey/library-manager.mjs', 'text/javascript; charset=utf-8'],
   '/journey/workspace.mjs': ['journey/workspace.mjs', 'text/javascript; charset=utf-8'],
   '/journey/workspace.css': ['journey/workspace.css', 'text/css; charset=utf-8'],

@@ -7,12 +7,12 @@ import {addStarterLibrary} from '../public/journey/library-manager.mjs';
 import {createRegistry,buildJourney,exportPortfolio,importPortfolio} from '../public/journey/engine.mjs';
 import {importForEditing,validateDocument} from '../public/studio/model.mjs';
 
-test('V1.4: four original bilingual one-click libraries are valid and extend the existing curriculum',()=>{
- assert.equal(starterLibraries.length,4);
- assert.equal(new Set(starterLibraries.map(item=>item.id)).size,4);
+test('The five bilingual one-click libraries extend the existing curriculum',()=>{
+ assert.deepEqual(starterLibraries.map(item=>item.id),['digital','data-literacy','health-literacy','projects','everyday']);
+ assert.equal(new Set(starterLibraries.map(item=>item.id)).size,starterLibraries.length);
  const registry=createRegistry([...installedPacks,...starterLibraries.map(item=>item.pack)]);
- assert.equal(registry.manifests.length,installedPacks.length+4);
- assert.equal(registry.paths.size,9);
+ assert.equal(registry.manifests.length,installedPacks.length+starterLibraries.length);
+ assert.equal(registry.paths.size,10);
  for(const lib of starterLibraries){
   assert.equal(lib.origin,'human-first-demonstration');
   assert.equal(lib.audience,'18+');

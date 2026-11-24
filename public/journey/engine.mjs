@@ -205,6 +205,7 @@ export function normalizeEvidence(registry, events) {
 export function exportPortfolio(registry, rawProfile, events=[], extras={}) {
   const profile=normalizeProfile(rawProfile, registry);
   return JSON.stringify({schema:'hf.portfolio.v1',savedAt:new Date().toISOString(),catalogVersion:registry.version,
+    ...(extras.bundledLibraries===undefined?{}:{bundledLibraries:extras.bundledLibraries}),
     profile,evidence:normalizeEvidence(registry,events),
     formative:normalizeFormativeObservations(registry,extras.formative??[])}, null, 2);
 }
