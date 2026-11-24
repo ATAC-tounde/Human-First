@@ -202,10 +202,19 @@ export function normalizeEvidence(registry, events) {
     return {skillId:item.skillId,type:item.type,at:new Date(item.at).toISOString(),source:'self-declared'};
   });
 }
+/** Accept unique pack references from this catalog. The base packs may be listed redundantly by a caller. */
+export function normalizeBundledReferences(references,catalogVersion){
+  const available=new Set(catalogVersion.split('|'));
+  const message='Invalid library list in this portfolio.';
+  assert(Array.isArray(references)&&references.length<=available.size,message);
+  const distinct=new Set(references);
+  assert(distinct.size===references.length&&[...distinct].every(ref=>available.has(ref)),message);
+  return [...distinct];
+}
 export function exportPortfolio(registry, rawProfile, events=[], extras={}) {
   const profile=normalizeProfile(rawProfile, registry);
   return JSON.stringify({schema:'hf.portfolio.v1',savedAt:new Date().toISOString(),catalogVersion:registry.version,
-    ...(extras.bundledLibraries===undefined?{}:{bundledLibraries:extras.bundledLibraries}),
+    ...(extras.bundledLibraries===undefined?{}:{bundledLibraries:normalizeBundledReferences(extras.bundledLibraries,registry.version)}),
     profile,evidence:normalizeEvidence(registry,events),
     formative:normalizeFormativeObservations(registry,extras.formative??[])}, null, 2);
 }

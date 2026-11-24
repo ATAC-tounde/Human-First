@@ -11,7 +11,7 @@ import {encryptPortfolio,decryptPortfolio} from '../public/journey/vault.mjs';
 
 const base=createRegistry(installedPacks);
 const digital=starterLibraries.find(library=>library.id==='digital').pack;
-const profile={adult:true,pathId:'everyday.together',locale:'fr'};
+const profile={adult:true,pathId:'everyday.together',locale:'fr',familiarity:{'everyday.message':'exploring'}};
 const registryFor=packs=>createRegistry([...installedPacks,...packs]);
 const custom=structuredClone(everydayPack);
 custom.competencies[0].title.en='My own handover exercise';
@@ -49,6 +49,7 @@ test('JSON restores the saved library order, self-declarations and formative cri
   assert.deepEqual(restored.optionalPacks.map(packReference),packs.map(packReference));
   assert.deepEqual(restored.legacyLibraries,[]);
   assert.equal(restored.portfolio.profile.pathId,profile.pathId);
+  assert.deepEqual({...restored.portfolio.profile.familiarity},profile.familiarity);
   assert.equal(restored.portfolio.evidence[0].type,'review-later');
   assert.deepEqual(restored.portfolio.formative,JSON.parse(raw).formative);
  }
@@ -83,6 +84,7 @@ test('Unrecognized versions, malformed metadata and unknown evidence leave the o
   {catalogVersion:original.catalogVersion.replace('everyday@1.0.0','everyday@9.0.0'),bundledLibraries:['everyday@9.0.0']},
   {catalogVersion:original.catalogVersion+'|everyday@1.0.0'}, {bundledLibraries:['outside@1.0.0']},
   {bundledLibraries:'everyday@1.0.0'}, {evidence:[{...original.evidence[0],skillId:'unknown.skill'}]},
+  {profile:{...original.profile,familiarity:{'unknown.skill':'exploring'}}},
   {profile:{...original.profile,adult:false}}
  ]){
   const loaded=[];
@@ -90,6 +92,38 @@ test('Unrecognized versions, malformed metadata and unknown evidence leave the o
   assert.deepEqual(loaded,[]);
   assert.equal(base.skills.has('everyday.handover'),false);
  }
+});
+
+test('Pack object keys can be reordered but changes to a sequence or to a prompt remain personal',()=>{
+ const reordered=Object.fromEntries(Object.entries(everydayPack).reverse());
+ reordered.competencies=everydayPack.competencies.map(skill=>Object.fromEntries(Object.entries(skill).reverse()));
+ assert.deepEqual(bundledReferences([reordered]),[packReference(everydayPack)]);
+ assert.equal(preparePortfolioRestore(save([reordered]),base,[]).optionalPacks[0],everydayPack);
+ assert.deepEqual(bundledReferences([{...reordered,competencies:[...reordered.competencies].reverse()},custom]),[]);
+});
+
+test('The exporter rejects invalid library references and every accepted list survives a round trip',()=>{
+ const registry=registryFor([everydayPack]);
+ const ref=packReference(everydayPack);
+ for(const references of [null,'wrong',new Array(1),[42],[ref,ref],['unknown@1.0.0'],['everyday@9.0.0']]){
+  assert.throws(()=>exportPortfolio(registry,profile,[],{bundledLibraries:references}),/Invalid library list/);
+ }
+ for(const references of [[ref],[packReference(installedPacks[0]),ref]]){
+  const raw=exportPortfolio(registry,profile,[],{bundledLibraries:references});
+  assert.equal(preparePortfolioRestore(raw,base,[]).registry.version,registry.version);
+ }
+});
+
+test('Exact optional libraries take precedence over aliases; reviewed migrations still support retired versions',()=>{
+ const current=registryFor([everydayPack]);
+ const stale={schema:'hf.portfolio.aliases.v1',fromCatalogVersion:'other-catalog',toCatalogVersion:base.version,competencies:[],pathways:[]};
+ const raw=save([everydayPack]);
+ assert.equal(preparePortfolioRestore(raw,base,[],stale).registry.version,current.version);
+ const retired={...JSON.parse(raw),catalogVersion:base.version+'|everyday@0.9.0',bundledLibraries:['everyday@0.9.0']};
+ const approved={...stale,fromCatalogVersion:retired.catalogVersion,toCatalogVersion:current.version};
+ const restored=preparePortfolioRestore(JSON.stringify(retired),current,[everydayPack],approved);
+ assert.equal(restored.portfolio.migrated,true);
+ assert.deepEqual({...restored.portfolio.profile.familiarity},profile.familiarity);
 });
 
 test('Encrypted portfolios round-trip using the same catalog restoration as JSON',async()=>{

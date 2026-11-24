@@ -3,7 +3,7 @@
  * policy: exact catalog versions restore directly; older versions require an
  * explicit reviewed alias manifest, never heuristic or silent data loss.
  */
-import {createRegistry,importPortfolio} from './engine.mjs';
+import {createRegistry,importPortfolio,normalizeBundledReferences} from './engine.mjs';
 import {migratePortfolio} from './continuity.mjs';
 import {installedPacks} from './packs.mjs';
 import {starterLibraries} from './libraries.mjs';
@@ -44,32 +44,33 @@ export function preparePortfolioRestore(content,currentRegistry,loadedPacks,mani
  const data=readPortfolio(content);
  const base=installedPacks.map(packReference).join('|');
  const version=data.catalogVersion;
- if((manifest&&version!==currentRegistry.version)||(version!==base&&!version.startsWith(base+'|'))){
+ if(version!==base&&!version.startsWith(base+'|')){
   return {portfolio:restoreValidated(data,content,currentRegistry,manifest),registry:currentRegistry,
    optionalPacks:loadedPacks,legacyLibraries:[]};
  }
  const refs=version===base?[]:version.slice(base.length+1).split('|');
- const marked=data.bundledLibraries;
  const expected=new Set(refs);
- if(expected.size!==refs.length||refs.some(ref=>!ref)||marked!==undefined&&(!Array.isArray(marked)||
-   marked.length>refs.length||new Set(marked).size!==marked.length||marked.some(ref=>!expected.has(ref)))){
-  throw new TypeError(locale==='en'?'Invalid library list in this portfolio.':'La liste des bibliothèques du portfolio est invalide.');
+ const invalidList=locale==='en'?'Invalid library list in this portfolio.':'La liste des bibliothèques du portfolio est invalide.';
+ if(expected.size!==refs.length||refs.some(ref=>!ref))throw new TypeError(invalidList);
+ let verifiedRefs=null;
+ if(data.bundledLibraries!==undefined){
+  try{verifiedRefs=new Set(normalizeBundledReferences(data.bundledLibraries,version));}
+  catch{throw new TypeError(invalidList);}
  }
  const loaded=new Map(loadedPacks.map(pack=>[packReference(pack),pack]));
  const available=new Map(starterLibraries.map(lib=>[packReference(lib.pack),lib]));
  const optionalPacks=[];
  const legacyLibraries=[];
  const missing=[];
- const verifiedRefs=marked===undefined?null:new Set(marked);
  for(const ref of refs){
   const pack=loaded.get(ref);
   const library=available.get(ref);
   const bundled=verifiedRefs?.has(ref);
-  if(pack&&(marked===undefined||bundled===isBundledCopy(pack,library?.pack))){
+  if(pack&&(verifiedRefs===null||bundled===isBundledCopy(pack,library?.pack))){
    optionalPacks.push(pack);
-  }else if(library&&(bundled||marked===undefined)){
+  }else if(library&&(bundled||verifiedRefs===null)){
    optionalPacks.push(library.pack);
-   if(marked===undefined)legacyLibraries.push(library.pack.title[locale]);
+   if(verifiedRefs===null)legacyLibraries.push(library.pack.title[locale]);
   }else if(pack&&bundled&&!library){
    // An older official version can still be supplied explicitly by its owner.
    optionalPacks.push(pack);
@@ -79,6 +80,10 @@ export function preparePortfolioRestore(content,currentRegistry,loadedPacks,mani
   }
  }
  if(missing.length){
+  if(version!==currentRegistry.version&&manifest?.fromCatalogVersion===version&&manifest.toCatalogVersion===currentRegistry.version){
+   return {portfolio:restoreValidated(data,content,currentRegistry,manifest),registry:currentRegistry,
+    optionalPacks:loadedPacks,legacyLibraries:[]};
+  }
   const prefix=locale==='en'?'Import these original JSON libraries, then reopen your portfolio. Use a new tab if a name is already taken. ':'Importe ces bibliothèques JSON d’origine, puis rouvre ton portfolio. Utilise un nouvel onglet si un nom est déjà pris. ';
   throw new TypeError(prefix+missing.join(', '));
  }
