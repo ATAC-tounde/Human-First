@@ -34,3 +34,50 @@
  .program-tools .program-matches{margin:0}
 }
 @media print{.journey-dashboard,.program-tools,.practice-panel,.card-practice-actions{display:none!important}}
+
+.journey-entry {
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(20rem,.88fr);
+ gap:clamp(2rem,5vw,5rem);
+ align-items:center;
+ padding:clamp(2.5rem,6vw,5.5rem) 0;
+}
+.entry-copy h1 {font-size:clamp(2.6rem,5.2vw,4.5rem);margin:.8rem 0;line-height:1.08}
+.entry-copy h1 {text-wrap:balance}
+.entry-copy h1 em {color:#805035}
+.entry-copy .hero-lead {font-size:1.1rem;line-height:1.65;max-width:45ch;color:#425b4a}
+.entry-copy .eyebrow {color:#506853;font-size:.875rem}
+.entry-links {display:flex;flex-wrap:wrap;gap:.25rem 1.2rem}
+.entry-links a {display:inline-flex;align-items:center;min-height:44px;color:#28513b;text-decoration:underline;text-underline-offset:.22em;font-weight:650}
+.workshop-picker {background:#fffefa;border:1px solid #b4c4b2;padding:clamp(1.2rem,3.5vw,2.1rem);border-radius:1rem;box-shadow:0 .4rem 1.6rem #234b390b}
+.workshop-picker fieldset {padding:0;margin:0;border:0;min-width:0}
+.workshop-picker legend {font:400 clamp(1.65rem,3vw,2.1rem)/1.2 Georgia,serif;color:#244638;padding:0;margin-bottom:1rem}
+.workshop-options {display:grid;gap:.5rem}
+.workshop-choice {display:flex;align-items:center;gap:.75rem;border:1px solid #bdcbbf;border-radius:.55rem;min-height:3.2rem;padding:.65rem .85rem;color:#274633;font-weight:650;cursor:pointer;line-height:1.4}
+.workshop-choice:has(input:checked) {border-color:#315e41;box-shadow:inset 0 0 0 1px #315e41;background:#eef4eb}
+.workshop-choice:focus-within {outline:3px solid #ad623d;outline-offset:2px}
+.workshop-picker input {accent-color:#315e41;width:1.1rem;height:1.1rem;flex:none;margin:0}
+.workshop-consent {display:flex;align-items:center;gap:.65rem;min-height:44px;margin:.55rem 0;font-size:.95rem;cursor:pointer}
+.workshop-picker .hf-action {width:100%;font-size:1rem}
+.workshop-status, #resume-status {font-size:.95rem;line-height:1.5;color:#7c3527;margin:.65rem 0 0}
+.workshop-status:empty, #resume-status:empty {margin:0}
+#workshops, #builder-title, #portability-title, #vault-heading, #practice-title {scroll-margin-top:8rem}
+.practice-panel .practice-scenario {font:400 1.1rem/1.6 Georgia,serif;color:#293f30;max-width:70ch}
+.practice-navigation {margin-top:1rem}
+.portability-actions .hf-action {font-size:.95rem}
+#practice-sheet {display:none}
+@media(max-width:760px){
+ .journey-entry {grid-template-columns:minmax(0,1fr);gap:1.25rem;padding:2rem 0}
+ .entry-links {gap:0 1.2rem}
+}
+@media print {
+ .journey-entry {display:none!important}
+ body.print-practice > :not(#practice-sheet) {display:none!important}
+ body.print-practice #practice-sheet {display:block;font:11pt/1.5 Georgia,serif;color:#111;background:white;margin:0}
+ #practice-sheet h1 {color:#172e20;font:700 23pt/1.15 Georgia,serif;margin:10pt 0}
+ #practice-sheet h2 {font:700 13pt/1.25 Georgia,serif;margin:13pt 0 4pt}
+ #practice-sheet p {margin:3pt 0 8pt}
+ #practice-sheet ol {padding-left:1.35em}
+ #practice-sheet li {margin:0 0 8pt;break-inside:avoid}
+ #practice-sheet strong {font-weight:700}
+}

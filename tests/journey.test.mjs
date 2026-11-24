@@ -115,7 +115,7 @@ test('V0.8: portable, user-owned data validates self-declared events and stays v
 });
 
 test('V0.8: public static modules only; never expose private server folders',async()=>{
- for(const url of ['/journey','/journey.html','/journey.css','/journey/app.mjs','/journey/engine.mjs','/journey/packs.mjs','/journey?lang=en']){
+ for(const url of ['/journey','/journey.html','/journey.css','/journey/app.mjs','/journey/everyday.mjs','/journey/engine.mjs','/journey/packs.mjs','/journey?lang=en']){
    const response=await fetch(origin+url);
    assert.equal(response.status,200,url);
    assert.equal(response.headers.get('set-cookie'),null,url);
@@ -135,7 +135,7 @@ test('V0.8: client has no learner-profile network transmission, analytics, or au
    assert.ok(!pattern.test(clean),`Forbidden profile transport/storage: ${pattern}`);
  assert.ok(js.includes("$('adult').checked"));
  assert.ok(js.includes('exportPortfolio('));
- assert.ok(js.includes('restorePortablePortfolio('),'Restores must use strict catalog compatibility checks');
+ assert.ok(js.includes('preparePortfolioRestore('),'Restores must use strict catalog compatibility checks');
 });
 
 test('V0.8: all four pillar apps link to the voluntary journey',async()=>{

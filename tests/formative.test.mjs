@@ -106,7 +106,7 @@ test('Formative V1.0: browser interface never exports raw answers and keeps the 
   assert.ok(html.includes('id="'+id+'"'),id);
  }
  assert.ok(js.includes('makeFormativeObservation('));
- assert.ok(js.includes('exportPortfolio(registry,program.generatedFor,events,{formative})'));
+ assert.ok(js.includes('exportPortfolio(registry,program.generatedFor,events,{formative,bundledLibraries:bundledReferences(importedPacks)})'));
  assert.ok(js.includes("$('formative-answer').value=''"));
  const executable=js.replace(/^\s*\/\/.*$/gm,'');
  assert.ok(!/\bfetch\s*\(/.test(executable),'No network calls from personal learning page');

@@ -1,8 +1,14 @@
-# HUMAN FIRST - THINK FIRST 0.3
+# HUMAN FIRST — THINK FIRST
 
 > **Avant la réponse, ta réflexion.** Prototype web pédagogique indépendant — aucun compte, aucune publicité, aucune API d'IA et aucune collecte scientifique.
 
 Cette application illustre le parcours **tenter → indice(s) → explication → transfert sans aide → bilan qualitatif** prévu dans la spécification fonctionnelle et scientifique V0.1 du 18 octobre 2026.
+
+## Utiliser les ateliers du quotidien · V1.5 alpha
+
+Depuis l’accueil, **Essayer un atelier du quotidien** ouvre trois ateliers en français et en anglais. Après la confirmation 18+, choisis de transmettre un savoir-faire, de vérifier un message partagé ou de répartir l’usage d’une salle de quartier. Chaque atelier propose une situation, quatre consignes et une fiche imprimable avec une activité à refaire ailleurs. **Composer mon propre parcours** donne accès au programme personnalisable.
+
+Pour garder les étapes que tu as marquées, exporte ton portfolio ou utilise le coffre chiffré. À la prochaine visite, **Reprendre une sauvegarde** reconstitue les bibliothèques intégrées dans leur ordre d’origine. Pour un ancien portfolio, l’application peut te demander de confirmer l’origine des bibliothèques. Pour un contenu personnalisé, conserve le fichier JSON de la bibliothèque avec ton portfolio. Le document imprimé contient les consignes de l’activité. Les sauvegardes restent volontaires.
 
 ## Démarrage (Windows, macOS, Linux)
 
